@@ -1,0 +1,2 @@
+# ls *.fpk 2>/dev/null | sort -V | tail -n 1 | xargs -I {} sudo appcenter-cli install-fpk {} --env config.env
+sudo appcenter-cli uninstall EasyTier-Lite && ls *.fpk 2>/dev/null | sort -V | tail -n 1 | xargs -I {} sh -c 'echo "安装包: {}"; sudo appcenter-cli install-fpk {} --env config.env'

@@ -1,0 +1,32 @@
+hostname = ""
+instance_name = ""
+dhcp = true
+ipv4 = "10.0.0.0"
+listeners = [ "tcp://0.0.0.0:11010", "quic://0.0.0.0:11020", "udp://0.0.0.0:11010" ]
+mapped_listeners = []
+exit_nodes = []
+rpc_portal = "0.0.0.0:15888"
+tcp_whitelist = []
+udp_whitelist = []
+port_forward = []
+
+[network_identity]
+network_name = ""
+network_secret = ""
+
+[[peer]]
+uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-1.txt"
+[[peer]]
+uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-2.txt"
+[[peer]]
+uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-3.txt"
+
+[flags]
+enable_kcp_proxy = true
+enable_quic_proxy = true
+multi_thread = true
+bind_device = true
+proxy_forward_by_system = true
+disable_kcp_input = false
+private_mode = true
+disable_udp_hole_punching = false
