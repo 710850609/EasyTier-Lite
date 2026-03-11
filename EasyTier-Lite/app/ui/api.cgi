@@ -78,8 +78,5 @@ def get_peer():
     http_response(200, result)
 
 if __name__ == '__main__':
-    try:
-        get_peer()
-    except Exception as e:
-        run_cmd(f'echo {str(e)} >> /var/apps/EasyTier-Lite/var/info.log')
+    get_peer()
     

@@ -5,11 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>服务器状态表</title>
     <style>
+        /* CSS 变量定义 - 支持暗黑模式 */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #ddd;
+            --header-bg: #f2f2f2;
+            --hover-bg: #f5f5f5;
+            --local-color: #0066cc;
+            --direct-color: #009900;
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        /* 暗黑模式样式 - 系统偏好 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --text-color: #e0e0e0;
+                --border-color: #444;
+                --header-bg: #2d2d2d;
+                --hover-bg: #333333;
+                --local-color: #4da6ff;
+                --direct-color: #66ff66;
+                --shadow-color: rgba(255,255,255,0.1);
+            }
+        }
+
+        /* 手动暗黑模式类 - 强制深色 */
+        body.dark-mode {
+            --bg-color: #1a1a1a !important;
+            --text-color: #e0e0e0 !important;
+            --border-color: #444 !important;
+            --header-bg: #2d2d2d !important;
+            --hover-bg: #333333 !important;
+            --local-color: #4da6ff !important;
+            --direct-color: #66ff66 !important;
+            --shadow-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* 手动浅色模式类 - 强制浅色 */
+        body.light-mode {
+            --bg-color: #ffffff !important;
+            --text-color: #333333 !important;
+            --border-color: #ddd !important;
+            --header-bg: #f2f2f2 !important;
+            --hover-bg: #f5f5f5 !important;
+            --local-color: #0066cc !important;
+            --direct-color: #009900 !important;
+            --shadow-color: rgba(0,0,0,0.1) !important;
+        }
+
         /* 基础样式 */
         body {
             font-family: Arial, sans-serif;
             margin: 10px;
-            font-size: 16px; /* 调大字体 */
+            font-size: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 暗黑模式切换按钮 */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--header-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
         }
         
         /* 表格容器，添加水平滚动 */
@@ -22,20 +98,24 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 800px; /* 确保表格有最小宽度 */
-            border: 1px solid #ddd;
-            font-size: 16px; /* 调大表格字体 */
+            min-width: 800px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         th, td {
             text-align: left;
-            padding: 10px; /* 增加内边距 */
-            border-bottom: 1px solid #ddd;
-            white-space: nowrap; /* 防止文本换行 */
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            transition: background-color 0.3s ease;
         }
         
         th {
-            background-color: #f2f2f2;
+            background-color: var(--header-bg);
             font-weight: bold;
             position: sticky;
             top: 0;
@@ -47,27 +127,27 @@
         td:first-child {
             position: sticky;
             left: 0;
-            background-color: #f2f2f2;
+            background-color: var(--header-bg);
             z-index: 2;
             font-weight: bold;
         }
         
         /* 确保首列在hover时保持背景色 */
         tr:hover td:first-child {
-            background-color: #f5f5f5;
+            background-color: var(--hover-bg);
         }
         
         tr:hover {
-            background-color: #f5f5f5;
+            background-color: var(--hover-bg);
         }
         
         .local {
-            color: blue;
+            color: var(--local-color);
             font-weight: bold;
         }
         
         .direct {
-            color: green;
+            color: var(--direct-color);
             font-weight: bold;
         }
         
@@ -99,6 +179,12 @@
             th, td {
                 padding: 8px;
             }
+            
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -117,6 +203,52 @@
     </div>
 
     <script>
+        // 主题管理
+        class ThemeManager {
+            constructor() {
+                // this.themeToggle = document.getElementById('themeToggle');
+                this.themeIcon = document.getElementById('themeIcon');
+                this.init();
+            }
+
+            init() {
+                // 检查本地存储的主题设置
+                this.followFnOSTheme();
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'fnos-theme-mode') {
+                        this.followFnOSTheme();
+                    }
+                });
+            }
+
+            followFnOSTheme() {
+                const fnTheme = localStorage.getItem('fnos-theme-mode');
+                if (fnTheme == "10") {
+                    this.setTheme('light');
+                } else if (fnTheme == "20") {
+                    this.setTheme('dark');
+                } else {
+                    // 否则跟随系统设置
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.setTheme(prefersDark ? 'dark' : 'light');
+                }
+            }
+
+            setTheme(theme) {
+                // 清除所有主题类
+                document.body.classList.remove('light-mode', 'dark-mode');
+                
+                if (theme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                } else if (theme === 'light') {
+                    document.body.classList.add('light-mode');
+                }
+            }
+        }
+
+        // 初始化主题管理器
+        const themeManager = new ThemeManager();
+
         // 模拟API接口地址（实际使用时替换为真实接口）
         const API_URL = '/cgi/ThirdParty/EasyTier-Lite/api.cgi/';
         
