@@ -542,7 +542,7 @@
                 // 遍历服务器数据的每个属性
                 Object.keys(keyMap).forEach((key, index) => {
                     if (key == "cidr") {
-                        if (server['hostname'].startsWith("PublicServer_") && server[key] == '') {
+                        if ((server['hostname'].startsWith("PublicServer_") && server[key] == '') || (server['hostname'] == '' && server['cidr'] == '')) {
                             server[key] = "服务器";
                         }
                     } else if (key == 'tunnel_proto') {
