@@ -603,6 +603,10 @@
         }
         // 下载功能函数
         function downloadWindows() {
+            if (isInFnApp()) {
+                toast('飞牛App不支持下载，请用浏览器访问此页面重试', 'error');
+                return;
+            }
             // 模拟下载Windows版本
             const link = document.createElement('a');
             link.href = `${API_URL}download_win_package`;
@@ -611,6 +615,10 @@
         }
 
         function downloadAndroid() {
+            if (isInFnApp()) {
+                toast('飞牛App不支持下载，请用浏览器访问此页面重试', 'error');
+                return;
+            }
             const link = document.createElement('a');
             link.href = `${API_URL}download_android_package`;
             link.click();            
@@ -630,6 +638,10 @@
         }
 
         function downloadConfig() {
+            if (isInFnApp()) {
+                toast('飞牛App不支持下载，请用浏览器访问此页面重试', 'error');
+                return;
+            }
             // 创建下载链接
             const link = document.createElement('a');
             link.href = `${API_URL}download_config_file`;
