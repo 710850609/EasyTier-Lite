@@ -5,6 +5,8 @@ set -e
 source /var/apps/EasyTier-Lite/target/ui/cgi/common.sh
 
 download_win() {
+    local github_proxy_url=$(sed '/^[[:space:]]*$/d' "${GITHUB_PROXY_URL_CFG_FILE}")
+    log_msg "github_proxy_url: ${github_proxy_url}"
     local version_output=$("${BIN_DIR}/easytier-core" --version 2>&1)
     local cur_et_version=$(echo "$version_output" | grep -oP 'easytier-core \K(\d+\.\d+\.\d+)')
     local output_file="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}/easytier-manager-pro_${cur_et_version}.zip"

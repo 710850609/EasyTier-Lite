@@ -6,6 +6,7 @@ set -e
 LOG_FILE="${TRIM_PKGVAR}/cmd.log"
 BIN_DIR="${TRIM_APPDEST}/bin"
 CFG_FILE="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}/config.toml"
+GITHUB_PROXY_URL_CFG_FILE="${TRIM_APPDEST}/github_proxy_url.txt"
 
 
 log_msg() {
@@ -29,6 +30,10 @@ makesure_cfg_file() {
         run_cmd "cp -f ${TRIM_APPDEST}/default.toml ${CFG_FILE}"
         log_msg "不存在配置文件，使用默认配置: ${CFG_FILE}"
     fi
+}
+
+save_github_porxy_url() {
+    run_cmd "echo ${github_proxy_url} > ${GITHUB_PROXY_URL_CFG_FILE}"
 }
 
 update_network() {

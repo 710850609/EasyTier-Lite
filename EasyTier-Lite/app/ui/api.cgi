@@ -52,7 +52,7 @@ def run_cmd(command, *args, shell=False):
             shell=shell,
             capture_output=True,
             text=True,
-            timeout=300  # 5分钟超时
+            timeout=3600  # 1小时超时
         )
         if result.returncode == 0:
             return result.stdout.strip() if result.stdout else ""
@@ -186,7 +186,11 @@ def download_win_package():
     http_response_file(output_file)
 
 def download_android_package():
-    http_redirect('https://ghfast.top/https://github.com/EasyTier/EasyTier/releases/latest/download/app-universal-release.apk')
+    github_proxy_url = run_cmd('cat /var/apps/EasyTier-Lite/target/github_proxy_url.txt')
+    url = 'https://github.com/EasyTier/EasyTier/releases/latest/download/app-universal-release.apk';
+    if github_proxy_url != '':
+        url = github_proxy_url + '/' + url;
+    http_redirect(url)
 
 def download_config_file():
     cmd_file = '/var/apps/EasyTier-Lite/target/ui/cgi/download_config.sh'

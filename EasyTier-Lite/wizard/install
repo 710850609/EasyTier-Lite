@@ -31,6 +31,16 @@
             "message": "密码长度不能少于3位"
           }
         ]
+      },
+      {
+        "type": "text",
+        "field": "github_proxy_url",
+        "label": "GitHub加速地址",
+        "initValue": "https://ghfast.top"
+      },
+      {
+        "type": "tips",
+        "helpText": "GitHub访问加速地址，用于后续下载程序包使用"
       }
     ]
   }

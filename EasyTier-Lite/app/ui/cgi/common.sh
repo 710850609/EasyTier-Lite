@@ -11,6 +11,7 @@ TRIM_PKGTMP="${TRIM_PKGTMP:-/var/apps/${TRIM_APPNAME}/tmp}"
 LOG_FILE="${TRIM_PKGVAR}/cgi.log"
 BIN_DIR="${TRIM_APPDEST}/bin"
 CFG_FILE="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}/config.toml"
+GITHUB_PROXY_URL_CFG_FILE="${TRIM_APPDEST}/github_proxy_url.txt"
 
 
 log_msg() {

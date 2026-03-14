@@ -6,6 +6,7 @@ set -e
 source /var/apps/${TRIM_APPNAME}/cmd/common.sh
 
 makesure_cfg_file
+save_github_porxy_url
 update_network
 
 exit 0
