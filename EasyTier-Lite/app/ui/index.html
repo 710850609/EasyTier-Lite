@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>组网节点</title>
     <script type="module" crossorigin src="/cgi/ThirdParty/EasyTier-Lite/index.cgi/assets/index-Dkg-eJYH.js"></script>
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
     <style>
         /* CSS 变量定义 - 支持暗黑模式 */
         :root {
@@ -417,6 +418,7 @@
     </div>
 
     <script>
+        new window.VConsole();
         function test() {            
             const fnTheme = localStorage.getItem('fnos-theme-mode');
             const appTheme = document.body.getAttribute('theme-mode');
@@ -587,7 +589,7 @@
             button.innerHTML = loadingHTML;
             
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {redirect: 'follow'});
                 
                 // 检查响应类型
                 const contentType = response.headers.get('content-type');

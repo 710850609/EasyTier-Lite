@@ -1,3 +1,4 @@
 temp
 *.fpk
 peers/.venv
+EasyTier-Lite/app/bin/*
