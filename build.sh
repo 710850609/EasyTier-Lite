@@ -49,14 +49,16 @@ if [ "${arch}" == "x86_64" ]; then
     platform="x86"
     et_platform="x86_64"
     os_min_version="1.1.8"
+    py_platform="manylinux_2_34_x86_64"
 elif [ "${arch}" == "aarch64" ]; then
     platform="arm"
     et_platform="aarch64"
     os_min_version="1.0.2"
-# elif [ "${arch}" == "linux-riscv64" ]; then
-#     platform="risc-v"
-#     echo "脚本不支持riscv64"
-#     exit 1
+    py_platform="manylinux_2_34_aarch64"
+elif [ "${arch}" == "linux-riscv64" ]; then
+    platform="riscv64"
+    py_platform="manylinux_2_34_riscv64"
+    os_min_version="1.0.0"
 else
     echo "不支持的 arch 参数"
     exit 1
@@ -64,7 +66,44 @@ fi
 echo "设置 platform 为: ${platform}"
 echo "---------------------------------------"
 
-get_ET_LATEST_VERSION() {
+compiling_server() {
+    echo "下载py依赖"
+    rm -rf EasyTier-Lite/app/server 
+    mkdir -p EasyTier-Lite/app/server/wheels
+    pip download \
+        --only-binary=:all: \
+        --platform $py_platform \
+        --python-version 311 \
+        -r server/requirements.txt \
+        -d EasyTier-Lite/app/server/wheels
+        
+    # 下载 wheel 到本地
+    app_script_path="EasyTier-Lite/app/server/"
+    echo "写入脚本到app"
+    rsync -a --exclude='.venv' --exclude='__pycache__' server/ "${app_script_path}"
+}
+
+compiling_frontend() {
+    echo '编译前端...'
+    if ! command -v node &> /dev/null; then
+        echo "当前环境未找到 node 命令，设置 node 环境..."
+        node_ver=24
+        export PATH="/var/apps/nodejs_v$node_ver/target/bin:$PATH"
+        if ! command -v node &> /dev/null; then
+            echo "nodejs ${node_ver} 不存在"
+            exit 1
+        fi
+        echo "已设置 node ${node_ver} 环境"
+    fi
+    echo "使用node版本: $(node -v)"
+    cd frontend
+    npm run build
+    cd ../
+    cp -rf frontend/dist/* EasyTier-Lite/app/ui/
+    echo '编译并拷贝到app/ui目录'
+}
+
+get_et_latest_version() {
     local arch_type=$1
     local latest_release=$(curl -s https://api.github.com/repos/EasyTier/EasyTier/releases/latest)
     if [ -z "$latest_release" ]; then
@@ -189,8 +228,9 @@ build_fpk() {
     echo "打包完成: ${fpk_name}"
 }
 
-
-get_ET_LATEST_VERSION $arch
+compiling_server
+compiling_frontend
+get_et_latest_version $arch
 download_et
 update_app
 build_fpk

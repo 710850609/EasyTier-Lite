@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import subprocess
-import json
 import os
 import sys
-from urllib.parse import quote
 import logging
+import importlib
 
 
 logging.basicConfig(
@@ -17,137 +15,26 @@ logging.basicConfig(
     filemode='a'  # 'a'追加，'w'覆盖
 )
 
-def run_cmd(command, *args, shell=False):
-    """
-    执行命令并返回 JSON 格式结果
-    
-    Args:
-        command: 命令（字符串或列表）
-        *args: 命令参数（当 command 为字符串时）
-        shell: 是否使用 shell 执行
-    
-    Returns:
-        JSON 字符串: {"code": 状态码, "stdout": 标准输出, "stderr": 错误输出, "success": 是否成功}
-    """
-    try:
-        logging.debug(f"执行命令: {command} {' '.join(args)}")
-        # 构建命令列表
-        if shell:
-            # shell 模式：合并为字符串
-            if args:
-                full_command = f"{command} {' '.join(args)}"
-            else:
-                full_command = command
-            cmd = full_command
-        else:
-            # 非 shell 模式：使用列表
-            if args:
-                cmd = [command] + list(args)
-            else:
-                cmd = command if isinstance(command, list) else command.split()
-        
-        # 执行命令
-        result = subprocess.run(
-            cmd,
-            shell=shell,
-            capture_output=True,
-            text=True,
-            timeout=3600  # 1小时超时
-        )
-        if result.returncode == 0:
-            return result.stdout.strip() if result.stdout else ""
-        raise Exception(f"执行命令错误：{command}")
-    except subprocess.TimeoutExpired:
-        logging.error(f"命令执行超时: {command}",  exc_info=True)
-        raise Exception(f"命令执行超时: {command}")
-    except Exception as e:
-        logging.error(f"命令执行异常: {command}",  exc_info=True)
-        raise Exception(f"命令执行异常") from e
+# # 激活server虚拟环境
+venv_path = os.path.join(os.path.dirname(__file__), '..', 'server', '.venv')
+venv_path = os.path.abspath(venv_path)
+python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
+site_packages = os.path.join(venv_path, 'lib', python_version, 'site-packages')
+if os.path.exists(site_packages):
+    sys.path.insert(0, site_packages)
+    bin_path = os.path.join(venv_path, 'bin')
+    if os.path.exists(bin_path):
+        os.environ['PATH'] = bin_path + ':' + os.environ.get('PATH', '')
+else:
+    logging.error(f"找不到python依赖: {site_packages}")    
 
-def http_response(status_code, data):
-    """
-    返回JSON格式的HTTP响应
-    """
-    print(f"Status: {status_code}")
-    print("Content-Type: application/json; charset=utf-8")
-    print("")
-    print(json.dumps(data, ensure_ascii=False))
-    sys.exit(0)
+# 添加server目录到Python路径
+server_path = os.path.join(os.path.dirname(__file__), '..', 'server')
+if server_path not in sys.path:
+    sys.path.insert(0, server_path)
+import util.http_util as http_util
 
-def http_response_ok(data):
-    http_response(200, {"code": 0, "data": data})
-
-def http_response_error(data, status_code=200):
-    http_response(status_code, {"code": -1, "data": data})
-
-
-def http_response_file(file_path, mime_type="application/octet-stream", filename=None):
-    """CGI 文件下载响应"""
-    
-    logging.info(f"下载文件： {file_path}")
-    # 检查文件
-    if not os.path.isfile(file_path):
-        http_response_error("File Not Found: " + file_path)
-        return
-    
-    # 文件名处理
-    if not filename:
-        filename = os.path.basename(file_path)
-    
-    # RFC 5987 编码（只编码非 ASCII）
-    try:
-        filename.encode('ascii')
-        # 纯 ASCII，简单处理
-        disposition = f'attachment; filename="{filename}"'
-    except UnicodeEncodeError:
-        # 含中文，需要编码
-        encoded = quote(filename, safe='')
-        # 同时提供 filename 和 filename* 兼容所有浏览器
-        ascii_name = filename.encode('ascii', 'ignore').decode().replace('"', '')
-        disposition = f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{encoded}'
-    
-    # 文件大小
-    file_size = os.path.getsize(file_path)
-    
-    # ===== 关键：必须先发送状态头 =====
-    sys.stdout.buffer.write(b"Status: 200 OK\r\n")
-    sys.stdout.buffer.write(f"Content-Type: {mime_type}\r\n".encode())
-    sys.stdout.buffer.write(f"Content-Disposition: {disposition}\r\n".encode())
-    sys.stdout.buffer.write(f"Content-Length: {file_size}\r\n".encode())
-    sys.stdout.buffer.write(b"\r\n")  # 头结束空行
-    sys.stdout.buffer.flush()
-    
-    # 流式发送文件
-    try:
-        with open(file_path, "rb") as f:
-            while True:
-                chunk = f.read(65536)  # 64KB 块
-                if not chunk:
-                    break
-                sys.stdout.buffer.write(chunk)
-                sys.stdout.buffer.flush()
-    except BrokenPipeError:
-        pass  # 客户端断开
-    except Exception as e:
-        logging.error(f"Send file error: {e}\n")
-        sys.stderr.write(f"Send file error: {e}\n")
-    
-    sys.exit(0)  # 确保 CGI 结束
-
-def http_redirect(url, status_code=302):
-    """
-    重定向到下载URL
-    
-    Args:
-        url: 下载文件的URL地址
-        status_code: HTTP状态码，默认为302临时重定向，也可用301永久重定向
-    """
-    print(f"Status: {status_code}")
-    print(f"Location: {url}")
-    print("Content-Type: text/html; charset=utf-8")
-    print("")
-
-def http_handle():  
+def http_handle():
     request_uri = os.environ.get('REQUEST_URI', '')
     query_string = os.environ.get('QUERY_STRING', '')
     if 'api.cgi' in request_uri:
@@ -163,46 +50,24 @@ def http_handle():
     else:
         path_info = os.environ.get('PATH_INFO', '/')
 
-    if path_info == '/peer':
-        get_peer()
-    elif path_info == '/download_win_package':
-        download_win_package()
-    elif path_info == '/download_android_package':
-        download_android_package()
-    elif path_info == '/download_config_file':
-        download_config_file()
-    else:
-        http_response_error("Not Found: " + path_info, 404)
-
-
-def get_peer():
-    result = run_cmd('/var/apps/EasyTier-Lite/target/bin/easytier-cli --output json peer')
-    peer_list = json.loads(result)
-    http_response_ok(peer_list)
-
-def download_win_package():
-    cmd_file = '/var/apps/EasyTier-Lite/target/ui/cgi/download_win.sh'
-    output_file = run_cmd(f"{cmd_file}")
-    http_response_file(output_file)
-
-def download_android_package():
-    github_proxy_url = run_cmd('cat /var/apps/EasyTier-Lite/target/github_proxy_url.txt')
-    url = 'https://github.com/EasyTier/EasyTier/releases/latest/download/app-universal-release.apk';
-    if github_proxy_url != '':
-        url = github_proxy_url + '/' + url;
-    http_redirect(url)
-
-def download_config_file():
-    cmd_file = '/var/apps/EasyTier-Lite/target/ui/cgi/download_config.sh'
-    output_file = run_cmd(f"{cmd_file}")
-    http_response_file(output_file, filename='et-fn.toml')
-
+    path_params = path_info.split('/')
+    logging.debug(f"{path_params}")
+    if len(path_params) != 3:
+        raise AssertionError(f'请求路径有误: {path_info}')
+    
+    module_name = f"action.{path_params[1]}"
+    function_name = path_params[2]
+    module = importlib.import_module(module_name)
+    func = getattr(module, function_name)
+    func()
+   
 
 if __name__ == '__main__':
     try:
         http_handle()
+    except AssertionError as e:
+        logging.error(f"请求有误",  exc_info=True)
+        http_util.http_response_error(f"{str(e)}", 200)
     except Exception as e:
         logging.error(f"CGI服务异常",  exc_info=True)
-        http_response_error(f"CGI服务异常: {str(e)}", 500)
-
-    
+        http_util.http_response_error(f"CGI服务异常: {str(e)}", 200)

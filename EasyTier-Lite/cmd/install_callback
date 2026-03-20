@@ -5,8 +5,17 @@ set -e
 
 source /var/apps/${TRIM_APPNAME}/cmd/common.sh
 
+active_py() {
+    log_msg "创建虚拟环境"
+    run_cmd "/usr/bin/python3 -m venv ${SCRIPT_PATH}/.venv"
+    log_msg "安装离线依赖"
+    run_cmd "${SCRIPT_PATH}/.venv/bin/pip install --no-index --find-links=${SCRIPT_PATH}/wheels -r ${SCRIPT_PATH}/requirements.txt"
+}
+
+active_py
 makesure_cfg_file
 save_github_porxy_url
 update_network
+
 
 exit 0

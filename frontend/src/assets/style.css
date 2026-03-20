@@ -1,0 +1,32 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-body);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+  padding: 16px;
+}
+
+:root {
+  --bg-body: #f5f7fb;
+  --bg-card: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: #f0f2f5;
+  --header-bg: #ffffff;
+  --header-border: #f0f2f5;
+  --table-header-bg: #f8fafc;
+  --table-header-text: #1e293b;
+  --table-row-hover: #f1f5f9;
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #e2e8f0;
+  --btn-secondary-text: #475569;
+  --status-online: #10b981;
+  --status-offline: #ef4444;
+}
