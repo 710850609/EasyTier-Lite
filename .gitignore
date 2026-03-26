@@ -1,6 +1,7 @@
 temp
 *.fpk
 *.log
+*.zip
 EasyTier-Lite/app/bin/*
 EasyTier-Lite/app/ui/assets
 EasyTier-Lite/app/ui/index.html

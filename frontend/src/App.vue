@@ -1,124 +1,133 @@
 <template>
-  <div class="app-container">
-    <!-- 内容区域 -->
-    <div class="content-wrapper">
-      <component :is="currentComponent" />
-    </div>
-
-    <!-- 标签页 - 固定在底部 -->
-    <div class="tabs-wrapper">
-       <var-bottom-navigation v-model:active="activeTab" active-color="var(--color-primary)">
-        <var-bottom-navigation-item name="nodes" label="节点" icon="format-list-checkbox" />
-        <var-bottom-navigation-item name="config" label="配置" icon="bookmark" />
-        <var-bottom-navigation-item name="download" label="下载" icon="download" />
-        <var-bottom-navigation-item name="setting" label="设置" icon="cog" />
-      </var-bottom-navigation>
-    </div>
-    
-  </div>
+  <Layout />
 </template>
 
 <script setup>
-import { shallowRef, onMounted, onUnmounted, watch } from 'vue'
-import { Snackbar, StyleProvider, Themes } from '@varlet/ui'
-
-// 允许同时显示多个消息条
-Snackbar.allowMultiple(true)
-const activeTab = shallowRef('nodes')
-const currentComponent = shallowRef(null)
-
-// 动态导入组件
-const loadComponent = async (tab) => {
-  switch (tab) {
-    case 'nodes':
-      const { default: NodesTab } = await import('./components/NodesTab.vue')
-      currentComponent.value = NodesTab
-      break
-    case 'config':
-      const { default: ConfigTab } = await import('./components/ConfigTab.vue')
-      currentComponent.value = ConfigTab
-      break
-    case 'download':
-      const { default: DownloadTab } = await import('./components/DownloadTab.vue')
-      currentComponent.value = DownloadTab
-      break
-    case 'setting':
-      const { default: SettingTab } = await import('./components/SettingTab.vue')
-      currentComponent.value = SettingTab
-      break
-    default:
-      currentComponent.value = null
-  }
-}
-
-// 监听标签页变化
-watch(activeTab, (newTab) => {
-  loadComponent(newTab)
-})
-
-const changeTheme = (theme) => {
-  if (theme === 'dark') {
-    console.log('md3Dark')
-    StyleProvider(Themes.md3Dark)
-    document.body.classList.remove('light-mode')
-    document.body.classList.add('dark-mode')
-  } else {
-    StyleProvider(Themes.md3Light)
-    // StyleProvider(null)
-    document.body.classList.remove('dark-mode')
-    document.body.classList.add('light-mode')
-  }
-}
-
-onMounted(async () => {
-  new FnThemeListener((themeMode) => changeTheme(themeMode));
-  // 初始加载第一个组件
-  loadComponent(activeTab.value)
-})
-
-onUnmounted(() => {
-})
+import Layout from './components/Layout.vue'
 </script>
 
-<style scoped>
-  .app-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    height: 96vh;
-  }
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  .content-wrapper {
-    flex: 1;
-    overflow: auto;
-    padding: 0 0px;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--color-body);
+  color: var(--color-text);
+  transition: background-color 0.3s, color 0.3s;
+}
 
-  .tabs-wrapper {
-    flex-shrink: 0;
-    padding: 12px;
-    border-top: 1px solid var(--color-outline);
-    background: var(--color-body);
-  }
+/* 全局滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-  @media (max-width: 767px) {
-    .app-container {
-      height: 100vh;
-    }
+::-webkit-scrollbar-track {
+  background: var(--color-surface-container-low);
+  border-radius: 4px;
+}
 
-    .tabs-wrapper {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      background: var(--color-body);
-      border-top: 1px solid var(--color-outline);
-    }
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline);
+  border-radius: 4px;
+}
 
-    .content-wrapper {
-      padding-bottom: 80px;
-    }
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-on-surface-variant);
+}
+
+/* MD3 主题变量适配 */
+:root {
+  --app-primary: var(--color-primary);
+}
+
+/* 隐藏 Snackbar 图标 */
+.var-snackbar__icon {
+  display: none !important;
+}
+
+/* ========== Varlet 组件全局样式适配 ========== */
+
+/* var-select 下拉框样式适配 */
+.var-select__control {
+  background: var(--color-surface-container) !important;
+  color: var(--color-on-surface) !important;
+}
+
+.var-select__label {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.var-select__placeholder {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.var-select__menu {
+  background: var(--color-surface-container) !important;
+  /* 覆盖 Varlet option 的文字颜色变量 */
+  --option-text-color: var(--color-on-surface);
+  --option-selected-background: var(--color-primary-container);
+}
+
+.var-option {
+  color: var(--color-on-surface) !important;
+}
+
+.var-option--selected {
+  background: var(--color-primary-container) !important;
+  color: var(--color-on-primary-container) !important;
+}
+
+.var-option:hover {
+  background: var(--color-surface-container-high) !important;
+}
+
+/* var-tabs 样式适配 */
+.var-tabs {
+  background: transparent !important;
+}
+
+.var-tab {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.var-tab--active {
+  color: var(--color-primary) !important;
+}
+
+.var-tabs-indicator {
+  background: var(--color-primary) !important;
+}
+
+/* var-checkbox 文字颜色适配 */
+.var-checkbox__text {
+  color: var(--color-on-surface) !important;
+}
+
+.var-checkbox--disabled .var-checkbox__text {
+  color: var(--color-on-surface-variant) !important;
+}
+
+/* var-paper 背景适配 */
+.var-paper {
+  background: var(--color-surface-container) !important;
+}
+
+/* var-popup 背景适配 */
+.var-popup__content {
+  background: var(--color-surface-container) !important;
+}
+
+/* var-cell 样式适配 */
+.var-cell {
+  color: var(--color-on-surface) !important;
+}
+
+.var-cell__description {
+  color: var(--color-on-surface-variant) !important;
+}
 </style>
