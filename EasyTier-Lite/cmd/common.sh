@@ -27,7 +27,8 @@ run_cmd() {
 
 makesure_cfg_file() {
     log_msg "检查配置文件: ${CFG_FILE}"
-    if [ ! -f ${CFG_FILE} ]; then        
+    if [ ! -f ${CFG_FILE} ]; then
+        run_cmd "mkdir $(dirname ${CFG_FILE})"
         run_cmd "cp -f ${TRIM_APPDEST}/default.toml ${CFG_FILE}"
         log_msg "不存在配置文件，使用默认配置: ${CFG_FILE}"
     fi
