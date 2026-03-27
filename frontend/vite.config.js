@@ -1,83 +1,26 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
+import { resolve } from 'path'
 
-export default defineConfig({
-  base: './',
-  plugins: [
-    vue(),
-    Components({
-      dirs: ['src/components'],
-      extensions: ['vue'],
-      deep: true,
-      dts: true,
-      directoryAsNamespace: true,
-      globalNamespaces: ['components'],
-      include: [/\.vue$/, /\.vue\?vue/],
-      exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.vscode[\\/]/],
-    }),
-    AutoImport({
-      imports: [
-        'vue',
-        {
-          '@varlet/ui': [
-            'Snackbar',
-            'Dialog',
-            'StyleProvider',
-            'Themes',
-            'Button',
-            'Cell',
-            'Tabs',
-            'Tab',
-            'BottomNavigation',
-            'BottomNavigationItem',
-            'MenuSelect',
-            'Select',
-            'TextField',
-            'Switch',
-            'Slider',
-            'Rate',
-            'ColorPicker',
-            'DatePicker',
-            'TimePicker',
-            'Upload',
-            'ImagePreview',
-            'Image',
-            'Avatar',
-            'Badge',
-            'Chip',
-            'Progress',
-            'Skeleton',
-            'Loading',
-            'Toast',
-            'Popup',
-            'Dialog',
-            'Snackbar',
-            'PullRefresh',
-            'Swipe',
-            'SwipeItem',
-            'Stepper',
-            'NumberKeyboard',
-            'Stepper',
-            'Steps',
-            'Card',
-            'List',
-            'Cell',
-            'Icon',
-            'App',
-          ],
-        },
-      ],
-      dts: true,
-      dirs: ['src'],
-      include: [/\.vue$/, /\.vue\?vue/],
-      exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.vscode[\\/]/],
-    }),
-  ],
+// 生产环境配置
+const BASE = '/cgi/ThirdParty/EasyTier-Lite/index.cgi'
+const API_BASE = '/cgi/ThirdParty/EasyTier-Lite/api.cgi'
+
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? BASE : './',
+  plugins: [vue()],
+  define: {
+    // 注入 API 基础路径（统一使用生产路径）
+    __API_BASE__: JSON.stringify(API_BASE)
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  },
   server: {
-    host: '0.0.0.0',
     port: 5173,
+    host: "0.0.0.0",
     proxy: {
       '/cgi': {
         target: 'https://192.168.220.3:5667',
@@ -85,6 +28,7 @@ export default defineConfig({
         secure: false,
         configure: (proxy, options) => {
           proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.setHeader('authorization', 'trim YY4sNSPpxGn4rTIFKlFIUHXSZdcYBqrqX98ykhO7890=')
             console.log('Proxying to:', options.target + req.url)
           })
           proxy.on('error', (err, req, res) => {
@@ -93,5 +37,5 @@ export default defineConfig({
         },
       },
     },
-  },
-})
+  }
+}))
