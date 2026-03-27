@@ -5,7 +5,6 @@
 
 // VConsole 相关
 export const VCONSOLE_ENABLED_KEY = 'easytier-vconsole-enabled'
-export const VCONSOLE_CODE_KEY = 'easytier-vconsole-code'
 
 // 主题相关
 export const THEME_MODE_KEY = 'easytier-theme'

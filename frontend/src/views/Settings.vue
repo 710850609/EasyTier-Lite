@@ -75,9 +75,9 @@
           <div>EasyTier 在飞牛上简化使用的版本，更合适新手简单上手使用，简记：易组网。</div>
           <var-divider />
           <div>
-            <p><a href="https://github.com/710850609/fpk-easytier-lite" target="_blank">易组网源码</a></p>
-            <p><a href="https://github.com/easyTier/easytier" target="_blank">EasyTier源码</a></p>
-            <p><a href="https://easytier.cn/" target="_blank">EasyTier文档</a></p>
+            <p><var-link type="primary" href="https://github.com/710850609/fpk-easytier-lite" target="_blank">易组网 源码</var-link></p>
+            <p><var-link type="primary" href="https://github.com/easyTier/easytier" target="_blank">EasyTier 源码</var-link></p>
+            <p><var-link type="primary" href="https://easytier.cn/" target="_blank">EasyTier 文档</var-link></p>
           </div>
         </template>
       </var-cell>
@@ -88,92 +88,45 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { themeOptions, setThemeMode, themeMode } from '../config/theme.js'
-import { VCONSOLE_ENABLED_KEY, VCONSOLE_CODE_KEY } from '../config/storage-keys.js'
+import { VCONSOLE_ENABLED_KEY } from '../config/storage-keys.js'
 import toast from '../components/toast.js'
 
 const vConsoleEnabled = ref(false)
+const vConsoleInstance = ref(null)
 
 // 计算当前主题模式（从 theme.js 获取）
 const currentThemeMode = computed(() => themeMode.value)
-const VCONSOLE_URL = 'https://unpkg.com/vconsole@latest/dist/vconsole.min.js'
 
-// 设置对象（网络加速不存 localStorage）
-// const settings = ref({
-//   vconsole: false,
-//   github_mirror: 'https://ghproxy.com/https://github.com'
-// })
-
-const githubMirrors = [
-  { label: 'GhProxy', value: 'https://ghproxy.com/https://github.com' },
-  { label: 'FastGit', value: 'https://hub.fastgit.xyz' },
-  { label: 'GitHub 原始', value: 'https://github.com' },
-  { label: 'jsDelivr', value: 'https://cdn.jsdelivr.net/gh' }
-]
-
-// 从 localStorage 加载 VConsole 代码
-const loadVConsoleFromStorage = () => {
-  const storedCode = localStorage.getItem(VCONSOLE_CODE_KEY)
-  if (storedCode) {
-    try {
-      const script = document.createElement('script')
-      script.textContent = storedCode
-      document.body.appendChild(script)
-      
-      if (window.VConsole) {
-        window.vConsole = new window.VConsole()
-        return true
-      }
-    } catch (error) {
-      console.error('加载本地 VConsole 失败:', error)
-      localStorage.removeItem(VCONSOLE_CODE_KEY)
-    }
-  }
-  return false
-}
-
-// 下载并缓存 VConsole
-const downloadAndCacheVConsole = async () => {
-  const loading = toast.loading('正在下载 VConsole...')
+// 加载 VConsole（动态导入）
+const loadVConsole = async () => {
   try {
-    const response = await fetch(VCONSOLE_URL)
-    const code = await response.text()
-    
-    localStorage.setItem(VCONSOLE_CODE_KEY, code)
-    
-    const script = document.createElement('script')
-    script.textContent = code
-    document.body.appendChild(script)
-    
-    if (window.VConsole) {
-      window.vConsole = new window.VConsole()
-      toast.success('VConsole 已下载并启用')
-    } else {      
-      toast.error('加载 VConsole 失败，请重试')
-    }
+    const VConsole = await import('vconsole')
+    vConsoleInstance.value = new VConsole.default()
+    return true
   } catch (error) {
-    console.error('下载 VConsole 失败:', error)
-    toast.error('下载 VConsole 失败，请检查网络连接')
-    localStorage.setItem(VCONSOLE_ENABLED_KEY, 'false')
-  } finally {
-    loading.clear()
+    console.error('加载 VConsole 失败:', error)
+    return false
   }
 }
 
 // 切换 VConsole
 const toggleVConsole = async (val) => {
   // 保存开关状态
-  localStorage.setItem(VCONSOLE_ENABLED_KEY, val ? 'true' : 'false')  
+  localStorage.setItem(VCONSOLE_ENABLED_KEY, val ? 'true' : 'false')
+
   if (val) {
-    const loaded = loadVConsoleFromStorage()
-    if (!loaded) {
-      await downloadAndCacheVConsole()
+    const loaded = await loadVConsole()
+    if (loaded) {
+      toast.success('VConsole 已开启')
     } else {
-      toast.success(`VConsole 已开启`)
+      toast.error('加载 VConsole 失败')
+      vConsoleEnabled.value = false
+      localStorage.setItem(VCONSOLE_ENABLED_KEY, 'false')
     }
   } else {
-    if (window.vConsole) {
-      window.vConsole.destroy()
-      window.vConsole = null
+    if (vConsoleInstance.value) {
+      vConsoleInstance.value.destroy()
+      vConsoleInstance.value = null
     }
     toast.success('VConsole 已关闭')
   }
@@ -181,7 +134,13 @@ const toggleVConsole = async (val) => {
 
 onMounted(() => {
   // 从 localStorage 加载 VConsole 开关状态
-  vConsoleEnabled.value = localStorage.getItem(VCONSOLE_ENABLED_KEY) === 'true'
+  const enabled = localStorage.getItem(VCONSOLE_ENABLED_KEY) === 'true'
+  vConsoleEnabled.value = enabled
+
+  // 如果之前开启过，自动加载
+  if (enabled) {
+    loadVConsole()
+  }
 })
 </script>
 

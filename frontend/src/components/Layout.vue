@@ -27,7 +27,7 @@ import SideMenu from './SideMenu.vue'
 import BottomNav from './BottomNav.vue'
 import { componentMap } from '../config/menu.js'
 import { isDark } from '../config/theme.js'
-import { VCONSOLE_ENABLED_KEY, VCONSOLE_CODE_KEY } from '../config/storage-keys.js'
+import { VCONSOLE_ENABLED_KEY } from '../config/storage-keys.js'
 import Empty from '../views/Empty.vue'
 
 const isMobile = ref(window.innerWidth < 768)
@@ -57,26 +57,17 @@ const handleResize = () => {
   isMobile.value = window.innerWidth < 768
 }
 
-// 从 localStorage 加载 VConsole
-const loadVConsole = () => {
+// 从 localStorage 加载 VConsole（动态导入）
+const loadVConsole = async () => {
   const vconsoleEnabled = localStorage.getItem(VCONSOLE_ENABLED_KEY)
   if (vconsoleEnabled !== 'true') return
-  
-  const storedCode = localStorage.getItem(VCONSOLE_CODE_KEY)
-  if (!storedCode) return
-  
+
   try {
-    const script = document.createElement('script')
-    script.textContent = storedCode
-    document.body.appendChild(script)
-    
-    if (window.VConsole) {
-      window.vConsole = new window.VConsole()
-      console.log('VConsole 已从本地缓存加载')
-    }
+    const VConsole = await import('vconsole')
+    new VConsole.default()
+    console.log('VConsole 已加载')
   } catch (error) {
     console.error('加载 VConsole 失败:', error)
-    localStorage.removeItem(VCONSOLE_CODE_KEY)
     localStorage.setItem(VCONSOLE_ENABLED_KEY, 'false')
   }
 }

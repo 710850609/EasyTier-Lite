@@ -5,7 +5,7 @@ import { resolve } from 'path'
 // 生产环境配置
 const BASE = '/cgi/ThirdParty/EasyTier-Lite/index.cgi'
 const API_BASE = '/cgi/ThirdParty/EasyTier-Lite/api.cgi'
-const fnosToken = 'TZV9NdHmxWnJkgA97LmkKxCV+u7bui1Hy2iZG0DTuC0='
+const fnosToken = 'k/8Qbvscxmlur9xYlceJUssSS7ho0AM7CN4r/qM6p9U='
 
 export default defineConfig(({ mode }) => ({
   base: mode === 'production' ? BASE : './',

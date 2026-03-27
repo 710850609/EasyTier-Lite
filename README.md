@@ -6,3 +6,4 @@
 # 其他链接
 - <a href="https://github.com/EasyTier/EasyTier">EasyTier源码</a>
 - <a href="https://easytier.cn">EasyTier文档</a>
+- <a href="https://www.varletjs.com/#/zh-CN">Varlet文档</a>
