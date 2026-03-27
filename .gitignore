@@ -1,6 +1,8 @@
 temp
+temp.json
 *.fpk
 *.log
+*.zip
 EasyTier-Lite/app/bin/*
 EasyTier-Lite/app/ui/assets
 EasyTier-Lite/app/ui/index.html
@@ -23,6 +25,9 @@ frontend/lerna-debug.log*
 frontend/node_modules
 frontend/dist
 frontend/dist-ssr
+frontend/auto-imports.d.ts
+frontend/components.d.ts
+
 *.local
 # Editor directories and files
 frontend/.vscode

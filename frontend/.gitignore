@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Auto-generated type declaration files
+auto-imports.d.ts
+components.d.ts

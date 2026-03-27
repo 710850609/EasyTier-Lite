@@ -1,0 +1,10 @@
+# 自动处理换行符
+* text=auto eol=lf
+
+# 确保脚本文件使用 LF
+*.sh text eol=lf
+*.bash text eol=lf
+
+# 确保 Windows 批处理文件使用 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 BUILD_VERSION=01
 ET_LATEST_VERSION="unknown"
 ET_DOWNLOAD_URL="unknown"
@@ -97,6 +99,7 @@ compiling_frontend() {
     fi
     echo "使用node版本: $(node -v)"
     cd frontend
+    npm install
     npm run build
     cd ../
     cp -rf frontend/dist/* EasyTier-Lite/app/ui/
@@ -134,7 +137,7 @@ get_et_latest_version() {
     echo "EasyTier最新版本下载地址: $ET_DOWNLOAD_URL"
 }
 
-get_ET_VERSION() {
+get_et_version() {
     if [ "${arch}" != "$(uname -m)" ]; then
         echo "非当前系统架构，跳过获取已安装EasyTier版本"
         ET_VERSION=$ET_LATEST_VERSION
@@ -189,7 +192,7 @@ update_app() {
     bash -c "cp -rf ${temp_dir}/easytier-linux-${et_platform}/easytier-core ${bin_dir}" 2>&1
     bash -c "cp -f default.toml $(dirname ${bin_dir})" 2>&1
     echo "更新应用文件完成"
-    get_ET_VERSION
+    get_et_version
     jq ".[0].items |= map(if .field == \"et_version\" then .initValue = \"$ET_VERSION\" else . end)" EasyTier-Lite/wizard/config > temp.json \
     && mv temp.json EasyTier-Lite/wizard/config || echo "更新 wizard config 失败"
     echo "更新配置向导中的EasyTier版本号为: ${ET_VERSION}"
@@ -199,7 +202,7 @@ update_app() {
 
 
 build_fpk() {
-    # get_ET_VERSION
+    # get_et_version
     local fpk_version="${ET_VERSION}-${BUILD_VERSION}"
     if [ "$build_pre" == 'true' ];then 
         cur_time=$(date +"%Y%m%d_%H%M%S")
@@ -219,6 +222,7 @@ build_fpk() {
         fnpack build --directory EasyTier-Lite/  || { echo "打包失败"; exit 1; }
     else
         echo "使用本地 fnpack 脚本进行打包"
+        echo "$(pwd)"
         ./fnpack.sh build --directory EasyTier-Lite || { echo "打包失败"; exit 1; }
     fi 
 
