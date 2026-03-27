@@ -6,11 +6,11 @@
 
 // 清新蓝绿 - 亮色主题
 export const freshLightTheme = {
-  // 主色调 - 清新蓝
-  '--color-primary': '#0ea5e9',
+  // 主色调 - 活力亮蓝
+  '--color-primary': '#0284c7',
   '--color-on-primary': '#ffffff',
   '--color-primary-container': '#e0f2fe',
-  '--color-on-primary-container': '#0369a1',
+  '--color-on-primary-container': '#075985',
 
   // 信息色 - 天蓝
   '--color-info': '#06b6d4',
@@ -18,17 +18,17 @@ export const freshLightTheme = {
   '--color-info-container': '#cffafe',
   '--color-on-info-container': '#0e7490',
 
-  // 成功色 - 生机绿
-  '--color-success': '#10b981',
+  // 成功色 - 鲜艳绿
+  '--color-success': '#059669',
   '--color-on-success': '#ffffff',
   '--color-success-container': '#d1fae5',
-  '--color-on-success-container': '#047857',
+  '--color-on-success-container': '#065f46',
 
-  // 警告色 - 温暖橙
-  '--color-warning': '#f59e0b',
+  // 警告色 - 活力橙
+  '--color-warning': '#ea580c',
   '--color-on-warning': '#ffffff',
-  '--color-warning-container': '#fef3c7',
-  '--color-on-warning-container': '#b45309',
+  '--color-warning-container': '#ffedd5',
+  '--color-on-warning-container': '#9a3412',
 
   // 错误色 - 活力红
   '--color-danger': '#ef4444',
@@ -40,25 +40,25 @@ export const freshLightTheme = {
   '--color-disabled': '#e2e8f0',
   '--color-text-disabled': '#94a3b8',
 
-  // 背景色 - 使用 Varlet 规范变量名
-  '--color-body': '#f8fafc',
+  // 背景色 - 使用 Varlet 规范变量名（更有活力的浅色调）
+  '--color-body': '#f0f9ff',
   '--color-surface': '#ffffff',
-  '--color-surface-container': '#f1f5f9',
-  '--color-surface-container-low': '#f8fafc',
-  '--color-surface-container-high': '#e2e8f0',
-  '--color-surface-container-highest': '#cbd5e1',
+  '--color-surface-container': '#e0f2fe',
+  '--color-surface-container-low': '#f0f9ff',
+  '--color-surface-container-high': '#bae6fd',
+  '--color-surface-container-highest': '#7dd3fc',
 
-  // 文字色
-  '--color-text': '#1e293b',
-  '--color-on-surface': '#1e293b',
-  '--color-on-surface-variant': '#64748b',
+  // 文字色（调整为更柔和的深灰色）
+  '--color-text': '#2d3748',
+  '--color-on-surface': '#2d3748',
+  '--color-on-surface-variant': '#5a6578',
 
   // 反色
   '--color-inverse-surface': '#1e293b',
 
-  // 边框和轮廓
-  '--color-outline': '#cbd5e1',
-  '--color-outline-variant': '#e2e8f0',
+  // 边框和轮廓（清新蓝调）
+  '--color-outline': '#7dd3fc',
+  '--color-outline-variant': '#bae6fd',
 }
 
 // 清新蓝绿 - 暗色主题

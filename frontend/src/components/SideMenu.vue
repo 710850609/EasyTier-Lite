@@ -1,30 +1,41 @@
 <template>
-  <div class="side-menu">
+  <div class="side-menu" :class="{ collapsed: isCollapsed }">
     <div class="logo">
       <var-icon name="network-wired" :size="32" />
-      <span class="logo-text">易组网 . EasyTier</span>
+      <span v-if="!isCollapsed" class="logo-text">易组网 . EasyTier</span>
+      <span v-if="isCollapsed" class="logo-text">ET</span>
+      <var-button
+        class="collapse-btn"
+        text
+        round
+        :size="isCollapsed ? 'small' : 'mini'"
+        @click="toggleCollapse"
+      >
+        <var-icon :name="isCollapsed ? 'menu-right' : 'menu-left'" />
+      </var-button>
     </div>
     
     <div class="menu-list">
       <template v-for="menu in menuTree" :key="menu.key">
         <!-- 有子菜单的项 -->
         <div v-if="menu.children" class="menu-group">
-          <div 
+          <div
             class="menu-item"
             :class="{ active: active?.startsWith(menu.key) }"
-            @click="toggleExpand(menu.key)"
+            @click="isCollapsed ? handleClick(menu.children[0].key) : toggleExpand(menu.key)"
           >
             <var-icon :name="menu.icon" class="menu-icon" />
-            <span class="menu-title">{{ menu.label }}</span>
-            <var-icon 
-              name="chevron-down" 
+            <span v-if="!isCollapsed" class="menu-title">{{ menu.label }}</span>
+            <var-icon
+              v-if="!isCollapsed"
+              name="chevron-down"
               class="expand-icon"
               :class="{ expanded: expandedKeys.includes(menu.key) }"
             />
           </div>
-          
-          <div class="sub-menu-list" v-show="expandedKeys.includes(menu.key)">
-            <div 
+
+          <div v-if="!isCollapsed && expandedKeys.includes(menu.key)" class="sub-menu-list">
+            <div
               v-for="child in menu.children"
               :key="child.key"
               class="sub-menu-item"
@@ -36,16 +47,16 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 无子菜单的项 -->
-        <div 
+        <div
           v-else
           class="menu-item"
           :class="{ active: active === menu.key }"
           @click="handleClick(menu.key)"
         >
           <var-icon :name="menu.icon" class="menu-icon" />
-          <span class="menu-title">{{ menu.label }}</span>
+          <span v-if="!isCollapsed" class="menu-title">{{ menu.label }}</span>
         </div>
       </template>
     </div>
@@ -57,12 +68,24 @@ import { ref, watch } from 'vue'
 import { menuTree } from '../config/menu.js'
 
 const props = defineProps({
-  active: String
+  active: String,
+  collapsed: Boolean
 })
 
-const emit = defineEmits(['update:active'])
+const emit = defineEmits(['update:active', 'update:collapsed'])
 
 const expandedKeys = ref([])
+const isCollapsed = ref(props.collapsed || false)
+
+// 监听 props.collapsed 变化
+watch(() => props.collapsed, (val) => {
+  isCollapsed.value = val
+})
+
+const toggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value
+  emit('update:collapsed', isCollapsed.value)
+}
 
 // 监听 active 变化，自动展开父菜单
 watch(() => props.active, (val) => {
@@ -92,6 +115,12 @@ const handleClick = (key) => {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--color-outline);
+  width: 240px;
+  transition: width 0.3s ease;
+}
+
+.side-menu.collapsed {
+  width: 72px;
 }
 
 .logo {
@@ -100,6 +129,26 @@ const handleClick = (key) => {
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid var(--color-outline);
+  position: relative;
+}
+
+.side-menu.collapsed .logo {
+  padding: 20px 12px;
+  justify-content: center;
+}
+
+.collapse-btn {
+  margin-left: auto;
+  color: var(--color-primary);
+}
+
+.side-menu.collapsed .collapse-btn {
+  margin-left: 0;
+  position: absolute;
+  right: -12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .logo-text {
@@ -123,6 +172,15 @@ const handleClick = (key) => {
   cursor: pointer;
   transition: all 0.2s;
   color: var(--color-on-surface);
+}
+
+.side-menu.collapsed .menu-item {
+  padding: 12px;
+  justify-content: center;
+}
+
+.side-menu.collapsed .menu-icon {
+  margin-right: 0;
 }
 
 .menu-item:hover {

@@ -1,20 +1,21 @@
 <template>
-  <div class="layout" :class="{ 'dark': isDark }">
-      <side-menu 
-        v-if="!isMobile" 
-        :active="activeMenu" 
+  <div class="layout" :class="{ 'dark': isDark, 'menu-collapsed': isMenuCollapsed }">
+      <side-menu
+        v-if="!isMobile"
+        :active="activeMenu"
+        v-model:collapsed="isMenuCollapsed"
         @update:active="handleMenuChange"
         class="side-menu"
       />
-      
+
       <main class="main-content" :class="{ 'has-bottom-nav': isMobile }">
         <div class="content-wrapper">
           <component :is="currentComponent" />
         </div>
       </main>
-      
-      <bottom-nav 
-        v-if="isMobile" 
+
+      <bottom-nav
+        v-if="isMobile"
         :active="activeMenu"
         @update:active="handleMenuChange"
       />
@@ -32,6 +33,7 @@ import Empty from '../views/Empty.vue'
 
 const isMobile = ref(window.innerWidth < 768)
 const activeMenu = ref('nodes')
+const isMenuCollapsed = ref(false)
 
 // 提供主题状态给子组件
 provide('isDark', isDark)
@@ -40,7 +42,6 @@ provide('isDark', isDark)
 provide('activeMenu', readonly(activeMenu))
 
 const currentComponent = computed(() => {
-  console.log('activeMenu', activeMenu.value)
   const loader = componentMap[activeMenu.value]
   // 如果没有对应组件，返回空组件（显示提示或保持当前页面）
   if (!loader) {
@@ -92,7 +93,6 @@ onUnmounted(() => {
 }
 
 .side-menu {
-  width: 260px;
   flex-shrink: 0;
   border-right: 1px solid var(--color-outline);
   position: fixed;
@@ -107,7 +107,12 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  margin-left: 260px;
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
+}
+
+.menu-collapsed .main-content {
+  margin-left: 72px;
 }
 
 .main-content.has-bottom-nav {
