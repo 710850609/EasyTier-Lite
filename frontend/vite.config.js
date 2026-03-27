@@ -5,6 +5,7 @@ import { resolve } from 'path'
 // 生产环境配置
 const BASE = '/cgi/ThirdParty/EasyTier-Lite/index.cgi'
 const API_BASE = '/cgi/ThirdParty/EasyTier-Lite/api.cgi'
+const fnosToken = 'TZV9NdHmxWnJkgA97LmkKxCV+u7bui1Hy2iZG0DTuC0='
 
 export default defineConfig(({ mode }) => ({
   base: mode === 'production' ? BASE : './',
@@ -21,6 +22,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 5173,
     host: "0.0.0.0",
+    watch: {
+      usePolling: true,
+      interval: 1000
+    },
     proxy: {
       '/cgi': {
         target: 'https://192.168.220.3:5667',
@@ -28,7 +33,7 @@ export default defineConfig(({ mode }) => ({
         secure: false,
         configure: (proxy, options) => {
           proxy.on('proxyReq', (proxyReq, req, res) => {
-            proxyReq.setHeader('authorization', 'trim HA/SV4nYxWnIkgA9DkT9GOfSjgfL/z5VLfqyEbGChac=')
+            proxyReq.setHeader('authorization', `trim ${fnosToken}`)
             console.log('Proxying to:', options.target + req.url)
           })
           proxy.on('error', (err, req, res) => {

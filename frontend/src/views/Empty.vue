@@ -1,0 +1,35 @@
+<template>
+  <div class="empty-page">
+    <var-space justify="center" direction="column">
+      <div class="empty-text" style="font-size: 40px;">ಥ_ಥ</div>
+      <div class="empty-text">我的{{ menuKey }} 页面哪里去了</div>
+    </var-space>
+  </div>
+</template>
+
+<script setup>
+// 空页面占位组件
+import { inject } from 'vue'
+
+// 从父组件注入当前菜单 key
+const menuKey = inject('activeMenu', '')
+console.log('menuKey', menuKey.value)
+</script>
+
+<style scoped>
+.empty-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-text {
+  margin-top: 16px;
+  font-size: 16px;
+  display: block;
+  text-align: center;
+}
+</style>

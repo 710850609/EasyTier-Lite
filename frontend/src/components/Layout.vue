@@ -28,6 +28,7 @@ import BottomNav from './BottomNav.vue'
 import { componentMap } from '../config/menu.js'
 import { isDark } from '../config/theme.js'
 import { VCONSOLE_ENABLED_KEY, VCONSOLE_CODE_KEY } from '../config/storage-keys.js'
+import Empty from '../views/Empty.vue'
 
 const isMobile = ref(window.innerWidth < 768)
 const activeMenu = ref('nodes')
@@ -35,11 +36,17 @@ const activeMenu = ref('nodes')
 // 提供主题状态给子组件
 provide('isDark', isDark)
 
-// 提供当前菜单状态给 Software 组件
+// 提供当前菜单状态给子组件
 provide('activeMenu', readonly(activeMenu))
 
 const currentComponent = computed(() => {
-  return defineAsyncComponent(componentMap[activeMenu.value])
+  console.log('activeMenu', activeMenu.value)
+  const loader = componentMap[activeMenu.value]
+  // 如果没有对应组件，返回空组件（显示提示或保持当前页面）
+  if (!loader) {
+    return Empty
+  }
+  return defineAsyncComponent(loader)
 })
 
 const handleMenuChange = (key) => {
