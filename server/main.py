@@ -6,6 +6,7 @@ import subprocess
 import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
+from pathlib import Path
 
 
 # 虚拟 base URI
@@ -14,10 +15,12 @@ PARENT_PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '.
 # CGI 文件真实路径
 CGI_INDEX = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'ui', 'index.cgi')
 CGI_API = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'ui', 'api.cgi')
+ET_BIN_DIR = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'bin')
 BACKEND_PATH = os.path.join(PARENT_PROJECT_PATH, 'server')
-LOG_FILE = os.path.join(PARENT_PROJECT_PATH, 'server.log')
-BIN_DIR = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'bin')
+LOG_FILE = os.path.join(PARENT_PROJECT_PATH, 'temp', 'server.log')
+ET_CONFIG_DIR = os.path.join(PARENT_PROJECT_PATH, 'temp', 'config')
 
+Path(ET_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
 
 # 配置日志
 logging.basicConfig(
@@ -29,7 +32,7 @@ logging.basicConfig(
 
 logging.info(f"BACKEND_PATH: {BACKEND_PATH}")
 logging.info(f"LOG_FILE: {LOG_FILE}")
-logging.info(f"BIN_DIR: {BIN_DIR}")
+logging.info(f"ET_BIN_DIR: {ET_BIN_DIR}")
 
 class CGIProxyHandler(BaseHTTPRequestHandler):
     """处理 HTTP 请求并转发给 CGI 脚本"""
@@ -118,7 +121,8 @@ class CGIProxyHandler(BaseHTTPRequestHandler):
             # 构建环境变量
             env = os.environ.copy()
             env.update({
-                'BIN_DIR': BIN_DIR,
+                'ET_CONFIG_DIR': ET_CONFIG_DIR,
+                'ET_BIN_DIR': ET_BIN_DIR,
                 'BACKEND_PATH': BACKEND_PATH,
                 'LOG_FILE': LOG_FILE,
                 'REQUEST_METHOD': self.command,

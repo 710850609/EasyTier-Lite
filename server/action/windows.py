@@ -10,13 +10,12 @@ import util.http_util as http_util
 import util.github_util as github_util
 import util.et_util as et_util
 import action.configs as configs
-import re
 import zipfile
 import logging
 
 et_min_version = "2.5.0"
 
-def download():
+def download(*kwargs):
     output_dir = f"/var/apps/EasyTier-Lite/shares/EasyTier-Lite"
     download_temp_dir = f"/var/apps/EasyTier-Lite/tmp"
     et_version = et_util.get_latest_version()

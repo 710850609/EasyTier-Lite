@@ -8,7 +8,7 @@
       
       <var-form ref="form" :disabled="false">
         <var-input
-          v-model="config.network_name"
+          v-model="config.network_identity.network_name"
           placeholder="网络名称"
           :rules="[(v) => !!v || '网络名称不能为空']"
         >
@@ -19,10 +19,9 @@
         </var-input>
 
         <var-input
-          v-model="config.network_secret"
+          v-model="config.network_identity.network_secret"
           placeholder="网络密码"
           type="password"
-          autocomplete="new-password"
         >
           <template #prepend-icon>
             <var-icon name="lock-outline" />
@@ -41,41 +40,43 @@
           <template #label>IPv4 网段</template>
         </var-input>
 
+        
+        <span v-if="fastSettingMode" style="font-size: 12px; color: var(--color-warning); margin-top: 8px;"> 将使用动态社区节点用于发现组网节点。如不想用，请刷新页面重新选择正常模式设置，并输入公共节点 </span>
         <var-select
           v-if="!fastSettingMode"
-          v-model="config.peers"
+          v-model="config.peer"
           multiple
           placeholder="公共节点"
+          :chip="true"
         >
-          <template #label>公共节点列表</template>
-          <var-option 
-            v-for="peer in publicPeerOptions" 
-            :key="peer"
-            :label="peer"
-            :value="peer"
-          />
-          <var-cell v-for="peer in ['1']"  icon="" :title="peer">
+          <var-cell v-for="peer in ['1']"  icon="tag" title="peer">
             <template #>
-              <var-input placeholder="输入公共节点" size="small" />
+              <var-input placeholder="输入公共节点" size="small" v-model="customPeer" />
             </template>
             <template #extra>
-              <var-button type="success" size="small">添加</var-button>
+              <var-button type="primary" size="small" @click="addPeer">添加</var-button>
             </template>
           </var-cell>
+          <var-option 
+            v-for="peer in publicPeerOptions"
+            :key="peer.uri"
+            :label="peer.label || peer.uri"
+            :value="peer.uri"
+          />
         </var-select>
       </var-form>
     </var-paper>
 
     <!-- 高级设置 -->
-    <var-collapse v-if="!fastSettingMode" v-model="advancedOpen" class="advanced-section" :class="`var-elevation--2`">
-      <var-collapse-item name="advanced">
+    <var-collapse v-if="!fastSettingMode" v-model="flagsOpen" class="flags-section" :class="`var-elevation--2`">
+      <var-collapse-item name="flags">
         <template #title>
           <div class="collapse-title">
             <var-icon name="cog" size="24" color="var(--color-primary)" />
             <span class="section-title">高级设置</span>
           </div>
         </template>        
-        <div class="advanced-content">
+        <div class="flags-content">
           <!-- 功能开关 -->
           <div class="feature-section">
             <div class="section-subtitle">功能开关</div>
@@ -85,7 +86,7 @@
                 :key="feature.key"
                 class="feature-item"
               >
-                <var-checkbox v-model="config.advanced[feature.key]">
+                <var-checkbox v-model="config.flags[feature.key]">
                   {{ feature.label }}
                 </var-checkbox>
                 <var-tooltip :content="feature.tooltip" v-if="feature.tooltip">
@@ -103,7 +104,7 @@
           <div class="input-section">
             <div class="section-subtitle">主机名</div>
             <var-input
-              v-model="config.advanced.hostname"
+              v-model="config.hostname"
               placeholder="留空默认为主机名"
               variant="outlined"
             />
@@ -112,15 +113,37 @@
           <!-- 子网代理CIDR -->
           <div class="input-section">
             <div class="section-subtitle">子网代理CIDR</div>
-            <var-input
-              v-model="config.advanced.subnet_cidr"
+            <var-select
+              v-if="!fastSettingMode"
+              v-model="config.proxy_network"
+              multiple
+              placeholder="子网网段"
+              :chip="true"
+            >
+              <var-cell v-for="peer in ['1']"  icon="tag" title="peer">
+                <template #>
+                  <var-input placeholder="例如：10.0.0.0/24" size="small" v-model="customProxyNetwork" />
+                </template>
+                <template #extra>
+                  <var-button type="primary" size="small" @click="addProxyNetwork">添加</var-button>
+                </template>
+              </var-cell>
+              <var-option 
+                v-for="e in config.proxy_network"
+                :key="e"
+                :label="e"
+                :value="e"
+              />
+            </var-select>
+            <!-- <var-input
+              v-model="config.proxy_network"
               placeholder="例如：10.0.0.0/24, 输入后在下拉框中选择生效"
               variant="outlined"
-            />
+            /> -->
           </div>
 
           <!-- 监听端口 -->
-          <div class="input-section">
+          <!-- <div class="input-section">
             <div class="section-subtitle">监听端口</div>
             <var-input
               v-model="listenPortStr"
@@ -128,10 +151,10 @@
               placeholder="15888"
               variant="outlined"
             />
-          </div>
+          </div> -->
 
           <!-- MTU 大小 -->
-          <div class="input-section">
+          <!-- <div class="input-section">
             <div class="section-subtitle">MTU 大小</div>
             <var-input
               v-model="mtuStr"
@@ -139,16 +162,16 @@
               placeholder="1380"
               variant="outlined"
             />
-          </div>
+          </div> -->
         </div>
       </var-collapse-item>
     </var-collapse>
 
     <div class="actions">
        <var-space justify="center" :size="[40, 40]">
-         <var-button type="primary" size="large" block @click="saveConfig">
+         <var-button type="primary" size="large" block auto-loading @click="saveConfig">
            保存并重启服务
-         </var-button> 
+         </var-button>
          <var-button type="primary" size="large" block @click="downloadConfig" v-if="!fastSettingMode">
            导出配置文件
          </var-button>
@@ -163,123 +186,141 @@ import toast from '../components/toast.js'
 import { api } from '../utils/api.js'
 
 // 注入快速设置模式
-const fastSettingMode = inject('fastSettingMode')
+const fastSettingMode = inject('fastSettingMode', ref(false))
+const publicPeerOptions = ref([
+  // 'tcp://easytier.public.com:11010',
+  // 'udp://easytier.public.com:11011',
+  // 'wss://easytier.public.com:11012'
+])
+const customPeer = ref('')
+const customProxyNetwork = ref('')
 
-const newRandomStr = (length = 8) => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-
-const advancedOpen = ref([])
+const flagsOpen = ref([])
 const form = ref(null)
 
 const config = ref({
-  network_name: ``,
-  network_secret: '',
-  ipv4: '10.0.0.0',
-  peers: [],
-  advanced: {
-    // 功能开关
-    latency_first: false,
-    kcp_proxy: true,
-    disable_quic: false,
-    physical_only: false,
-    relay_rpc: false,
-    disable_encryption: false,
-    disable_symmetric_nat: false,
-    user_stack: false,
-    disable_kcp_input: false,
-    disable_p2p: false,
-    no_tun: false,
-    multi_thread: true,
-    disable_tcp_hole: false,
-    magic_dns: false,
-    disable_ipv6: false,
-    quic_proxy: false,
-    p2p_only: false,
-    exit_node: false,
-    system_forward: false,
-    disable_udp_hole: false,
-    private_mode: true,
-    // 输入项
-    hostname: '',
-    subnet_cidr: '',
-    listen_port: 15888,
-    mtu: 1380
-  }
+  "hostname": "",
+  "dhcp": true,
+  "ipv4": '10.0.0.0',
+  "network_identity": {
+    "network_name": '',
+    "network_secret": '',
+  },
+  "rpc_portal": "",
+  "listeners": [
+    "tcp://0.0.0.0:11010",
+    "udp://0.0.0.0:11010",
+    "wg://0.0.0.0:11011",
+    // "ws://0.0.0.0:11011",
+  ],
+  "peer": [],
+  // 功能开关
+  "flags": {
+    "bind_device": true,
+    "multi_thread": true,
+    "enable_kcp_proxy": true,
+    "private_mode": true,
+  },
+  // 子网代理
+  "proxy_network": [ {"cidr": "10.0.0.0/24"} ]
 })
 
 // 功能开关列表
 const featureSwitches = [
   { key: 'latency_first', label: '开启延迟优先模式', tooltip: '优先选择延迟最低的连接路径' },
-  { key: 'kcp_proxy', label: '启用 KCP 代理', tooltip: '使用 KCP 协议进行数据传输，提高弱网环境下的稳定性' },
-  { key: 'disable_quic', label: '禁用 QUIC 输入', tooltip: '关闭 QUIC 协议的入站连接' },
-  { key: 'physical_only', label: '仅使用物理网卡', tooltip: '只使用物理网卡进行通信，排除虚拟网卡' },
-  { key: 'relay_rpc', label: '转发 RPC 包', tooltip: '允许转发 RPC 数据包' },
-  { key: 'disable_encryption', label: '禁用加密', tooltip: '关闭数据传输加密，提高性能但降低安全性' },
-  { key: 'disable_symmetric_nat', label: '禁用对称 NAT 打洞', tooltip: '关闭对称型 NAT 的打洞功能' },
-  { key: 'user_stack', label: '使用用户态协议栈', tooltip: '使用用户态网络协议栈代替内核协议栈' },
-  { key: 'disable_kcp_input', label: '禁用 KCP 输入', tooltip: '关闭 KCP 协议的入站连接' },
-  { key: 'disable_p2p', label: '禁用 P2P', tooltip: '关闭点对点直连功能，所有流量通过中继' },
-  { key: 'no_tun', label: '无 TUN 模式', tooltip: '不使用 TUN 设备，仅提供代理功能' },
   { key: 'multi_thread', label: '启用多线程', tooltip: '启用多线程处理，提高性能' },
-  { key: 'disable_tcp_hole', label: '禁用 TCP 打洞', tooltip: '关闭 TCP 协议的 NAT 打洞功能' },
-  { key: 'magic_dns', label: '启用魔法 DNS', tooltip: '启用特殊的 DNS 解析功能' },
-  { key: 'disable_ipv6', label: '禁用 IPv6', tooltip: '关闭 IPv6 支持' },
-  { key: 'quic_proxy', label: '启用 QUIC 代理', tooltip: '使用 QUIC 协议进行代理传输' },
+  { key: 'private_mode', label: '启用私有模式', tooltip: '启用私有模式，限制节点发现' },
+  { key: 'enable_kcp_proxy', label: '启用 KCP 代理', tooltip: '使用 KCP 协议进行数据传输，提高弱网环境下的稳定性' },
+  { key: 'enable_quic_proxy', label: '启用 QUIC 代理', tooltip: '使用 QUIC 协议进行代理传输' },
+  { key: 'disable_kcp_input', label: '禁用 KCP 输入', tooltip: '关闭 KCP 协议的入站连接' },
+  { key: 'disable_quic_input', label: '禁用 QUIC 输入', tooltip: '关闭 QUIC 协议的入站连接' },
+  { key: 'disable_tcp_hole_punching', label: '禁用 TCP 打洞', tooltip: '关闭 TCP 协议的 NAT 打洞功能' },
+  { key: 'disable_udp_hole_punching', label: '禁用 UDP 打洞', tooltip: '关闭 UDP 协议的 NAT 打洞功能' },
+  { key: 'disable_sym_hole_punching', label: '禁用对称 NAT 打洞', tooltip: '关闭对称型 NAT 的打洞功能' },  
+  { key: 'use_smoltcp', label: '使用用户态协议站', tooltip: '使用用户态TCP/IP协议栈，避免系统防火墙问题无法子网代理或KCP代理' },
+  { key: 'proxy_forward_by_system', label: '系统转发', tooltip: '启用系统级 IP 转发' },
   { key: 'p2p_only', label: '仅 P2P', tooltip: '只允许 P2P 连接，不使用中继' },
-  { key: 'exit_node', label: '启用出口节点', tooltip: '允许此节点作为网络的出口' },
-  { key: 'system_forward', label: '系统转发', tooltip: '启用系统级 IP 转发' },
-  { key: 'disable_udp_hole', label: '禁用 UDP 打洞', tooltip: '关闭 UDP 协议的 NAT 打洞功能' },
-  { key: 'private_mode', label: '启用私有模式', tooltip: '启用私有模式，限制节点发现' }
+  { key: 'disable_p2p', label: '禁用 P2P', tooltip: '关闭点对点直连功能，所有流量通过中继' },
+  { key: 'enable_exit_node', label: '启用出口节点', tooltip: '允许此节点作为网络的出口' },
+  { key: 'enable_encryption', label: '禁用加密', tooltip: '关闭数据传输加密，提高性能但降低安全性' },
+  { key: 'enable_ipv6', label: '禁用 IPv6', tooltip: '关闭 IPv6 支持' },
+  { key: 'no_tun', label: '无 TUN 模式', tooltip: '不使用 TUN 设备。' },
+  { key: 'accept_dns', label: '启用魔法 DNS', tooltip: '启用特殊的 DNS 解析功能' },
+  { key: 'relay_all_peer_rpc', label: '转发 RPC 包', tooltip: '允许转发 RPC 数据包' },
+  { key: 'bind_device', label: '仅使用物理网卡', tooltip: '只使用物理网卡进行通信，排除虚拟网卡' },
+  { key: 'user_stack', label: '使用用户态协议栈', tooltip: '使用用户态网络协议栈代替内核协议栈' },
 ]
 
 // 监听端口字符串（用于输入框）
 const listenPortStr = computed({
-  get: () => String(config.value.advanced.listen_port),
+  get: () => String(config.value.flags.listen_port),
   set: (val) => {
-    config.value.advanced.listen_port = val ? parseInt(val, 10) : 0
+    config.value.flags.listen_port = val ? parseInt(val, 10) : 0
   }
 })
 
 // MTU 字符串（用于输入框）
 const mtuStr = computed({
-  get: () => String(config.value.advanced.mtu),
+  get: () => String(config.value.flags.mtu),
   set: (val) => {
-    config.value.advanced.mtu = val ? parseInt(val, 10) : 0
+    config.value.flags.mtu = val ? parseInt(val, 10) : 0
   }
 })
 
-let publicPeerOptions = [
-  // 'tcp://easytier.public.com:11010',
-  // 'udp://easytier.public.com:11011',
-  // 'wss://easytier.public.com:11012'
-]
+const addPeer = () => {
+  const peer = customPeer.value
+  if (!peer) {
+    return
+  }
+  publicPeerOptions.value.unshift({ uri: peer , label: peer })
+  config.value.peer.unshift(peer)
+  customPeer.value = ''
+}
+
+const addProxyNetwork = () => {
+  const proxy = customProxyNetwork.value
+  if (!proxy) {
+    return
+  }
+  config.value.proxy_network.unshift(proxy)
+  customProxyNetwork.value = ''
+}
 
 const saveConfig = async () => {
   const valid = await form.value.validate()
   if (!valid) return
-  
-  // 调用 API 保存配置
-  // await fetch('/api/config', { method: 'POST', body: JSON.stringify(config.value) })
-  console.log(JSON.parse(JSON.stringify(config.value)))
-  toast.info(`功能开发中...`)
+
+  try {
+    let data = {...config.value, isFastConfig: fastSettingMode.value};
+    data.peer = data.peer.map(e => ({uri: e}))
+    data.proxy_network = data.proxy_network.map(e => ({cidr: e}))
+    return new Promise((resolve) => {
+      api.config.save(data).then(res => {
+        toast.success('配置保存成功')
+        resolve()
+        // window.location.reload()
+      })
+    })
+  } catch (error) {
+    toast.error('保存失败: ' + error.message)
+  }
 }
 
 const downloadConfig = () => {
-  toast.info(`功能开发中...`)
+  api.config.download().then(data => {
+    console.log(data)
+  })
 }
 
 onMounted(async () => {
-  // 加载现有配置
-  // const response = await fetch('/api/config')
-  // config.value = await response.json()
+  // 加载公共节点
   api.config.publicPeers().then(data => {
-    publicPeerOptions = data.data
+    publicPeerOptions.value = data.data
+  })
+  api.config.get().then(data => {
+    config.value = data.data
+    config.value.peer = config.value.peer.map(e => e.uri)
+    config.value.proxy_network = (config.value.proxy_network || []).map(e => e.cidr)
   })
 })
 </script>
@@ -311,20 +352,20 @@ onMounted(async () => {
   color: var(--color-text);
 }
 
-.advanced-section {
+.flags-section {
   margin-bottom: 16px;
   border-radius: 16px;
   overflow: hidden;
   background: var(--color-surface-container) !important;
 }
 
-:deep(.advanced-section .var-collapse-item) {
+:deep(.flags-section .var-collapse-item) {
   border-radius: 16px;
   overflow: hidden;
   background: var(--color-surface-container) !important;
 }
 
-::deep(.advanced-section .var-paper) {
+::deep(.flags-section .var-paper) {
   border-radius: 16px;
   background: var(--color-surface-container) !important;
 }
@@ -335,7 +376,7 @@ onMounted(async () => {
   gap: 8px;
 }
 
-.advanced-content {
+.flags-content {
   display: flex;
   flex-direction: column;
   gap: 24px;

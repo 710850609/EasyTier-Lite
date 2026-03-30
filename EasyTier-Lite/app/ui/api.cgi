@@ -5,7 +5,7 @@ import os
 import sys
 import logging
 import importlib
-
+import json
 
 logging.basicConfig(
     level=logging.DEBUG,  # 设置日志级别
@@ -54,12 +54,27 @@ def http_handle():
     logging.debug(f"{path_params}")
     if len(path_params) != 3:
         raise AssertionError(f'请求路径有误: {path_info}')
+        
+    content_type = os.environ.get('CONTENT_TYPE', '')
+    content_length_str = os.environ.get('CONTENT_LENGTH', '0')
+    content_length = int(content_length_str) if content_length_str else 0
+    request_body = ''
+    if content_length > 0:
+        request_body = sys.stdin.read(content_length)
+    # 解析 JSON 请求体
+    request_data = None
+    if request_body:
+        try:
+            request_data = json.loads(request_body)
+        except json.JSONDecodeError:
+            request_data = None
     
     module_name = f"action.{path_params[1]}"
     function_name = path_params[2]
     module = importlib.import_module(module_name)
-    func = getattr(module, function_name)
-    func()
+    func = getattr(module, function_name)    
+    # 调用函数，传入解析后的数据
+    func(request_data)
    
 
 if __name__ == '__main__':

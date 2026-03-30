@@ -14,8 +14,9 @@ const copyAndOpenLink = () => {
     <h2 class="page-title">鸿蒙客户端</h2>
 
     <var-paper :elevation="0" class="instructions-section">
-      <var-cell><a href="https://easytier.cn/guide/gui/easytier-harmonyos.html" target="_blank">Easytier相关使用说明</a>
-      </var-cell>
+      <var-cell><var-link type="primary" href="https://easytier.cn/guide/gui/easytier-harmonyos.html" target="_blank" underline="none">Easytier相关使用说明</var-link></var-cell>
+      <!-- <var-cell><a href="https://easytier.cn/guide/gui/easytier-harmonyos.html" target="_blank">Easytier相关使用说明</a> -->
+      <!-- </var-cell> -->
       <var-divider />
     </var-paper>
 

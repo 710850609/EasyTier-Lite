@@ -7,6 +7,10 @@
 const API_BASE = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : '/'
 console.log(API_BASE)
 
+function getFulllUrl(url) {
+  return url.startsWith('http') ? url : `${API_BASE}${url}`
+}
+
 /**
  * 发送 HTTP 请求
  * @param {string} url - 请求路径（会自动拼接 API_BASE）
@@ -14,7 +18,7 @@ console.log(API_BASE)
  * @returns {Promise} - 返回响应数据
  */
 async function request(url, options = {}) {
-  const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`
+  const fullUrl = getFulllUrl(url)
   
   // 调试日志
 //   console.log('API Request:', { API_BASE, url, fullUrl })
@@ -104,11 +108,16 @@ export const api = {
   },
   
   // 配置相关
-  config: {
+  configs: {
     needSetting: () => get('/configs/need_setting'),
     publicPeers: () => get('/configs/public_peers'),
-    get: () => get('/config'),
-    save: (data) => post('/config', data)
+    save: (data) => post('/configs/save', data),
+    get: () => get('/configs/get')
+  },
+  
+  // 窗口相关
+  windows: {
+    getDownloadUrl: () => getFulllUrl('/windows/download')
   },
   
   // 系统相关

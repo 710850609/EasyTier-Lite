@@ -19,7 +19,7 @@ def run_cmd(command, *args, shell=False):
         JSON 字符串: {"code": 状态码, "stdout": 标准输出, "stderr": 错误输出, "success": 是否成功}
     """
     try:
-        logging.debug(f"执行命令: {command} {' '.join(args)}")
+        # logging.debug(f"执行命令: {command} {' '.join(args)}")
         # 构建命令列表
         if shell:
             # shell 模式：合并为字符串

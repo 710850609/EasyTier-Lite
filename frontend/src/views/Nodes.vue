@@ -152,14 +152,13 @@
         <var-icon name="information" color="#2979ff" />
         <span style="color: #2979ff" >首次组网设置</span>
       </template>
-      <var-cell icon="thumb-up" title="使用快速设置？" description="填写网络名称和密码，即可完成组网设置（新手推荐）" />
+      <var-cell title="使用快速设置？" description="填写网络名称和密码，即可完成组网设置（新手推荐）" />
     </var-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
-import { Dialog } from '@varlet/ui'
 import { copyToClipboard } from '../utils/clipboard.js'
 import { api } from '../utils/api.js'
 import toast from '../components/toast.js'
@@ -419,21 +418,14 @@ const mockData = () => {
 }
 
 const openConfigView = (isFastConfig) => {
-  console.log('isFastConfig', isFastConfig)
-  if (isFastConfig) {
-    toast.info('请完成快速设置，并保存')
-    fastSettingMode.value = true
-  } else {
-    toast.info('请设置组网参数，并保存')
-    fastSettingMode.value = false
-  }
+  fastSettingMode.value = isFastConfig ? true : false
   setActiveMenu?.('config')
 }
 
 // 实际项目中这里调用 HTTP API
 onMounted(async () => {
   loadSettings()
-  const needSetting = await api.config.needSetting();
+  const needSetting = await api.configs.needSetting();
   if (needSetting.data.needConfig) {
     showFastSettingTip.value = true
     //  Dialog({
