@@ -127,7 +127,7 @@ onUnmounted(() => {
   padding: 16px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .layout {
     flex-direction: column;
   }

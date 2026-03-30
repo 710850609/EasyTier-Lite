@@ -2,8 +2,8 @@
   <div class="side-menu" :class="{ collapsed: isCollapsed }">
     <div class="logo">
       <var-icon name="network-wired" :size="32" />
-      <span v-if="!isCollapsed" class="logo-text">易组网 . EasyTier</span>
-      <span v-if="isCollapsed" class="logo-text">ET</span>
+      <span v-if="!isCollapsed" class="logo-text">EasyTier</span>
+      <span v-if="isCollapsed" class="logo-text">ET&nbsp;&nbsp;&nbsp;&nbsp;</span>
       <var-button
         class="collapse-btn"
         text

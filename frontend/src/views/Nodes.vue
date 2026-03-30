@@ -162,11 +162,13 @@ const loadingSkeleton = ref(true)
 const refreshDataTask = ref();
 
 // 默认选中的列
-const selectedColumns = ref(['ipv4', 'hostname', 'cost', 'lat_ms', 'loss_rate', 'rx_bytes', 'tx_bytes', 'tunnel_proto'])
+const selectedColumns = ref(['ipv4', 'hostname', 'cost', 'lat_ms', 'loss_rate', 'rx_bytes', 'tx_bytes'])
 // 默认选中的节点类型
 const selectedNodeTypes = ref(['normal'])
 // 刷新速度
 const refreshStep = ref(3)
+// 节点数据
+const allNodes = ref([])
 
 // 从 localStorage 加载设置
 const loadSettings = () => {
@@ -236,42 +238,9 @@ const allColumns = [
   { key: "id", label: "id" },
 ]
 
-
 // 可见列
 const visibleColumns = computed(() => {
   return allColumns.filter(col => selectedColumns.value.includes(col.key))
-})
-
-// 模拟节点数据
-const allNodes = ref([
-  {"cidr": "10.1.1.11/24","ipv4": "10.1.1.11","hostname": "FeiNiu","cost": "Local","lat_ms": "-","loss_rate": "-","rx_bytes": "-","tx_bytes": "-","tunnel_proto": "-","nat_type": "NoPAT","id": "1033344496","version": "2.5.0-88a45d11"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_JoeAliShenzhen","cost": "p2p","lat_ms": "10.64","loss_rate": "0.0%","rx_bytes": "1.20 MB","tx_bytes": "1.45 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "206838084","version": "2.4.5-4c4d172e"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_WIN-JN6PUF54PQR_ser","cost": "p2p","lat_ms": "29.82","loss_rate": "0.0%","rx_bytes": "1.32 MB","tx_bytes": "1.65 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "784110481","version": "2.5.0-88a45d11"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_tencent-vm","cost": "p2p","lat_ms": "27.20","loss_rate": "0.0%","rx_bytes": "79.42 kB","tx_bytes": "98.39 kB","tunnel_proto": "BodyUrls-tcp://et.sbgov.cn:11010,BodyUrls-tcp://et4.sbgov.cn:11010,BodyUrls-tcp://et3.sbgov.cn:11010","nat_type": "Unknown","id": "382776355","version": "2.4.5-4c4d172e"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_zheyimiaowangluo","cost": "p2p","lat_ms": "61.41","loss_rate": "0.0%","rx_bytes": "330.89 kB","tx_bytes": "385.56 kB","tunnel_proto": "BodyUrls-tcp://et2.sbgov.cn:11010","nat_type": "Restricted","id": "830753314","version": "2.4.5-4c4d172e"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_更好的游戏联机体验欢迎使用Astral","cost": "relay(2)","lat_ms": "55.00","loss_rate": "0.0%","rx_bytes": "0 B","tx_bytes": "0 B","tunnel_proto": "","nat_type": "NoPat","id": "2118975689","version": "2.4.5-4c4d172e"},
-  {"cidr": "10.1.1.1/24","ipv4": "10.1.1.1","hostname": "Server-2025","cost": "p2p","lat_ms": "11.41","loss_rate": "0.0%","rx_bytes": "1.57 MB","tx_bytes": "1.62 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "2482419606","version": "2.5.0-88a45d11"},
-  {"cidr": "10.1.1.2/24","ipv4": "10.1.1.2","hostname": "fnos","cost": "p2p","lat_ms": "12.67","loss_rate": "0.0%","rx_bytes": "5.33 MB","tx_bytes": "2.77 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "693759497","version": "2.4.5-4c4d172e"},
-  {"cidr": "10.1.1.3/24","ipv4": "10.1.1.3","hostname": "FnOS","cost": "p2p","lat_ms": "11.66","loss_rate": "0.0%","rx_bytes": "1.89 MB","tx_bytes": "1.94 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "1735547491","version": "2.5.0-88a45d11"},
-  {"cidr": "10.1.1.10/24","ipv4": "10.1.1.10","hostname": "utopa","cost": "p2p","lat_ms": "0.41","loss_rate": "0.0%","rx_bytes": "1.86 MB","tx_bytes": "5.27 MB","tunnel_proto": "tcp","nat_type": "NoPat","id": "3737177107","version": "2.5.0-88a45d11"},
-  {"cidr": "10.1.1.11/24","ipv4": "10.1.1.11","hostname": "FeiNiu","cost": "Local","lat_ms": "-","loss_rate": "-","rx_bytes": "-","tx_bytes": "-","tunnel_proto": "-","nat_type": "NoPAT","id": "1033344496","version": "2.5.0-88a45d11"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_JoeAliShenzhen","cost": "p2p","lat_ms": "10.64","loss_rate": "0.0%","rx_bytes": "1.20 MB","tx_bytes": "1.45 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "206838084","version": "2.4.5-4c4d172e"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_WIN-JN6PUF54PQR_ser","cost": "p2p","lat_ms": "29.82","loss_rate": "0.0%","rx_bytes": "1.32 MB","tx_bytes": "1.65 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "784110481","version": "2.5.0-88a45d11"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_tencent-vm","cost": "p2p","lat_ms": "27.20","loss_rate": "0.0%","rx_bytes": "79.42 kB","tx_bytes": "98.39 kB","tunnel_proto": "BodyUrls-tcp://et.sbgov.cn:11010,BodyUrls-tcp://et4.sbgov.cn:11010,BodyUrls-tcp://et3.sbgov.cn:11010","nat_type": "Unknown","id": "382776355","version": "2.4.5-4c4d172e"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_zheyimiaowangluo","cost": "p2p","lat_ms": "61.41","loss_rate": "0.0%","rx_bytes": "330.89 kB","tx_bytes": "385.56 kB","tunnel_proto": "BodyUrls-tcp://et2.sbgov.cn:11010","nat_type": "Restricted","id": "830753314","version": "2.4.5-4c4d172e"},
-  {"cidr": "","ipv4": "","hostname": "PublicServer_更好的游戏联机体验欢迎使用Astral","cost": "relay(2)","lat_ms": "55.00","loss_rate": "0.0%","rx_bytes": "0 B","tx_bytes": "0 B","tunnel_proto": "","nat_type": "NoPat","id": "2118975689","version": "2.4.5-4c4d172e"},
-  {"cidr": "10.1.1.1/24","ipv4": "10.1.1.1","hostname": "Server-2025","cost": "p2p","lat_ms": "11.41","loss_rate": "0.0%","rx_bytes": "1.57 MB","tx_bytes": "1.62 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "2482419606","version": "2.5.0-88a45d11"},
-  {"cidr": "10.1.1.2/24","ipv4": "10.1.1.2","hostname": "fnos","cost": "p2p","lat_ms": "12.67","loss_rate": "0.0%","rx_bytes": "5.33 MB","tx_bytes": "2.77 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "693759497","version": "2.4.5-4c4d172e"},
-  {"cidr": "10.1.1.3/24","ipv4": "10.1.1.3","hostname": "FnOS","cost": "p2p","lat_ms": "11.66","loss_rate": "0.0%","rx_bytes": "1.89 MB","tx_bytes": "1.94 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "1735547491","version": "2.5.0-88a45d11"},
-  {"cidr": "10.1.1.10/24","ipv4": "10.1.1.10","hostname": "utopa","cost": "p2p","lat_ms": "0.41","loss_rate": "0.0%","rx_bytes": "1.86 MB","tx_bytes": "5.27 MB","tunnel_proto": "tcp","nat_type": "NoPat","id": "3737177107","version": "2.5.0-88a45d11"}
-  // ... 更多数据
-])
-allNodes.value.forEach(peer => {
-  if (peer.hostname.startsWith('PublicServer_')) {
-    peer.type = 'server'
-  } else {
-    peer.type = 'normal'
-  }
 })
 
 const normalNodes = computed(() => allNodes.value.filter(n => n.type === 'normal'))
@@ -398,6 +367,39 @@ const fetchNodes = async () => {
   } finally {
     dataLoading.value = false
   }
+}
+
+const mockData = () => {
+    allNodes.value = [
+      {"cidr": "10.1.1.11/24","ipv4": "10.1.1.11","hostname": "FeiNiu","cost": "Local","lat_ms": "-","loss_rate": "-","rx_bytes": "-","tx_bytes": "-","tunnel_proto": "-","nat_type": "NoPAT","id": "1033344496","version": "2.5.0-88a45d11"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_JoeAliShenzhen","cost": "p2p","lat_ms": "10.64","loss_rate": "0.0%","rx_bytes": "1.20 MB","tx_bytes": "1.45 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "206838084","version": "2.4.5-4c4d172e"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_WIN-JN6PUF54PQR_ser","cost": "p2p","lat_ms": "29.82","loss_rate": "0.0%","rx_bytes": "1.32 MB","tx_bytes": "1.65 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "784110481","version": "2.5.0-88a45d11"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_tencent-vm","cost": "p2p","lat_ms": "27.20","loss_rate": "0.0%","rx_bytes": "79.42 kB","tx_bytes": "98.39 kB","tunnel_proto": "BodyUrls-tcp://et.sbgov.cn:11010,BodyUrls-tcp://et4.sbgov.cn:11010,BodyUrls-tcp://et3.sbgov.cn:11010","nat_type": "Unknown","id": "382776355","version": "2.4.5-4c4d172e"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_zheyimiaowangluo","cost": "p2p","lat_ms": "61.41","loss_rate": "0.0%","rx_bytes": "330.89 kB","tx_bytes": "385.56 kB","tunnel_proto": "BodyUrls-tcp://et2.sbgov.cn:11010","nat_type": "Restricted","id": "830753314","version": "2.4.5-4c4d172e"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_更好的游戏联机体验欢迎使用Astral","cost": "relay(2)","lat_ms": "55.00","loss_rate": "0.0%","rx_bytes": "0 B","tx_bytes": "0 B","tunnel_proto": "","nat_type": "NoPat","id": "2118975689","version": "2.4.5-4c4d172e"},
+      {"cidr": "10.1.1.1/24","ipv4": "10.1.1.1","hostname": "Server-2025","cost": "p2p","lat_ms": "11.41","loss_rate": "0.0%","rx_bytes": "1.57 MB","tx_bytes": "1.62 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "2482419606","version": "2.5.0-88a45d11"},
+      {"cidr": "10.1.1.2/24","ipv4": "10.1.1.2","hostname": "fnos","cost": "p2p","lat_ms": "12.67","loss_rate": "0.0%","rx_bytes": "5.33 MB","tx_bytes": "2.77 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "693759497","version": "2.4.5-4c4d172e"},
+      {"cidr": "10.1.1.3/24","ipv4": "10.1.1.3","hostname": "FnOS","cost": "p2p","lat_ms": "11.66","loss_rate": "0.0%","rx_bytes": "1.89 MB","tx_bytes": "1.94 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "1735547491","version": "2.5.0-88a45d11"},
+      {"cidr": "10.1.1.10/24","ipv4": "10.1.1.10","hostname": "utopa","cost": "p2p","lat_ms": "0.41","loss_rate": "0.0%","rx_bytes": "1.86 MB","tx_bytes": "5.27 MB","tunnel_proto": "tcp","nat_type": "NoPat","id": "3737177107","version": "2.5.0-88a45d11"},
+      {"cidr": "10.1.1.11/24","ipv4": "10.1.1.11","hostname": "FeiNiu","cost": "Local","lat_ms": "-","loss_rate": "-","rx_bytes": "-","tx_bytes": "-","tunnel_proto": "-","nat_type": "NoPAT","id": "1033344496","version": "2.5.0-88a45d11"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_JoeAliShenzhen","cost": "p2p","lat_ms": "10.64","loss_rate": "0.0%","rx_bytes": "1.20 MB","tx_bytes": "1.45 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "206838084","version": "2.4.5-4c4d172e"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_WIN-JN6PUF54PQR_ser","cost": "p2p","lat_ms": "29.82","loss_rate": "0.0%","rx_bytes": "1.32 MB","tx_bytes": "1.65 MB","tunnel_proto": "tcp","nat_type": "PortRestricted","id": "784110481","version": "2.5.0-88a45d11"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_tencent-vm","cost": "p2p","lat_ms": "27.20","loss_rate": "0.0%","rx_bytes": "79.42 kB","tx_bytes": "98.39 kB","tunnel_proto": "BodyUrls-tcp://et.sbgov.cn:11010,BodyUrls-tcp://et4.sbgov.cn:11010,BodyUrls-tcp://et3.sbgov.cn:11010","nat_type": "Unknown","id": "382776355","version": "2.4.5-4c4d172e"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_zheyimiaowangluo","cost": "p2p","lat_ms": "61.41","loss_rate": "0.0%","rx_bytes": "330.89 kB","tx_bytes": "385.56 kB","tunnel_proto": "BodyUrls-tcp://et2.sbgov.cn:11010","nat_type": "Restricted","id": "830753314","version": "2.4.5-4c4d172e"},
+      {"cidr": "","ipv4": "","hostname": "PublicServer_更好的游戏联机体验欢迎使用Astral","cost": "relay(2)","lat_ms": "55.00","loss_rate": "0.0%","rx_bytes": "0 B","tx_bytes": "0 B","tunnel_proto": "","nat_type": "NoPat","id": "2118975689","version": "2.4.5-4c4d172e"},
+      {"cidr": "10.1.1.1/24","ipv4": "10.1.1.1","hostname": "Server-2025","cost": "p2p","lat_ms": "11.41","loss_rate": "0.0%","rx_bytes": "1.57 MB","tx_bytes": "1.62 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "2482419606","version": "2.5.0-88a45d11"},
+      {"cidr": "10.1.1.2/24","ipv4": "10.1.1.2","hostname": "fnos","cost": "p2p","lat_ms": "12.67","loss_rate": "0.0%","rx_bytes": "5.33 MB","tx_bytes": "2.77 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "693759497","version": "2.4.5-4c4d172e"},
+      {"cidr": "10.1.1.3/24","ipv4": "10.1.1.3","hostname": "FnOS","cost": "p2p","lat_ms": "11.66","loss_rate": "0.0%","rx_bytes": "1.89 MB","tx_bytes": "1.94 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "1735547491","version": "2.5.0-88a45d11"},
+      {"cidr": "10.1.1.10/24","ipv4": "10.1.1.10","hostname": "utopa","cost": "p2p","lat_ms": "0.41","loss_rate": "0.0%","rx_bytes": "1.86 MB","tx_bytes": "5.27 MB","tunnel_proto": "tcp","nat_type": "NoPat","id": "3737177107","version": "2.5.0-88a45d11"}
+      // ... 更多数据
+  ]  
+  allNodes.value.forEach(peer => {
+    if (peer.hostname.startsWith('PublicServer_')) {
+      peer.type = 'server'
+    } else {
+      peer.type = 'normal'
+    }
+  })
 }
 
 // 实际项目中这里调用 HTTP API
