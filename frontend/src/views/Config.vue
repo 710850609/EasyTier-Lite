@@ -295,7 +295,7 @@ const saveConfig = async () => {
     data.peer = data.peer.map(e => ({uri: e}))
     data.proxy_network = data.proxy_network.map(e => ({cidr: e}))
     return new Promise((resolve) => {
-      api.config.save(data).then(res => {
+      api.configs.save(data).then(res => {
         toast.success('配置保存成功')
         resolve()
         // window.location.reload()
@@ -314,10 +314,10 @@ const downloadConfig = () => {
 
 onMounted(async () => {
   // 加载公共节点
-  api.config.publicPeers().then(data => {
+  api.configs.publicPeers().then(data => {
     publicPeerOptions.value = data.data
   })
-  api.config.get().then(data => {
+  api.configs.get().then(data => {
     config.value = data.data
     config.value.peer = config.value.peer.map(e => e.uri)
     config.value.proxy_network = (config.value.proxy_network || []).map(e => e.cidr)
