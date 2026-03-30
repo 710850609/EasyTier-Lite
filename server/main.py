@@ -286,5 +286,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='CGI Proxy HTTP Server')
     parser.add_argument('--host', default='0.0.0.0', help='Host to bind to (default: 0.0.0.0)')
     parser.add_argument('--port', type=int, default=5666, help='Port to bind to (default: 5666)')    
-    args = parser.parse_args()    
+    args = parser.parse_args()
+    print(f"http://{args.host}:{args.port}/")
     start_server(args.host, args.port)

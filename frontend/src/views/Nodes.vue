@@ -144,15 +144,31 @@
         </table>
       </div>
     </var-paper>
+
+    <var-dialog v-model:show="showFastSettingTip" :close-on-click-overlay="false" 
+      @confirm="openConfigView(true)" @cancel="openConfigView(false)"
+      confirmButtonText="快速设置" cancelButtonText="正常设置">
+      <template #title>
+        <var-icon name="information" color="#2979ff" />
+        <span style="color: #2979ff" >首次组网设置</span>
+      </template>
+      <var-cell icon="thumb-up" title="使用快速设置？" description="填写网络名称和密码，即可完成组网设置（新手推荐）" />
+    </var-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
+import { Dialog } from '@varlet/ui'
 import { copyToClipboard } from '../utils/clipboard.js'
 import { api } from '../utils/api.js'
 import toast from '../components/toast.js'
 import { NODES_SELECTED_COLUMNS_KEY, NODES_SELECTED_NODE_TYPES_KEY, NODES_REFRESH_STEP_KEY } from '../config/storage-keys.js'
+
+// 注入菜单切换方法和快速设置模式
+const setActiveMenu = inject('setActiveMenu')
+const fastSettingMode = inject('fastSettingMode')
+const showFastSettingTip = ref(false)
 
 const showFilterMenu = ref(false)
 const dataLoading = ref(false)
@@ -402,9 +418,50 @@ const mockData = () => {
   })
 }
 
+const openConfigView = (isFastConfig) => {
+  console.log('isFastConfig', isFastConfig)
+  if (isFastConfig) {
+    toast.info('请完成快速设置，并保存')
+    fastSettingMode.value = true
+  } else {
+    toast.info('请设置组网参数，并保存')
+    fastSettingMode.value = false
+  }
+  setActiveMenu?.('config')
+}
+
 // 实际项目中这里调用 HTTP API
 onMounted(async () => {
   loadSettings()
+  const needSetting = await api.config.needSetting();
+  if (needSetting.data.needConfig) {
+    showFastSettingTip.value = true
+    //  Dialog({
+    //     'title': "首次组网设置",
+    //     // 'message': '使用快速设置？（新手推荐）',
+    //     message: () =>
+    //       h(Icon, {
+    //         name: 'window-close',
+    //         size: '20',
+    //         style: { cursor: 'pointer', marginLeft: '8px' },
+    //         onClick: () => {
+    //             snackbar.clear()
+    //           }
+    //       }),
+    //     'close-on-click-overlay': false,
+    //     'onConfirm': () => {
+    //       toast.info('请设置【网络名称】、【网络密码】并保存')
+    //       fastSettingMode.value = true
+    //       setActiveMenu?.('config')
+    //     },
+    //     'onCancel': () => {
+    //       toast.info('请设置组网参数，并保存')
+    //       fastSettingMode.value = false
+    //       setActiveMenu?.('config')
+    //     }
+    //   })
+      return;
+  }
   await fetchNodes()
   loadingSkeleton.value = false
   refreshDataTask.value = setInterval(fetchNodes, refreshStep.value * 1000)

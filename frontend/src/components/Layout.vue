@@ -35,12 +35,18 @@ import toast from './toast.js'
 const isMobile = ref(window.innerWidth < 768)
 const activeMenu = ref('nodes')
 const isMenuCollapsed = ref(false)
+const fastSettingMode = ref(false)
+
+const handleMenuChange = (key) => {
+  activeMenu.value = key
+}
 
 // 提供主题状态给子组件
 provide('isDark', isDark)
-
 // 提供当前菜单状态给子组件
 provide('activeMenu', readonly(activeMenu))
+provide('setActiveMenu', handleMenuChange)
+provide('fastSettingMode', fastSettingMode)
 
 const currentComponent = computed(() => {
   const loader = componentMap[activeMenu.value]
@@ -50,10 +56,6 @@ const currentComponent = computed(() => {
   }
   return defineAsyncComponent(loader)
 })
-
-const handleMenuChange = (key) => {
-  activeMenu.value = key
-}
 
 const handleResize = () => {
   isMobile.value = window.innerWidth < 768
@@ -77,9 +79,9 @@ const loadVConsole = async () => {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
-  
   // 加载 VConsole（如果之前开启过）
   loadVConsole()
+
 })
 
 onUnmounted(() => {

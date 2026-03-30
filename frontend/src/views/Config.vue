@@ -3,7 +3,7 @@
     <var-paper class="config-section" :elevation="1">
       <div class="section-header">
         <var-icon name="cog" size="24" color="var(--color-primary)" />
-        <span class="section-title">基础设置</span>
+        <span class="section-title">{{ fastSettingMode ? '快速设置' : '基础设置' }}</span>
       </div>
       
       <var-form ref="form" :disabled="false">
@@ -12,9 +12,9 @@
           placeholder="网络名称"
           :rules="[(v) => !!v || '网络名称不能为空']"
         >
-          <!-- <template #prepend-icon>
-            <var-icon name="network-wired" />
-          </template> -->
+          <template #prepend-icon>
+            <var-icon name="wifi" />
+          </template>
           <template #label>网络名称</template>
         </var-input>
 
@@ -24,26 +24,28 @@
           type="password"
           autocomplete="new-password"
         >
-          <!-- <template #prepend-icon>
-            <var-icon name="lock" />
-          </template> -->
+          <template #prepend-icon>
+            <var-icon name="lock-outline" />
+          </template>
           <template #label>网络密码</template>
         </var-input>
 
         <var-input
+          v-if="!fastSettingMode"
           v-model="config.ipv4"
           placeholder="IPv4"
         >
-          <!-- <template #prepend-icon>
-            <var-icon name="globe" />
-          </template> -->
+          <template #prepend-icon>
+            <var-icon name="pin-outline" />
+          </template>
           <template #label>IPv4 网段</template>
         </var-input>
 
         <var-select
+          v-if="!fastSettingMode"
           v-model="config.peers"
           multiple
-          placeholder="选择公共节点"
+          placeholder="公共节点"
         >
           <template #label>公共节点列表</template>
           <var-option 
@@ -52,12 +54,20 @@
             :label="peer"
             :value="peer"
           />
+          <var-cell v-for="peer in ['1']"  icon="" :title="peer">
+            <template #>
+              <var-input placeholder="输入公共节点" size="small" />
+            </template>
+            <template #extra>
+              <var-button type="success" size="small">添加</var-button>
+            </template>
+          </var-cell>
         </var-select>
       </var-form>
     </var-paper>
 
     <!-- 高级设置 -->
-    <var-collapse v-model="advancedOpen" class="advanced-section">
+    <var-collapse v-if="!fastSettingMode" v-model="advancedOpen" class="advanced-section" :class="`var-elevation--2`">
       <var-collapse-item name="advanced">
         <template #title>
           <div class="collapse-title">
@@ -139,7 +149,7 @@
          <var-button type="primary" size="large" block @click="saveConfig">
            保存并重启服务
          </var-button> 
-         <var-button type="primary" size="large" block @click="downloadConfig">
+         <var-button type="primary" size="large" block @click="downloadConfig" v-if="!fastSettingMode">
            导出配置文件
          </var-button>
        </var-space>
@@ -148,8 +158,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import toast from '../components/toast.js'
+import { api } from '../utils/api.js'
+
+// 注入快速设置模式
+const fastSettingMode = inject('fastSettingMode')
 
 const newRandomStr = (length = 8) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -164,7 +178,7 @@ const advancedOpen = ref([])
 const form = ref(null)
 
 const config = ref({
-  network_name: `fnOS-${newRandomStr()}`,
+  network_name: ``,
   network_secret: '',
   ipv4: '10.0.0.0',
   peers: [],
@@ -240,10 +254,10 @@ const mtuStr = computed({
   }
 })
 
-const publicPeerOptions = [
-  'tcp://easytier.public.com:11010',
-  'udp://easytier.public.com:11011',
-  'wss://easytier.public.com:11012'
+let publicPeerOptions = [
+  // 'tcp://easytier.public.com:11010',
+  // 'udp://easytier.public.com:11011',
+  // 'wss://easytier.public.com:11012'
 ]
 
 const saveConfig = async () => {
@@ -264,6 +278,9 @@ onMounted(async () => {
   // 加载现有配置
   // const response = await fetch('/api/config')
   // config.value = await response.json()
+  api.config.publicPeers().then(data => {
+    publicPeerOptions = data.data
+  })
 })
 </script>
 

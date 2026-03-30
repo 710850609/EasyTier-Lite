@@ -105,6 +105,8 @@ export const api = {
   
   // 配置相关
   config: {
+    needSetting: () => get('/configs/need_setting'),
+    publicPeers: () => get('/configs/public_peers'),
     get: () => get('/config'),
     save: (data) => post('/config', data)
   },
