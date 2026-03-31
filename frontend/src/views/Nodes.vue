@@ -161,6 +161,7 @@
 import { copyToClipboard } from '../utils/clipboard.js'
 import { api } from '../utils/api.js'
 import toast from '../components/toast.js'
+import { Poller } from '../utils/poller.js'
 import { NODES_SELECTED_COLUMNS_KEY, NODES_SELECTED_NODE_TYPES_KEY, NODES_REFRESH_STEP_KEY } from '../config/storage-keys.js'
 
 // 注入菜单切换方法和快速设置模式
@@ -219,13 +220,17 @@ watch(selectedNodeTypes, (newVal) => {
   localStorage.setItem(NODES_SELECTED_NODE_TYPES_KEY, JSON.stringify(newVal))
 }, { deep: true })
 
+// 创建轮询器实例
+const nodesPoller = new Poller({
+  interval: refreshStep.value * 1000,
+  immediate: false,
+  onError: (error) => console.error('获取节点列表失败:', error)
+})
+
+// 监听刷新间隔变化，更新轮询器
 watch(refreshStep, (newVal) => {
   localStorage.setItem(NODES_REFRESH_STEP_KEY, newVal.toString())
-  if (refreshDataTask.value) {
-    clearInterval(refreshDataTask.value)
-    refreshDataTask.value = null
-  }
-  refreshDataTask.value = setInterval(fetchNodes, refreshStep.value * 1000)
+  nodesPoller.setInterval(newVal * 1000)
 })
 
 const refreshStepList = [
@@ -424,23 +429,30 @@ const openConfigView = (isFastConfig) => {
 // 实际项目中这里调用 HTTP API
 onMounted(async () => {
   loadSettings()
-  const needSetting = await api.configs.needSetting();
-  if (needSetting.data.needConfig) {
-    showFastSettingTip.value = true
-    return;
+  try {
+    const needSetting = await api.configs.needSetting();
+    if (needSetting.data.needConfig) {
+      showFastSettingTip.value = true
+      return;
+    }
+  } catch (error) {
+    console.error('获取配置状态失败:', error)
+    toast.error('获取配置状态失败: ' + error.message)
+    return
   }
-  // mockData()
-  await fetchNodes()
-  loadingSkeleton.value = false
-  refreshDataTask.value = setInterval(fetchNodes, refreshStep.value * 1000)
+  try {
+    // mockData()
+    await fetchNodes()
+    loadingSkeleton.value = false
+    nodesPoller.start(fetchNodes)
+  } catch (error) {
+    console.error('获取节点列表失败:', error)
+  }
 })
 
 // 页面销毁时清除定时器
 onUnmounted(() => {
-  if (refreshDataTask.value) {
-    clearInterval(refreshDataTask.value)
-    refreshDataTask.value = null
-  }
+  nodesPoller.stop()
 })
 
 </script>
