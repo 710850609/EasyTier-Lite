@@ -16,7 +16,7 @@ logging.basicConfig(
 
 def http_handle():
     # 静态文件根目录
-    BASE_PATH = "./"
+    BASE_PATH = "../frontend/"
 
     # 从 REQUEST_URI 里拿到 index.cgi 后面的路径
     REQUEST_URI = os.environ.get("REQUEST_URI", "")

@@ -105,8 +105,10 @@ compiling_frontend() {
     npm install
     npm run build
     cd ../
-    cp -rf frontend/dist/* EasyTier-Lite/app/ui/
-    echo '编译并拷贝到app/ui目录'
+    rm -rf EasyTier-Lite/app/frontend
+    mkdir -p EasyTier-Lite/app/frontend
+    cp -rf frontend/dist/* EasyTier-Lite/app/frontend/
+    echo '编译并拷贝到app/frontend目录'
 }
 
 get_et_latest_version() {
