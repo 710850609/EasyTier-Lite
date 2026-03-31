@@ -80,7 +80,6 @@
           <div>
             <var-cell><h3>相关链接</h3></var-cell>
             <var-cell><var-link type="primary" href="https://github.com/710850609/fpk-easytier-lite" target="_blank" underline="hover">易组网 源码</var-link></var-cell>
-            <var-cell><var-link type="primary" href="https://github.com/easyTier/easytier" target="_blank" underline="hover">EasyTier 源码</var-link></var-cell>
           </div>
         </template>
       </var-cell>

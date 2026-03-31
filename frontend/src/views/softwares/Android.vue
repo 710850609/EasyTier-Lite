@@ -27,6 +27,7 @@
           </var-cell>
         </var-space>
       </div>
+      <var-divider />
       <div class="download-grid">
         <var-paper class="download-item" :elevation="1">
           <div class="item-header">

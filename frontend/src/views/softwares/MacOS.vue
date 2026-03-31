@@ -26,7 +26,8 @@
             </var-link>
           </var-cell>
         </var-space>
-      </div>      
+      </div>
+      <var-divider />
       <div class="download-grid">
         <var-paper class="download-item" :elevation="1">
           <div class="item-header">
@@ -67,7 +68,6 @@
 
 <script setup>
 import { ref } from 'vue'
-import { api } from '../../utils/api.js'
 
 const githubProxy = ref('https://ghfast.top')
 

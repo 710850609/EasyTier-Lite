@@ -6,7 +6,7 @@
  */
 
 import { ref } from 'vue'
-import { StyleProvider, Themes } from '@varlet/ui'
+import { StyleProvider } from '@varlet/ui'
 import { freshLightTheme, freshDarkTheme } from './colors.js'
 import { THEME_MODE_KEY } from './storage-keys.js'
 

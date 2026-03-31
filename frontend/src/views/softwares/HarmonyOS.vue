@@ -31,13 +31,12 @@
 </template>
 
 <script setup>
-import { Snackbar } from '@varlet/ui'
 import { copyToClipboard } from '../../utils/clipboard.js'
 
-const harmonyStoreUrl = 'https://appgallery.huawei.com/app/detail?id=top.frankhan.easytier&channelId=SHARE&source=appshare'
-
 const copyAndOpenLink = () => {
-  window.open(harmonyStoreUrl, '_blank')
+  const link = 'https://appgallery.huawei.com/app/detail?id=top.frankhan.easytier&channelId=SHARE&source=appshare'
+  copyToClipboard(link);
+  window.open(link, '_blank');
 }
 </script>
 

@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/vite'
+import { VarletUIResolver } from 'unplugin-vue-components/resolvers'
 
 // 生产环境配置
 const BASE = '/cgi/ThirdParty/EasyTier-Lite/index.cgi'
@@ -9,7 +12,22 @@ const fnosToken = 'k/8Qbvscxmlur9xYlceJUssSS7ho0AM7CN4r/qM6p9U='
 
 export default defineConfig(({ mode }) => ({
   base: mode === 'production' ? BASE : './',
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    // 自动导入 Vue 相关 API
+    AutoImport({
+      imports: [
+        'vue',
+        'vue-router'
+      ],
+      dts: 'src/auto-imports.d.ts'
+    }),
+    // 自动导入组件
+    Components({
+      resolvers: [VarletUIResolver()],
+      dts: 'src/components.d.ts'
+    })
+  ],
   define: {
     // 注入 API 基础路径（统一使用生产路径）
     __API_BASE__: JSON.stringify(API_BASE)

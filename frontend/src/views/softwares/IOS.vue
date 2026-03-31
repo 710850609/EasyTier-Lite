@@ -3,43 +3,26 @@
     <var-paper class="download-card" :elevation="2">
       <div class="platform-header">
         <div class="platform-info">
-          <h2>EasyTier 苹果版本</h2>
+          <h2>EasyTier IOS版本</h2>
         </div>
       </div>
       <div class="version-info">
+        <var-cell>如未安装TestFlight，请先安装TestFlight。再从链接安装EasyTier </var-cell>
         <var-cell>安装应用，并导出飞牛上配置toml文件后。把toml配置文件导入到easytier中，并启动网络即可。</var-cell>
         <var-cell>
           其他使用说明，请访问 
-          <var-link type="primary" href="https://easytier.cn/" target="_blank" underline="none">
+          <var-link type="primary" href="https://easytier.cn/" target="_blank" underline="hover">
             EasyTier官网
           </var-link>
         </var-cell>
-        <var-space :size="[20, 20]" justify="center">
-          <var-cell>
-            <var-link type="primary" underline="none" href="https://github.com/EasyTier/EasyTier/releases" target="_blank">
-              <img src="https://img.shields.io/github/v/tag/EasyTier/EasyTier?color=blue&logo=github" />
-            </var-link>
-          </var-cell>
-          <var-cell>
-            <var-link type="primary" underline="none" href="https://github.com/EasyTier/EasyTier/releases" target="_blank">
-              <img src="https://img.shields.io/github/v/release/EasyTier/EasyTier?color=blue&logo=github" />
-            </var-link>
-          </var-cell>
-        </var-space>
       </div>
+      <var-divider />
       <div>
-        <var-divider />
         <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="normal" block @click="downloadLatest" auto-loading>
+          <var-button type="primary" size="normal" block @click="copyAndOpenLink" auto-loading>
             <template #default>
-              <var-icon name="download" style="margin-right: 8px;" />
-              下载最新版
-            </template>
-          </var-button>
-          <var-button type="primary" size="normal" block @click="downloadRelease" auto-loading>
-            <template #default>
-              <var-icon name="download" style="margin-right: 8px;" />
-              下载稳定版
+              <var-icon name="share" style="margin-right: 8px;" />
+              前往 TestFlight 安装
             </template>
           </var-button>
         </var-space>
@@ -49,48 +32,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { api } from '../../utils/api.js'
+import { copyToClipboard } from '../../utils/clipboard.js'
 
-const githubProxy = ref('https://ghfast.top')
-
-const downloadRelease = () => {
-  return new Promise((resolve, reject) => {
-    let url = `https://github.com/EasyTier/EasyTier/releases/latest/download/app-universal-release.apk`;
-    if (githubProxy.value) {
-      url = `${githubProxy.value}/${url}`;
-    }
-    console.log(url)
-    window.open(url, '_blank')
-    resolve()
-  })
-}
-
-const downloadLatest = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const fetchUrl = 'https://api.github.com/repos/EasyTier/EasyTier/releases';
-      if (githubProxy.value) {
-        fetchUrl = `${githubProxy.value}/${fetchUrl}`;
-      }
-      console.log(fetchUrl)
-      const response = await fetch(fetchUrl);
-      const releases = await response.json();
-      const preRelease = releases.find(r => r.prerelease === true);
-      let url = null;
-      if (preRelease) {
-          // 下载第一个资产文件
-          const asset = preRelease.assets[0];
-          if (asset) {
-              url = asset.browser_download_url;
-          }
-      }
-      window.open(url, '_blank')
-      resolve()
-    } catch (error) {
-      reject(error)
-    }
-  })
+const copyAndOpenLink = () => {
+  const link = 'https://testflight.apple.com/join/YWnDyJfM';
+  copyToClipboard(link);
+  window.open(link, '_blank');
 }
 </script>
 

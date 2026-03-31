@@ -1,6 +1,5 @@
-import { Snackbar } from '@varlet/ui'
+import { Snackbar, Icon } from '@varlet/ui'
 import { h } from 'vue'
-import { Icon } from '@varlet/ui'
 
 // 类型映射
 const typeMap = {
