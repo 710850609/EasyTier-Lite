@@ -12,13 +12,13 @@ export const menuTree = [
   { key: 'config', label: '配置', icon: 'bookmark-outline', title: '配置管理', component: 'Config' },
   { key: 'software', label: '应用', icon: 'shopping-outline', title: '软件下载',
     children: [
-      { key: 'softwares-windows', label: 'Windows', icon: './svg/windows.svg', component: 'softwares/Windows' },
-      { key: 'softwares-android', label: 'Android', icon: './svg/android.svg', component: 'softwares/Android' },
-      { key: 'softwares-macos', label: 'MacOS', icon: './svg/mac.svg', component: 'softwares/MacOS' },
-      { key: 'softwares-ios', label: 'IOS', icon: './svg/ios.svg', component: 'softwares/IOS' },
-      { key: 'softwares-harmonyos', label: 'HarmonyOS', icon: './svg/harmony.svg', component: 'softwares/HarmonyOS' },
-      { key: 'softwares-linux', label: 'Linux', icon: './svg/linux.svg', component: 'softwares/Linux' },
-      // { key: 'softwares-feiniu', label: '飞牛', icon: './svg/feiniu.png', component: 'softwares/FeiNiu' },
+      { key: 'softwares-windows', label: 'Windows', icon: './images/windows.svg', component: 'softwares/Windows' },
+      { key: 'softwares-android', label: 'Android', icon: './images/android.svg', component: 'softwares/Android' },
+      { key: 'softwares-macos', label: 'MacOS', icon: './images/mac.svg', component: 'softwares/MacOS' },
+      { key: 'softwares-ios', label: 'IOS', icon: './images/ios.svg', component: 'softwares/IOS' },
+      { key: 'softwares-harmonyos', label: 'HarmonyOS', icon: './images/harmony.svg', component: 'softwares/HarmonyOS' },
+      { key: 'softwares-linux', label: 'Linux', icon: './images/linux.svg', component: 'softwares/Linux' },
+      // { key: 'softwares-feiniu', label: '飞牛', icon: './images/feiniu.png', component: 'softwares/FeiNiu' },
     ]
   },
   { key: 'settings', label: '设置', icon: 'cog-outline', title: '系统设置', component: 'Settings' }
