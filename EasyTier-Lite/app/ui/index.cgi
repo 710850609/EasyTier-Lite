@@ -29,15 +29,16 @@ def http_handle():
     if REL_PATH == "" or REL_PATH == "/":
         REL_PATH = "/index.html"
 
-    TARGET_FILE = BASE_PATH + REL_PATH
-
     # 防御：禁止 .. 越级访问
-    if ".." in TARGET_FILE:
+    if ".." in REL_PATH:
         print("Status: 400 Bad Request")
         print("Content-Type: text/plain; charset=utf-8")
         print("")
         print("Bad Request")
         sys.exit(0)
+
+    TARGET_FILE = BASE_PATH + REL_PATH
+
 
     # 判断文件是否存在
     if not os.path.isfile(TARGET_FILE):
