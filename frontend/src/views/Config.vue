@@ -299,10 +299,8 @@ const saveConfig = async () => {
     data.proxy_network = data.proxy_network.map(e => ({cidr: e}))
     api.configs.save(data).then(res => {
       toast.success('配置保存成功')
+    }).finally(() => {
       resolve()
-    }).catch(err => {
-      toast.error('保存失败: ' + err.message)
-      reject(err)
     })
   })
 }

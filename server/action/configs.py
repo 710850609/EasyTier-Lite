@@ -20,13 +20,7 @@ def save(data, *kwargs):
         doc = tomlkit.parse(f.read())
     if not doc["network_identity"]:
         doc["network_identity"] = {network_name: '', network_secret: ''}
-    isFastConfig = data.pop('isFastConfig', None)
     __deep_merge(doc, data)
-    # network_identity = data.get('network_identity', {})
-    # doc["network_identity"]["network_name"] = network_identity.get('network_name', '')
-    # doc["network_identity"]["network_secret"] = network_identity.get('network_secret', '')
-    # if (not data['isFastConfig']):
-    #     logging.info(f"{doc}")
     
     with open(ET_CONFIG_FILE, "w", encoding="utf-8") as f:
         f.write(tomlkit.dumps(doc))
@@ -71,8 +65,8 @@ def __deep_merge(base, override):
     """深度合并两个字典，override 中的值会覆盖 base 中的值"""
     for key, value in override.items():
         # 跳过 null 值，不写入 TOML
-        if value is None:
-            continue
+        # if value is None:
+        #     continue
         if key in base and isinstance(base[key], dict) and isinstance(value, dict):
             __deep_merge(base[key], value)
         else:
