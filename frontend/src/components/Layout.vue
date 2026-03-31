@@ -69,7 +69,6 @@ const loadVConsole = async () => {
   try {
     const VConsole = await import('vconsole')
     new VConsole.default()
-    console.log('VConsole 已加载')
   } catch (error) {
     console.error('加载 VConsole 失败:', error)
     localStorage.setItem(VCONSOLE_ENABLED_KEY, 'false')

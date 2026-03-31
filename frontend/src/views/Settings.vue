@@ -72,12 +72,15 @@
       <var-cell>
         <template #default></template>
         <template #description>
-          <div>EasyTier 在飞牛上简化使用的版本，更合适新手简单上手使用，简记：易组网。</div>
+          <div>
+            <span>EasyTier 在飞牛上简化使用的版本，更合适新手简单上手使用，简记：<strong>易组网</strong></span>
+            <img src="https://img.shields.io/github/v/release/710850609/fpk-easytier-lite?color=blue&logo=github" />
+          </div>
           <var-divider />
           <div>
-            <p><var-link type="primary" href="https://github.com/710850609/fpk-easytier-lite" target="_blank">易组网 源码</var-link></p>
-            <p><var-link type="primary" href="https://github.com/easyTier/easytier" target="_blank">EasyTier 源码</var-link></p>
-            <p><var-link type="primary" href="https://easytier.cn/" target="_blank">EasyTier 文档</var-link></p>
+            <var-cell><h3>相关链接</h3></var-cell>
+            <var-cell><var-link type="primary" href="https://github.com/710850609/fpk-easytier-lite" target="_blank" underline="hover">易组网 源码</var-link></var-cell>
+            <var-cell><var-link type="primary" href="https://github.com/easyTier/easytier" target="_blank" underline="hover">EasyTier 源码</var-link></var-cell>
           </div>
         </template>
       </var-cell>

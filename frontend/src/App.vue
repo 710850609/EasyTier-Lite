@@ -59,6 +59,16 @@ html.dark {
   display: none !important;
 }
 
+/* Snackbar success 样式 - 使用 CSS 变量 */
+.var-snackbar--success {
+  background: var(--snackbar-success-background) !important;
+  color: var(--snackbar-success-color) !important;
+}
+
+.var-snackbar--success .var-snackbar__content {
+  color: var(--snackbar-success-color) !important;
+}
+
 /* ========== Varlet 组件全局样式适配 ========== */
 
 /* var-select 下拉框样式适配 */

@@ -64,6 +64,8 @@ export const freshLightTheme = {
   '--snackbar-background': '#e2e8f0',
   '--snackbar-color': '#1e293b',
   '--snackbar-info-background': '#cbd5e1',
+  '--snackbar-success-background': '#07c160',
+  '--snackbar-success-color': '#ffffff',
 }
 
 // 清新蓝绿 - 暗色主题
@@ -126,4 +128,6 @@ export const freshDarkTheme = {
   '--snackbar-background': '#1e293b',
   '--snackbar-color': 'rgba(255, 255, 255, 0.87)',
   '--snackbar-info-background': '#334155',
+  '--snackbar-success-background': '#2ba245',
+  '--snackbar-success-color': '#000000',
 }

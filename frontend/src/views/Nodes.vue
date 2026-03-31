@@ -128,7 +128,7 @@
               >
                 <template v-if="col.key === 'cost'">
                   <var-badge 
-                    :type="node.cost === 'Local' ? '' : (node.cost === 'p2p' ? 'success' : 'primary')" 
+                    :type="node.cost === 'Local' ? 'info' : (node.cost === 'p2p' ? 'success' : 'primary')" 
                     :value="parseNode(node, col.key)"
                   />
                 </template>
@@ -405,7 +405,7 @@ const mockData = () => {
       {"cidr": "10.1.1.1/24","ipv4": "10.1.1.1","hostname": "Server-2025","cost": "p2p","lat_ms": "11.41","loss_rate": "0.0%","rx_bytes": "1.57 MB","tx_bytes": "1.62 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "2482419606","version": "2.5.0-88a45d11"},
       {"cidr": "10.1.1.2/24","ipv4": "10.1.1.2","hostname": "fnos","cost": "p2p","lat_ms": "12.67","loss_rate": "0.0%","rx_bytes": "5.33 MB","tx_bytes": "2.77 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "693759497","version": "2.4.5-4c4d172e"},
       {"cidr": "10.1.1.3/24","ipv4": "10.1.1.3","hostname": "FnOS","cost": "p2p","lat_ms": "11.66","loss_rate": "0.0%","rx_bytes": "1.89 MB","tx_bytes": "1.94 MB","tunnel_proto": "udp","nat_type": "PortRestricted","id": "1735547491","version": "2.5.0-88a45d11"},
-      {"cidr": "10.1.1.10/24","ipv4": "10.1.1.10","hostname": "utopa","cost": "p2p","lat_ms": "0.41","loss_rate": "0.0%","rx_bytes": "1.86 MB","tx_bytes": "5.27 MB","tunnel_proto": "tcp","nat_type": "NoPat","id": "3737177107","version": "2.5.0-88a45d11"}
+      {"cidr": "10.1.1.10/24","ipv4": "10.1.1.10","hostname": "utopa","cost": "relay","lat_ms": "0.41","loss_rate": "0.0%","rx_bytes": "1.86 MB","tx_bytes": "5.27 MB","tunnel_proto": "tcp","nat_type": "NoPat","id": "3737177107","version": "2.5.0-88a45d11"}
       // ... 更多数据
   ]  
   allNodes.value.forEach(peer => {
@@ -428,32 +428,9 @@ onMounted(async () => {
   const needSetting = await api.configs.needSetting();
   if (needSetting.data.needConfig) {
     showFastSettingTip.value = true
-    //  Dialog({
-    //     'title': "首次组网设置",
-    //     // 'message': '使用快速设置？（新手推荐）',
-    //     message: () =>
-    //       h(Icon, {
-    //         name: 'window-close',
-    //         size: '20',
-    //         style: { cursor: 'pointer', marginLeft: '8px' },
-    //         onClick: () => {
-    //             snackbar.clear()
-    //           }
-    //       }),
-    //     'close-on-click-overlay': false,
-    //     'onConfirm': () => {
-    //       toast.info('请设置【网络名称】、【网络密码】并保存')
-    //       fastSettingMode.value = true
-    //       setActiveMenu?.('config')
-    //     },
-    //     'onCancel': () => {
-    //       toast.info('请设置组网参数，并保存')
-    //       fastSettingMode.value = false
-    //       setActiveMenu?.('config')
-    //     }
-    //   })
-      return;
+    return;
   }
+  // mockData()
   await fetchNodes()
   loadingSkeleton.value = false
   refreshDataTask.value = setInterval(fetchNodes, refreshStep.value * 1000)
@@ -597,7 +574,7 @@ onUnmounted(() => {
   background: var(--color-surface-container);
 }
 
-/* 首列固定 - 仅数据单元格（td）有毛玻璃效果 */
+/* 首列固定 */
 .fixed-col {
   position: sticky;
   left: 0;
