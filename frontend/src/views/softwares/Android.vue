@@ -27,22 +27,23 @@
           </var-cell>
         </var-space>
       </div>
-      <div>
-        <var-divider />
-        <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="large" block @click="downloadLatest" auto-loading>
-            <template #default>
+      <div class="download-grid">
+        <var-paper class="download-item" :elevation="1">
+          <div class="item-header">
+            <var-icon name="package" size="24" />
+            <span class="item-title">通用安装包</span>
+          </div>
+          <div class="item-actions">
+            <var-button type="primary" size="small" @click="download('app-universal-release.apk', true)" auto-loading>
               <var-icon name="download" style="margin-right: 8px;" />
-              下载最新版
-            </template>
-          </var-button>
-          <var-button type="primary" size="large" block @click="downloadRelease" auto-loading>
-            <template #default>
+              最新版
+            </var-button>
+            <var-button type="primary" size="small" @click="downloadRelease" auto-loading>
               <var-icon name="download" style="margin-right: 8px;" />
-              下载稳定版
-            </template>
-          </var-button>
-        </var-space>
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
       </div>
     </var-paper>
   </div>
@@ -66,34 +67,33 @@ const downloadRelease = () => {
   })
 }
 
-const downloadLatest = () => {
+const download = (arch, prerelease) => {
   return new Promise(async (resolve, reject) => {
     try {
       const fetchUrl = 'https://api.github.com/repos/EasyTier/EasyTier/releases';
-      if (githubProxy.value) {
-        fetchUrl = `${githubProxy.value}/${fetchUrl}`;
-      }
-      console.log(fetchUrl)
       const response = await fetch(fetchUrl);
       const releases = await response.json();
-      const preRelease = releases.find(r => r.prerelease === true);
+      const resources = releases.find(r => r.prerelease === prerelease);
       let url = null;
-      if (preRelease) {
-          // 下载第一个资产文件
-          const asset = preRelease.assets[0];
-          if (asset) {
+      if (resources) {
+        const asset = resources.assets.find(e => e.name.startsWith('easytier-gui_') && e.name.endsWith(`_${arch}`));
+        if (asset) {
               url = asset.browser_download_url;
           }
       }
+      if (githubProxy.value) {
+        url = `${githubProxy.value}/${url}`;
+      }
+      console.log(url)
       window.open(url, '_blank')
       resolve()
     } catch (error) {
+      console.error('下载失败:', error)
       reject(error)
     }
   })
 }
 </script>
-
 
 <style scoped>
 .platform-page {
@@ -133,5 +133,41 @@ const downloadLatest = () => {
   border-top: 1px solid var(--color-outline-variant);
   font-size: 14px;
   color: var(--color-on-surface-variant);
+}
+
+/* 下载卡片网格 */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.download-item {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-container) !important;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--color-on-surface);
+}
+
+.item-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.item-actions .var-button {
+  flex: 1;
 }
 </style>
