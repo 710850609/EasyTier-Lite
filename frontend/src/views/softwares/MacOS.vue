@@ -26,37 +26,40 @@
             </var-link>
           </var-cell>
         </var-space>
-      </div>
-      <div>
-        <var-divider />
-        <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="large" block @click="downloadLatestAarch64" auto-loading>
-            <template #default>
+      </div>      
+      <div class="download-grid">
+        <var-paper class="download-item" :elevation="1">
+          <div class="item-header">
+            <var-icon name="package" size="24" />
+            <span class="item-title">Apple芯片</span>
+          </div>
+          <div class="item-actions">
+            <var-button type="primary" size="small" @click="download('aarch64.dmg', true)" auto-loading>
               <var-icon name="download" style="margin-right: 8px;" />
-              下载最新版(Apple芯片)
-            </template>
-          </var-button>
-          <var-button type="primary" size="large" block @click="downloadReleaseAarch64" auto-loading>
-            <template #default>
+              最新版
+            </var-button>
+            <var-button type="primary" size="small" @click="download('aarch64.dmg', false)" auto-loading>
               <var-icon name="download" style="margin-right: 8px;" />
-              下载稳定版(Apple芯片)
-            </template>
-          </var-button>
-          </var-space>
-        <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="large" block @click="downloadLatestAmd64" auto-loading>
-            <template #default>
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
+        <var-paper class="download-item" :elevation="1">
+          <div class="item-header">
+            <var-icon name="package" size="24" />
+            <span class="item-title">Intel芯片</span>
+          </div>
+          <div class="item-actions">
+            <var-button type="primary" size="small" @click="download('x64.dmg', true)" auto-loading>
               <var-icon name="download" style="margin-right: 8px;" />
-              下载最新版(Intel芯片)
-            </template>
-          </var-button>
-          <var-button type="primary" size="large" block @click="downloadReleaseAmd64" auto-loading>
-            <template #default>
+              最新版
+            </var-button>
+            <var-button type="primary" size="small" @click="download('x64.dmg', false)" auto-loading>
               <var-icon name="download" style="margin-right: 8px;" />
-              下载稳定版(Intel芯片)
-            </template>
-          </var-button>
-        </var-space>
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
       </div>
     </var-paper>
   </div>
@@ -68,22 +71,6 @@ import { api } from '../../utils/api.js'
 
 const githubProxy = ref('https://ghfast.top')
 
-const downloadLatestAarch64 = () => {
-  return download('aarch64', true)
-}
-
-const downloadReleaseAarch64 = () => {
-  return download('aarch64', false)
-}
-
-const downloadLatestAmd64 = () => {
-  return download('x64', true)
-}
-
-const downloadReleaseAmd64 = () => {
-  return download('x64', false)
-}
-
 const download = (arch, prerelease) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -93,7 +80,7 @@ const download = (arch, prerelease) => {
       const resources = releases.find(r => r.prerelease === prerelease);
       let url = null;
       if (resources) {
-        const asset = resources.assets.find(e => e.name.startsWith('easytier-gui_') && e.name.includes(`_${arch}.dmg`));
+        const asset = resources.assets.find(e => e.name.startsWith('easytier-gui_') && e.name.endsWith(`_${arch}`));
         if (asset) {
               url = asset.browser_download_url;
           }
@@ -151,5 +138,41 @@ const download = (arch, prerelease) => {
   border-top: 1px solid var(--color-outline-variant);
   font-size: 14px;
   color: var(--color-on-surface-variant);
+}
+
+/* 下载卡片网格 */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.download-item {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-container) !important;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--color-on-surface);
+}
+
+.item-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.item-actions .var-button {
+  flex: 1;
 }
 </style>

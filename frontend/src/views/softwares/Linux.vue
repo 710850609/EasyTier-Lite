@@ -27,44 +27,62 @@
           </var-cell>
         </var-space>
       </div>
-      <div>
-        <var-divider />
-        <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="large" block @click="download('amd64.deb', true)" auto-loading>
-            <template #default>
-              <var-cell icon="download" title="下载最新版" description="amd64 deb" />
-            </template>
-          </var-button>
-          <var-button type="primary" size="large" block @click="download('amd64.deb', false)" auto-loading>
-            <template #default>
-              <var-cell icon="download" title="下载稳定版" description="amd64 deb" />
-            </template>
-          </var-button>
-        </var-space>
-        <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="large" block @click="download('arm64.deb', true)" auto-loading>
-            <template #default>
-              <var-cell icon="download" title="下载最新版" description="aarch64 deb" />
-            </template>
-          </var-button>
-          <var-button type="primary" size="large" block @click="download('arm64.deb', false)" auto-loading>
-            <template #default>
-              <var-cell icon="download" title="下载稳定版" description="aarch64 deb" />
-            </template>
-          </var-button>
-        </var-space>
-        <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="large" block @click="download('amd64.AppImage', true)" auto-loading>
-            <template #default>
-              <var-cell icon="download" title="下载最新版" description="amd64 AppImage" />
-            </template>
-          </var-button>
-          <var-button type="primary" size="large" block @click="download('amd64.AppImage', false)" auto-loading>
-            <template #default>
-              <var-cell icon="download" title="下载稳定版" description="amd64 AppImage" />
-            </template>
-          </var-button>
-        </var-space>
+      <var-divider />
+      <!-- 下载卡片网格 -->
+      <div class="download-grid">
+        <!-- amd64 deb -->
+        <var-paper class="download-item" :elevation="1">
+          <div class="item-header">
+            <var-icon name="package" size="24" />
+            <span class="item-title">amd64 deb</span>
+          </div>
+          <div class="item-actions">
+            <var-button type="primary" size="small" @click="download('amd64.deb', true)" auto-loading>
+              <var-icon name="download" style="margin-right: 8px;" />
+              最新版
+            </var-button>
+            <var-button type="primary" size="small" @click="download('amd64.deb', false)" auto-loading>
+              <var-icon name="download" style="margin-right: 8px;" />
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
+
+        <!-- aarch64 deb -->
+        <var-paper class="download-item" :elevation="1">
+          <div class="item-header">
+            <var-icon name="package" size="24" />
+            <span class="item-title">aarch64 deb</span>
+          </div>
+          <div class="item-actions">
+            <var-button type="primary" size="small" @click="download('arm64.deb', true)" auto-loading>
+              <var-icon name="download" style="margin-right: 8px;" />
+              最新版
+            </var-button>
+            <var-button type="primary" size="small" @click="download('arm64.deb', false)" auto-loading>
+              <var-icon name="download" style="margin-right: 8px;" />
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
+
+        <!-- amd64 AppImage -->
+        <var-paper class="download-item" :elevation="1">
+          <div class="item-header">
+            <var-icon name="package" size="24" />
+            <span class="item-title">amd64 AppImage</span>
+          </div>
+          <div class="item-actions">
+            <var-button type="primary" size="small" @click="download('amd64.AppImage', true)" auto-loading>
+              <var-icon name="download" style="margin-right: 8px;" />
+              最新版
+            </var-button>
+            <var-button type="primary" size="small" @click="download('amd64.AppImage', false)" auto-loading>
+              <var-icon name="download" style="margin-right: 8px;" />
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
       </div>
     </var-paper>
   </div>
@@ -143,5 +161,41 @@ const download = (arch, prerelease) => {
   border-top: 1px solid var(--color-outline-variant);
   font-size: 14px;
   color: var(--color-on-surface-variant);
+}
+
+/* 下载卡片网格 */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.download-item {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface-container) !important;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--color-on-surface);
+}
+
+.item-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.item-actions .var-button {
+  flex: 1;
 }
 </style>

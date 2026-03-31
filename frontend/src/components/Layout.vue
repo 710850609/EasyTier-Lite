@@ -76,9 +76,16 @@ const loadVConsole = async () => {
     toast.error('加载 VConsole 失败\n' + error.message)
   }
 }
-
+// ✅ 节流 + 只处理必要逻辑
+let resizeTimer;
 onMounted(() => {
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      // 仅调整输入框位置，不动整体布局
+      handleResize();
+    }, 100);
+  })
   // 加载 VConsole（如果之前开启过）
   loadVConsole()
 
