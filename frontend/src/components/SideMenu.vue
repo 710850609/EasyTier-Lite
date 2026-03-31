@@ -14,7 +14,7 @@
         <var-icon :name="isCollapsed ? 'menu-right' : 'menu-left'" />
       </var-button>
     </div>
-    
+
     <div class="menu-list">
       <template v-for="menu in menuTree" :key="menu.key">
         <!-- 有子菜单的项 -->
@@ -22,7 +22,7 @@
           <div
             class="menu-item"
             :class="{ active: active?.startsWith(menu.key) }"
-            @click="isCollapsed ? handleClick(menu.children[0].key) : toggleExpand(menu.key)"
+            @click="isCollapsed ? showSubmenuPopup(menu, $event) : toggleExpand(menu.key)"
           >
             <var-icon :name="menu.icon" class="menu-icon" />
             <span v-if="!isCollapsed" class="menu-title">{{ menu.label }}</span>
@@ -60,11 +60,37 @@
         </div>
       </template>
     </div>
+
+    <!-- 收缩状态下的子菜单弹出框 -->
+    <template v-if="submenuPopup.show">
+      <!-- 透明遮罩层，点击关闭 -->
+      <div class="submenu-overlay" @click="submenuPopup.show = false"></div>
+      <!-- 弹出框内容 -->
+      <div
+        class="submenu-popup-wrapper"
+        :style="submenuPopupStyle"
+      >
+        <div class="submenu-popup-content">
+          <div class="submenu-popup-title">{{ submenuPopup.menu?.label }}</div>
+          <div
+            v-for="child in submenuPopup.menu?.children"
+            :key="child.key"
+            class="submenu-popup-item"
+            :class="{ active: active === child.key }"
+            @click="handleSubmenuClick(child.key)"
+          >
+            <img v-if="child.icon?.startsWith('./')" :src="child.icon" class="submenu-icon" />
+            <var-icon v-else :name="child.icon" size="18" />
+            <span>{{ child.label }}</span>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { menuTree } from '../config/menu.js'
 import { SIDEBAR_COLLAPSED_KEY } from '../config/storage-keys.js'
 
@@ -77,6 +103,35 @@ const emit = defineEmits(['update:active', 'update:collapsed'])
 
 const expandedKeys = ref([])
 const isCollapsed = ref(props.collapsed || false)
+
+// 子菜单弹出框状态
+const submenuPopup = ref({
+  show: false,
+  menu: null,
+  top: 0
+})
+
+// 弹出框位置样式
+const submenuPopupStyle = computed(() => ({
+  position: 'fixed',
+  top: `${submenuPopup.value.top}px`,
+  left: '72px',
+  zIndex: 101
+}))
+
+// 显示子菜单弹出框
+const showSubmenuPopup = (menu, event) => {
+  const rect = event.currentTarget.getBoundingClientRect()
+  submenuPopup.value.menu = menu
+  submenuPopup.value.top = rect.top
+  submenuPopup.value.show = true
+}
+
+// 处理子菜单点击
+const handleSubmenuClick = (key) => {
+  submenuPopup.value.show = false
+  handleClick(key)
+}
 
 // 页面加载时从 localStorage 恢复折叠状态
 onMounted(() => {
@@ -257,5 +312,66 @@ const handleClick = (key) => {
 .sub-menu-item.active {
   background: var(--color-primary-container);
   color: var(--color-on-primary-container);
+}
+
+/* 子菜单弹出框样式 */
+.submenu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+.submenu-popup-wrapper {
+  position: fixed;
+  z-index: 100;
+}
+
+.submenu-popup-content {
+  background: var(--color-surface-container);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 12px;
+  margin-left: 8px;
+  min-width: 180px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-outline);
+}
+
+.submenu-popup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-outline);
+  margin-bottom: 8px;
+}
+
+.submenu-popup-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--color-on-surface);
+  font-size: 13px;
+  gap: 10px;
+}
+
+.submenu-popup-item:hover {
+  background: var(--color-surface-container-highest);
+}
+
+.submenu-popup-item.active {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.submenu-icon {
+  width: 18px;
+  height: 18px;
 }
 </style>

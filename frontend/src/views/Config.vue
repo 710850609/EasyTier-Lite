@@ -118,19 +118,20 @@
               v-model="config.proxy_network"
               multiple
               placeholder="子网网段"
+              variant="outlined"
               :chip="true"
             >
-              <var-cell v-for="peer in ['1']"  icon="tag" title="peer">
+              <var-cell icon="tag">
                 <template #>
-                  <var-input placeholder="例如：10.0.0.0/24" size="small" v-model="customProxyNetwork" />
+                  <var-input placeholder="格式: 192.168.1.1/24 或 192.168.1.1/32 等" size="small" v-model="customProxyNetwork" />
                 </template>
                 <template #extra>
                   <var-button type="primary" size="small" @click="addProxyNetwork">添加</var-button>
                 </template>
               </var-cell>
               <var-option 
-                v-for="e in config.proxy_network"
-                :key="e"
+                v-for="(e, index) in config.proxy_network"
+                :key="index"
                 :label="e"
                 :value="e"
               />
@@ -307,9 +308,8 @@ const saveConfig = async () => {
 }
 
 const downloadConfig = () => {
-  api.config.download().then(data => {
-    console.log(data)
-  })
+  const url = api.configs.getDownloadUrl();
+  window.open(url, '_blank')
 }
 
 onMounted(async () => {
@@ -318,9 +318,10 @@ onMounted(async () => {
     publicPeerOptions.value = data.data
   })
   api.configs.get().then(data => {
-    config.value = data.data
-    config.value.peer = config.value.peer.map(e => e.uri)
-    config.value.proxy_network = (config.value.proxy_network || []).map(e => e.cidr)
+    const json = data.data
+    json.peer = (json.peer || []).map(e => e.uri)
+    json.proxy_network = (json.proxy_network || []).map(e => e.cidr)
+    config.value = json
   })
 })
 </script>

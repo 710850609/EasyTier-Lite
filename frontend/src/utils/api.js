@@ -112,7 +112,8 @@ export const api = {
     needSetting: () => get('/configs/need_setting'),
     publicPeers: () => get('/configs/public_peers'),
     save: (data) => post('/configs/save', data),
-    get: () => get('/configs/get')
+    get: () => get('/configs/get'),
+    getDownloadUrl: () => getFulllUrl('/configs/download')
   },
   
   // 窗口相关
