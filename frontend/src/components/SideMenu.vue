@@ -90,7 +90,6 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
 import { menuTree } from '../config/menu.js'
 import { SIDEBAR_COLLAPSED_KEY } from '../config/storage-keys.js'
 

@@ -74,12 +74,16 @@
         <template #description>
           <div>
             <span>EasyTier 在飞牛上简化使用的版本，更合适新手简单上手使用，简记：<strong>易组网</strong></span>
-            <img src="https://img.shields.io/github/v/release/710850609/fpk-easytier-lite?color=blue&logo=github" />
           </div>
           <var-divider />
           <div>
             <var-cell><h3>相关链接</h3></var-cell>
-            <var-cell><var-link type="primary" href="https://github.com/710850609/fpk-easytier-lite" target="_blank" underline="hover">易组网 源码</var-link></var-cell>
+            <var-cell>
+              <var-link type="primary" href="https://github.com/710850609/fpk-easytier-lite" target="_blank" underline="hover">
+                易组网源码 
+              </var-link>
+              <img src="https://img.shields.io/github/v/release/710850609/fpk-easytier-lite?color=blue&logo=github" />
+            </var-cell>
           </div>
         </template>
       </var-cell>
@@ -88,7 +92,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
 import { themeOptions, setThemeMode, themeMode } from '../config/theme.js'
 import { VCONSOLE_ENABLED_KEY } from '../config/storage-keys.js'
 import toast from '../components/toast.js'

@@ -23,7 +23,6 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, provide, readonly, defineAsyncComponent } from 'vue'
 import SideMenu from './SideMenu.vue'
 import BottomNav from './BottomNav.vue'
 import { componentMap } from '../config/menu.js'

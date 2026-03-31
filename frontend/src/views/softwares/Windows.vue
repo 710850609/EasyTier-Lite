@@ -30,7 +30,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { api } from '../../utils/api.js'
 
 const download = () => {

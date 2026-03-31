@@ -33,7 +33,6 @@
 </template>
 
 <script setup>
-import { ref, watch, inject } from 'vue'
 import { menuTree } from '../config/menu.js'
 
 const props = defineProps({

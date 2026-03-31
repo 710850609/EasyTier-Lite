@@ -67,8 +67,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 const githubProxy = ref('https://ghfast.top')
 
 const download = (arch, prerelease) => {

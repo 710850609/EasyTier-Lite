@@ -52,8 +52,6 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-
 const logs = ref([])
 const isPaused = ref(false)
 const logLevel = ref('all')

@@ -9,7 +9,6 @@
 
 <script setup>
 // 空页面占位组件
-import { inject } from 'vue'
 
 // 从父组件注入当前菜单 key
 const menuKey = inject('activeMenu', '')

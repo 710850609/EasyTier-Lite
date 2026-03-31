@@ -184,7 +184,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, inject } from 'vue'
 import toast from '../components/toast.js'
 import { api } from '../utils/api.js'
 

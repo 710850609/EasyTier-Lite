@@ -158,7 +158,6 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
 import { copyToClipboard } from '../utils/clipboard.js'
 import { api } from '../utils/api.js'
 import toast from '../components/toast.js'
