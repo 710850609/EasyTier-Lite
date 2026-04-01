@@ -4,6 +4,7 @@ source /var/apps/${TRIM_APPNAME}/cmd/common.sh
 
 ET_LOG_FILE="${TRIM_PKGVAR}/et.log"
 PID_FILE="${TRIM_PKGVAR}/app.pid"
+KEEP_RUNNING_FILE="${TRIM_APPDEST}/.running"
 
 # write the command to start your program here 
 CMD="${BIN_DIR}/easytier-core --config-file ${CFG_FILE}"
@@ -20,6 +21,7 @@ start_process() {
     bash -c "${CMD}" >> /dev/null 2>&1 &
     # write pid to pidfile
     printf "%s" "$!" > ${PID_FILE}
+    touch "${KEEP_RUNNING_FILE}"
     # log_msg "CMD = ${CMD}"
     # log_msg "pid = $!"
     return 0
@@ -35,6 +37,7 @@ stop_process() {
         if ! check_process "${pid}"; then
             # process not exist, delete pidfile
             rm -f "${PID_FILE}"
+            rm -f "${KEEP_RUNNING_FILE}"
             log_msg "remove pid file 1"
             return
         fi
@@ -54,6 +57,7 @@ stop_process() {
             kill -KILL "${pid}"
             sleep 1
             rm -f "${PID_FILE}"
+            rm -f "${KEEP_RUNNING_FILE}"
         else
             log_msg "process killed... "
         fi
@@ -72,6 +76,11 @@ check_process() {
 }
 
 status() {
+    if [ -f "${KEEP_RUNNING_FILE}" ]; then
+        # 优先根据keep_running文件判断是否运行
+        return 0
+    fi
+
     if [ -f "${PID_FILE}" ]; then
         pid=$(head -n 1 "${PID_FILE}" | tr -d '[:space:]')
         if check_process "${pid}"; then

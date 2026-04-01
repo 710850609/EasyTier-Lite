@@ -6,19 +6,13 @@ temp.json
 EasyTier-Lite/app/bin/*
 EasyTier-Lite/app/server
 EasyTier-Lite/app/frontend
+EasyTier-Lite/app/backend
 
 
 peers/.venv
 server/.venv
 server/*/__pycache__
 server/__pycache__
-
-# 测试文件
-tests/
-server/*/test_*.py
-server/*/test_*.pyc
-server/*/*_test.py
-server/*/*_test.pyc
 
 
 node_modules

@@ -34,7 +34,7 @@ def get(*kwargs):
 
 def public_peers(*kwargs):
     peers = []
-    for i in range(1, 5):
+    for i in range(1, 6):
         peers.append({'label': f'动态社区节点{i}', 'uri': f'https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-{i}.txt'})
     http_util.http_response_ok(peers)
 
