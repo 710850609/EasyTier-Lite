@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 
 # # 激活server虚拟环境
-backend_path = os.environ.get('BACKEND_PATH', os.path.join(os.path.dirname(__file__), '..', 'server'))
+backend_path = os.environ.get('BACKEND_PATH', os.path.join(os.path.dirname(__file__), '..', 'backend'))
 backend_path = os.path.abspath(backend_path)
 venv_path = os.path.join(backend_path, '.venv')
 python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"

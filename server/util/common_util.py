@@ -18,37 +18,38 @@ def run_cmd(command, *args, shell=False):
     Returns:
         JSON 字符串: {"code": 状态码, "stdout": 标准输出, "stderr": 错误输出, "success": 是否成功}
     """
-    try:
-        # logging.debug(f"执行命令: {command} {' '.join(args)}")
-        # 构建命令列表
-        if shell:
-            # shell 模式：合并为字符串
-            if args:
-                full_command = f"{command} {' '.join(args)}"
-            else:
-                full_command = command
-            cmd = full_command
+    # logging.debug(f"执行命令: {command} {' '.join(args)}")
+    # 构建命令列表
+    if shell:
+        # shell 模式：合并为字符串
+        if args:
+            full_command = f"{command} {' '.join(args)}"
         else:
-            # 非 shell 模式：使用列表
-            if args:
-                cmd = [command] + list(args)
-            else:
-                cmd = command if isinstance(command, list) else command.split()
-        
-        # 执行命令
-        result = subprocess.run(
-            cmd,
-            shell=shell,
-            capture_output=True,
-            text=True,
-            timeout=3600  # 1小时超时
-        )
-        if result.returncode == 0:
-            return result.stdout.strip() if result.stdout else ""
-        raise Exception(f"执行命令错误：{command}")
-    except Exception as e:
-        logging.error(f"命令执行异常: {command}",  exc_info=True)
-        raise Exception(f"命令执行异常") from e
+            full_command = command
+        cmd = full_command
+    else:
+        # 非 shell 模式：使用列表
+        if args:
+            cmd = [command] + list(args)
+        else:
+            cmd = command if isinstance(command, list) else command.split()
+    
+    # 执行命令
+    result = subprocess.run(
+        cmd,
+        shell=shell,
+        capture_output=True,
+        text=True,
+        timeout=3600  # 1小时超时
+    )
+    if result.returncode == 0:
+        return result.stdout.strip() if result.stdout else ""
+    error_msg = result.stderr.strip() if result.stderr else ""
+    raise Exception(f"{error_msg}")
+    # try:
+    # except Exception as e:
+    #     logging.error(f"命令执行异常: {command}",  exc_info=True)
+    #     raise Exception(f"命令执行异常") from e
 
 
 def move(src_path, dst_path):
@@ -67,4 +68,4 @@ def delete(path):
             shutil.rmtree(real_path)
     elif os.path.exists(path):
         logging.debug(f"删除路径: {path}")
-        shutil.rmtree(path)            
+        shutil.rmtree(path)

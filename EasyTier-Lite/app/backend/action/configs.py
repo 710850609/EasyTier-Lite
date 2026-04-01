@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from pathlib import Path
+import util.http_util as http_util
+import logging
+import tomlkit
+import os
+
+ET_CONFIG_DIR = os.getenv('ET_CONFIG_DIR', '/var/apps/EasyTier-Lite/shares/EasyTier-Lite')
+ET_CONFIG_FILE = os.path.join(ET_CONFIG_DIR, 'config.toml')
+ET_CONFIG_INIT_FILE = os.path.join(ET_CONFIG_DIR, '.init')
+
+def need_setting(*kwargs):
+    need_config = Path(ET_CONFIG_INIT_FILE).exists()
+    http_util.http_response_ok({"needConfig": need_config})
+
+def save(data, *kwargs):
+    with open(ET_CONFIG_FILE, "r", encoding="utf-8") as f:
+        doc = tomlkit.parse(f.read())
+    if not doc["network_identity"]:
+        doc["network_identity"] = {network_name: '', network_secret: ''}
+    __deep_merge(doc, data)
+    
+    with open(ET_CONFIG_FILE, "w", encoding="utf-8") as f:
+        f.write(tomlkit.dumps(doc))
+    Path(ET_CONFIG_INIT_FILE).unlink(missing_ok=True)
+    http_util.http_response_ok('配置保存成功')
+
+def get(*kwargs):
+    with open(ET_CONFIG_FILE, "r", encoding="utf-8") as f:
+        doc = tomlkit.parse(f.read())
+    http_util.http_response_ok(doc)
+
+def public_peers(*kwargs):
+    peers = []
+    for i in range(1, 5):
+        peers.append({'label': f'动态社区节点{i}', 'uri': f'https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-{i}.txt'})
+    http_util.http_response_ok(peers)
+
+def download(*kwargs):    
+    tmp_file = copy()
+    logging.info(f"{tmp_file}")
+    http_util.http_response_file(tmp_file, filename="et-fnos.toml")
+
+def copy(*kwargs): 
+    tmp_file = '/tmp/EasyTier-Lite/config-copy.toml'
+    
+    # 确保目录存在
+    os.makedirs(os.path.dirname(tmp_file), exist_ok=True)
+    
+    with open(ET_CONFIG_FILE, "r", encoding="utf-8") as f:
+        doc = tomlkit.parse(f.read())
+    # 情况IP
+    doc["ipv4"] = ""
+    # 设置启用DHCP
+    doc["dhcp"] = True
+
+    with open(tmp_file, "w", encoding="utf-8") as f:
+        f.write(tomlkit.dumps(doc))
+    return tmp_file
+
+
+def __deep_merge(base, override):
+    """深度合并两个字典，override 中的值会覆盖 base 中的值"""
+    for key, value in override.items():
+        # 跳过 null 值，不写入 TOML
+        if value is None:
+            continue
+        if key in base and isinstance(base[key], dict) and isinstance(value, dict):
+            __deep_merge(base[key], value)
+        else:
+            base[key] = value
+    return base    

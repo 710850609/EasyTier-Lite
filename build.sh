@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILD_VERSION=01
+APP_VERSION="0.1"
 ET_LATEST_VERSION="unknown"
 ET_DOWNLOAD_URL="unknown"
 DOWNLOAD_FILE="unknown"
@@ -71,24 +71,24 @@ fi
 echo "设置 platform 为: ${platform}"
 echo "---------------------------------------"
 
-compiling_server() {
+build_backend() {
     echo "下载py依赖"
-    rm -rf EasyTier-Lite/app/server 
-    mkdir -p EasyTier-Lite/app/server/wheels
+    rm -rf EasyTier-Lite/app/backend 
+    mkdir -p EasyTier-Lite/app/backend/wheels
+    # 下载 wheel 
+    app_script_path="EasyTier-Lite/app/backend"
     pip download \
         --only-binary=:all: \
         --platform $py_platform \
         --python-version 311 \
         -r server/requirements.txt \
-        -d EasyTier-Lite/app/server/wheels
+        -d ${app_script_path}/wheels
         
-    # 下载 wheel 到本地
-    app_script_path="EasyTier-Lite/app/server/"
     echo "写入脚本到app"
-    rsync -a --exclude='.venv' --exclude='__pycache__' --exclude='main.py' server/ "${app_script_path}"
+    rsync -a --exclude='.venv' --exclude='__pycache__' --exclude='test' --exclude='main.py' server/ "${app_script_path}/"
 }
 
-compiling_frontend() {
+build_frontend() {
     echo '编译前端...'
     if ! command -v node &> /dev/null; then
         echo "当前环境未找到 node 命令，设置 node 环境..."
@@ -199,21 +199,21 @@ update_app() {
     bash -c "cp -rf ${temp_dir}/easytier-linux-${et_platform}/easytier-core ${bin_dir}" 2>&1
     bash -c "cp -f default.toml $(dirname ${bin_dir})" 2>&1
     echo "更新应用文件完成"
-    get_et_version
-    { jq ".[0].items |= map(if .field == \"et_version\" then .initValue = \"$ET_VERSION\" else . end)" EasyTier-Lite/wizard/config > temp.json && mv temp.json EasyTier-Lite/wizard/config; } || { echo "更新 wizard config 失败" && exit 1; }
-    echo "更新配置向导中的EasyTier版本号为: ${ET_VERSION}"
-    bash -c "rm -rf ${temp_dir}" 2>&1
+    # get_et_version
+    # { jq ".[0].items |= map(if .field == \"et_version\" then .initValue = \"$ET_VERSION\" else . end)" EasyTier-Lite/wizard/config > temp.json && mv temp.json EasyTier-Lite/wizard/config; } || { echo "更新 wizard config 失败" && exit 1; }
+    # echo "更新配置向导中的EasyTier版本号为: ${ET_VERSION}"
+    # bash -c "rm -rf ${temp_dir}" 2>&1
     echo "---------------------------------------"
 }
 
 
 build_fpk() {
-    # get_et_version
-    local fpk_version="${ET_VERSION}-${BUILD_VERSION}"
+    get_et_version
+    local fpk_version="${APP_VERSION}-c${ET_VERSION//./_}"
     if [ "$build_pre" == 'true' ];then 
-        cur_time=$(date +"%Y%m%d_%H%M%S")
+        cur_time=$(date +"%Y%m%d%H%M%S")
         echo "当前时间：$cur_time"
-        fpk_version="${fpk_version}-${cur_time}"
+        fpk_version="${fpk_version}-b${cur_time}"
     fi
     sed -i "s|^[[:space:]]*version[[:space:]]*=.*|version=${fpk_version}|" 'EasyTier-Lite/manifest'
     echo "设置 manifest 的 version 为: ${fpk_version}"
@@ -237,8 +237,8 @@ build_fpk() {
     echo "打包完成: ${fpk_name}"
 }
 
-compiling_server
-compiling_frontend
+build_backend
+build_frontend
 get_et_latest_version $arch
 download_et
 update_app

@@ -19,6 +19,7 @@ ET_BIN_DIR = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'bin')
 BACKEND_PATH = os.path.join(PARENT_PROJECT_PATH, 'server')
 LOG_FILE = os.path.join(PARENT_PROJECT_PATH, 'temp', 'server.log')
 ET_CONFIG_DIR = os.path.join(PARENT_PROJECT_PATH, 'temp', 'config')
+ET_PID_FILE = os.path.join(PARENT_PROJECT_PATH, 'temp', 'app.pid')
 
 Path(ET_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
 
@@ -123,6 +124,7 @@ class CGIProxyHandler(BaseHTTPRequestHandler):
             env.update({
                 'ET_CONFIG_DIR': ET_CONFIG_DIR,
                 'ET_BIN_DIR': ET_BIN_DIR,
+                'ET_PID_FILE': ET_PID_FILE,
                 'BACKEND_PATH': BACKEND_PATH,
                 'LOG_FILE': LOG_FILE,
                 'REQUEST_METHOD': self.command,

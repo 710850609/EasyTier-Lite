@@ -301,10 +301,14 @@ const saveConfig = async () => {
     data.peer = data.peer.map(e => ({uri: e}))
     data.proxy_network = data.proxy_network.map(e => ({cidr: e}))
     api.configs.save(data).then(res => {
-      toast.success('配置保存成功')
-    }).finally(() => {
-      resolve()
-    })
+      const restartLoading = toast.loading('保存成功，服务重启中...')
+      api.services.restart().then(() => {
+        toast.success('服务重启成功')
+      }).finally(e => {
+        restartLoading.clear()
+        resolve()
+      })
+    }).catch(e => resolve)
   })
 }
 

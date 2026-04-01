@@ -118,6 +118,11 @@ export const api = {
     get: () => get('/configs/get'),
     getDownloadUrl: () => getFulllUrl('/configs/download')
   },
+  // 服务相关
+  services: {
+    status: () => get('/services/status'),
+    restart: () => get('/services/restart'),
+  },
   
   // 窗口相关
   windows: {

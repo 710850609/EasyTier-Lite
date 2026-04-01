@@ -14,8 +14,8 @@ active_py() {
 
 active_py
 makesure_cfg_file
-save_github_porxy_url
-update_network
+# save_github_porxy_url
+# update_network
 
 
 exit 0

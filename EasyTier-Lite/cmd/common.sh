@@ -6,8 +6,9 @@ set -e
 LOG_FILE="${TRIM_PKGVAR}/cmd.log"
 BIN_DIR="${TRIM_APPDEST}/bin"
 CFG_FILE="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}/config.toml"
+INIT_FILE="/var/apps/${TRIM_APPNAME}/shares/${TRIM_APPNAME}/.init"
 GITHUB_PROXY_URL_CFG_FILE="${TRIM_APPDEST}/github_proxy_url.txt"
-SCRIPT_PATH="${TRIM_APPDEST}/server"
+SCRIPT_PATH="${TRIM_APPDEST}/backend"
 
 
 log_msg() {
@@ -28,9 +29,10 @@ run_cmd() {
 makesure_cfg_file() {
     log_msg "检查配置文件: ${CFG_FILE}"
     if [ ! -f ${CFG_FILE} ]; then
-        run_cmd "mkdir $(dirname ${CFG_FILE})"
+        run_cmd "mkdir -p $(dirname ${CFG_FILE})"
         run_cmd "cp -f ${TRIM_APPDEST}/default.toml ${CFG_FILE}"
         log_msg "不存在配置文件，使用默认配置: ${CFG_FILE}"
+        run_cmd "touch ${INIT_FILE}"
     fi
 }
 
