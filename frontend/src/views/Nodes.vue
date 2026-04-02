@@ -462,7 +462,7 @@ const restartService = () => {
       api.services.restart().then(() => {
         toast.success('服务重启成功')
         resolve()
-      })
+      }).catch(e => reject(e))
     } catch (error) {
       toast.error('服务重启失败: ' + error.message)
       reject(error)

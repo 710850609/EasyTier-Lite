@@ -5,8 +5,7 @@
       <div class="block-header">
         <var-icon name="palette" size="24" color="var(--color-primary)" />
         <span class="block-title">外观设置</span>
-      </div>
-      
+      </div>      
       <div class="theme-options">
         <div 
           v-for="option in themeOptions" 
@@ -24,15 +23,31 @@
     <!-- 开发者选项 -->
     <var-paper class="setting-block" :elevation="1">
       <div class="block-header">
-        <var-icon name="code" size="24" color="var(--color-primary)" />
+        <var-icon name="wrench" size="24" color="var(--color-primary)" />
         <span class="block-title">开发者选项</span>
       </div>
       
       <var-cell>
-        <template #title>开启 VConsole</template>
         <template #description>用于移动端调试，显示控制台日志</template>
         <template #extra>
           <var-switch v-model="vConsoleEnabled" @change="toggleVConsole" />
+        </template>
+      </var-cell>
+    </var-paper>
+
+     <var-paper class="setting-block" :elevation="1">
+      <div class="block-header">
+        <var-icon name="lock" size="24" color="var(--color-primary)" />
+        <span class="block-title">内核</span>
+      </div>      
+      <var-cell>
+        <template #description>EasyTier 版本 2.5.0</template>
+        <template #extra>
+          <!-- <var-button type="danger" round icon-container>
+            <var-icon name="window-close" />
+          </var-button> -->
+          <!-- <var-icon name="close-circle" />
+          <var-icon name="play-circle" /> -->
         </template>
       </var-cell>
     </var-paper>

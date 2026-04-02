@@ -235,7 +235,7 @@ const configToml = ref('')
 const config = ref({
   "hostname": "",
   "dhcp": true,
-  "ipv4": '10.0.0.0',
+  "ipv4": '',
   "network_identity": {
     "network_name": '',
     "network_secret": '',

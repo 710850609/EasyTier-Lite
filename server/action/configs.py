@@ -50,9 +50,35 @@ def get_toml(*kwargs):
         http_util.http_response_ok(f.read())
 
 def public_peers(*kwargs):
-    peers = []
+    peer_uris = []
+    with open(ET_CONFIG_FILE, "r", encoding="utf-8") as f:
+        doc = tomlkit.parse(f.read())
+        for i in (doc["peer"] or []):
+            peer_uris.append(i["uri"])
+    config_peers_set = set(peer_uris)
     for i in range(1, 6):
-        peers.append({'label': f'动态社区节点{i}', 'uri': f'https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-{i}.txt'})
+        peer = f'https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-{i}.txt'
+        if peer not in config_peers_set:
+            peer_uris.append(peer)
+    peers = []
+    for uri in peer_uris:
+        label = uri.replace('https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-', '')
+        if (len(label) != len(uri)):
+            label = "公共节点" + label.replace('.txt', '')
+        peers.append({'label': label, 'uri': uri})
+
+
+
+        
+
+    # for i in range(1, 6):
+    #     peer = f'https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-{i}.txt'
+    #     if peer_uris.index(peer) == -1:
+    #         peers.append({'label': f'动态社区节点{i}', 'uri': peer})
+    #     else:
+    #         peers.append({'label': f'动态社区节点{i}', 'uri': peer})
+    #         logging.info(f"节点{ipeer}已存在")
+    logging.info(f"{peers}")
     http_util.http_response_ok(peers)
 
 def download(*kwargs):    
