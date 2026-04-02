@@ -18,6 +18,7 @@ CGI_API = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'ui', 'api.c
 
 TRIM_APPDEST = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app')
 TRIM_PKGVAR = os.path.join(PARENT_PROJECT_PATH, 'temp', 'var')
+TRIM_SHARE_DIR = os.path.join(PARENT_PROJECT_PATH, 'temp', 'share')
 
 # ET_BIN_DIR = os.path.join(PARENT_PROJECT_PATH, 'EasyTier-Lite', 'app', 'bin')
 BACKEND_PATH = os.path.join(PARENT_PROJECT_PATH, 'server')
@@ -131,6 +132,7 @@ class CGIProxyHandler(BaseHTTPRequestHandler):
                 # 'ET_PID_FILE': ET_PID_FILE,
                 'TRIM_APPDEST': TRIM_APPDEST,
                 'TRIM_PKGVAR': TRIM_PKGVAR,
+                'TRIM_SHARE_DIR': TRIM_SHARE_DIR,
                 'BACKEND_PATH': BACKEND_PATH,
                 'LOG_FILE': LOG_FILE,
                 'REQUEST_METHOD': self.command,

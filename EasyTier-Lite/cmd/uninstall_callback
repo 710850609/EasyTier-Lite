@@ -10,6 +10,7 @@ if [[ "${wizard_data_action}" == "keep" ]]; then
     exit 0
 else
     # log_msg "删除 ${CFG_FILE}"
+    rm -rf ${TRIM_APPDEST_VOL}/@appshare/${TRIM_APPNAME}
     log_msg "删除 ${TRIM_PKGVAR}"
     # rm -rf "${CFG_FILE}"
     rm -rf "${TRIM_PKGVAR}"
