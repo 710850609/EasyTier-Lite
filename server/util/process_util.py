@@ -66,27 +66,37 @@ class ProcessManager:
         # 启动进程: bash -c "${CMD}" >> /dev/null 2>&1 &
         # 使用 Popen 实现后台运行，不依赖当前 Python 进程
         try:
-            # 打开 /dev/null 用于重定向
-            with open(os.devnull, "w") as devnull:
-                process = subprocess.Popen(
-                    ["bash", "-c", self.start_cmd],
-                    stdout=devnull,
-                    stderr=devnull,
-                    stdin=devnull,
-                    start_new_session=True,  # 等效于 & 后台运行，脱离终端
-                )
-            
+            # 使用 PIPE 捕获 stderr，以便在失败时获取错误信息
+            process = subprocess.Popen(
+                ["bash", "-c", self.start_cmd],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True,  # 等效于 & 后台运行，脱离终端
+            )
+
+            # 等待一小段时间检查进程是否立即失败
+            import time
+            time.sleep(0.5)
+
+            # 检查进程是否还在运行
+            if process.poll() is not None:
+                # 进程已退出，读取错误信息
+                _, stderr = process.communicate()
+                error_msg = stderr.decode('utf-8', errors='ignore').strip() if stderr else "未知错误"
+                raise RuntimeError(f"进程启动失败: {error_msg}")
+
             pid = process.pid
-            
+
             # 写入 PID 文件（等效于 printf "%s" "$!" > ${self.pid_file}）
             self.pid_file.write_text(str(pid))
-            
+
             logging.info(f"Started with PID: {pid}")
             return 0
-            
+
         except Exception as e:
-            logging.info(f"Failed to start: {e}")
-            return 1
+            logging.error(f"Failed to start: {e}")
+            raise RuntimeError(f"启动进程失败: {e}") from e
 
 
     def stop(self) -> int:
