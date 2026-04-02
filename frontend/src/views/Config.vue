@@ -308,8 +308,8 @@ const saveConfig = async () => {
         restartLoading.clear()
         resolve()
       })
-    }).catch(e => resolve)
-  })
+    }).catch(e => reject(e))
+  }).catch(e => reject(e))
 }
 
 const downloadConfig = () => {
