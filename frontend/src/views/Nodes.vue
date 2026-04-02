@@ -1,14 +1,22 @@
 <template>
   <div class="nodes-page">    
-    <var-sticky>
-        <var-alert 
-          v-if="showServiceError && !closeShowServiceError"
+    <var-sticky v-if="showServiceError && !closeShowServiceError">
+        <var-alert
           :message="serviceErrorMessage"
           closeable
           type="warning"
-          elevation="true"
-          @click="showServiceError = false; closeShowServiceError = true"
-        />
+          elevation="true"          
+        >
+          <template #default>
+            {{ serviceErrorMessage }}
+            <var-button type="primary" text="true" auto-loading @click="restartService">
+              尝试重启
+            </var-button>
+          </template>
+          <template #close-icon>
+            <var-icon name="close-circle" @click="closeShowServiceError = true"/> 
+          </template>
+        </var-alert>
     </var-sticky>
     <!-- 统计标题栏 -->
     <var-paper class="stats-bar" :elevation="1">
@@ -401,7 +409,7 @@ const fetchNodes = async () => {
     const status = await api.services.status()
     showServiceError.value = true
     if (!status.data.running) {
-      serviceErrorMessage.value = 'EasyTier核心服务未运行，请重启服务后再刷新页面'
+      serviceErrorMessage.value = 'EasyTier核心服务未运行，请检查服务是否正常启动'
     } else {
       serviceErrorMessage.value = `EasyTier核心服务异常 -> ${error.message}`
     }
@@ -446,6 +454,20 @@ const mockData = () => {
 const openConfigView = (isFastConfig) => {
   fastSettingMode.value = isFastConfig ? true : false
   setActiveMenu?.('config')
+}
+
+const restartService = () => {
+  return new Promise((resolve, reject) => {
+    try {
+      api.services.restart().then(() => {
+        toast.success('服务重启成功')
+        resolve()
+      })
+    } catch (error) {
+      toast.error('服务重启失败: ' + error.message)
+      reject(error)
+    }
+  })
 }
 
 // 实际项目中这里调用 HTTP API

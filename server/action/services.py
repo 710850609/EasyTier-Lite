@@ -12,7 +12,7 @@ TRIM_PKGVAR = os.getenv('TRIM_PKGVAR', f'/var/apps/{TRIM_APPNAME}/var')
 ET_CONFIG_FILE = f'{TRIM_PKGVAR}/config.toml'
 ET_CONFIG_INIT_FILE = f'{TRIM_PKGVAR}/.init'
 ET_PID_FILE = f'{TRIM_PKGVAR}/app.pid'
-START_CMD = f"{TRIM_APPDEST}/easytier-core --config-file {ET_CONFIG_FILE}"
+START_CMD = f"{TRIM_APPDEST}/bin/easytier-core --config-file {ET_CONFIG_FILE}"
 
 
 # 延迟初始化：使用单例模式
