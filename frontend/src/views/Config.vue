@@ -114,6 +114,44 @@
             />
           </div>
 
+          <div class="input-section">
+            <div class="section-subtitle">TUN接口名称
+              <var-tooltip content="当多个网络同时使用相同的TUN接口名称时，将会在设置TUN的IP时产生冲突" :offset-x="160">
+                <var-icon 
+                  name="help-circle-outline" 
+                  size="16" 
+                  class="help-icon"
+                />
+              </var-tooltip>
+            </div>
+            <var-input
+              v-model="config.flags.dev_name"
+              placeholder="留空自动生成随机名称"
+              variant="outlined"
+            />
+          </div>
+          <div class="input-section">
+            <div class="section-subtitle">MTU
+              <var-tooltip content="TUN设备的MTU，默认加密: 1360，非加密: 1380。取值范围 400 ~ 1380" :offset-x="160">
+                <var-icon 
+                  name="help-circle-outline" 
+                  size="16" 
+                  class="help-icon"
+                />
+              </var-tooltip>
+            </div>
+             <!-- <var-counter :min="400" :max="1380" input-text-size="16px"
+              input-width="55px"
+              button-size="32px" v-model="config.flags.mtu"/> -->
+            <var-input
+              v-model="config.flags.mtu"
+              type="number"
+              :rules="(v) => v !== '' && v >= 400 && v <= 1380 || 'MTU值超出范围[400, 1380]'"
+              placeholder="留空为默认值1380"
+              variant="outlined"
+            />
+          </div>
+
           <!-- 子网代理CIDR -->
           <div class="input-section">
             <div class="section-subtitle">子网代理CIDR</div>
@@ -254,6 +292,7 @@ const config = ref({
     "multi_thread": true,
     "enable_kcp_proxy": true,
     "private_mode": true,
+    "mtu": '',
   },
   // 子网代理
   "proxy_network": []
