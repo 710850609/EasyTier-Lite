@@ -149,7 +149,7 @@ get_et_latest_version() {
 get_et_version() {
     if [ "${arch}" != "$(uname -m)" ]; then
         echo "非当前系统架构，跳过获取已安装EasyTier版本"
-        ET_VERSION=$ET_LATEST_VERSION
+        ET_VERSION=$(echo $ET_LATEST_VERSION | sed 's/^v//')
         return 0
     fi
     local bin_dir=$BIN_DIR
@@ -209,10 +209,11 @@ update_app() {
 
 build_fpk() {
     get_et_version
-    IFS='.' read -r major minor patch <<< "$ET_VERSION"
+    echo "当前 easytier 版本: $ET_VERSION , 最新版本: $ET_LATEST_VERSION"
+    # IFS='.' read -r major minor patch <<< "$ET_VERSION"
     # ET_LONG_VERSION=$(./version-util.sh -x "$ET_VERSION" | sed 's/^0*//')
     ET_LONG_VERSION=$(./version-util.sh -x "$ET_VERSION")
-    echo "转换easytier 长版本号: $ET_LONG_VERSION"  # 输出: 200050000
+    echo "转换 easytier 长版本号: $ET_LONG_VERSION"  # 输出: 200050000
     local fpk_version="${APP_VERSION}.${ET_LONG_VERSION}"
     if [ "$build_pre" == 'true' ];then 
         cur_time=$(date +"%Y%m%d%H%M%S")
@@ -241,8 +242,8 @@ build_fpk() {
     echo "打包完成: ${fpk_name}"
 }
 
-build_backend
-build_frontend
+# build_backend
+# build_frontend
 get_et_latest_version $arch
 download_et
 update_app
