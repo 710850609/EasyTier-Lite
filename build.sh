@@ -209,11 +209,10 @@ update_app() {
 
 build_fpk() {
     get_et_version
-    echo "当前 easytier 版本: $ET_VERSION , 最新版本: $ET_LATEST_VERSION"
     # IFS='.' read -r major minor patch <<< "$ET_VERSION"
     # ET_LONG_VERSION=$(./version-util.sh -x "$ET_VERSION" | sed 's/^0*//')
     ET_LONG_VERSION=$(./version-util.sh -x "$ET_VERSION")
-    echo "转换 easytier 长版本号: $ET_LONG_VERSION"  # 输出: 200050000
+    echo "转换 easytier 长版本号: $ET_VERSION -> $ET_LONG_VERSION"  # 输出: 200050000
     local fpk_version="${APP_VERSION}.${ET_LONG_VERSION}"
     if [ "$build_pre" == 'true' ];then 
         cur_time=$(date +"%Y%m%d%H%M%S")
