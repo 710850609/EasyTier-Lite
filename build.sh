@@ -241,8 +241,8 @@ build_fpk() {
     echo "打包完成: ${fpk_name}"
 }
 
-# build_backend
-# build_frontend
+build_backend
+build_frontend
 get_et_latest_version $arch
 download_et
 update_app
