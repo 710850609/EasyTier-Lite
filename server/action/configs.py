@@ -37,7 +37,9 @@ def save_toml(data: str, *kwargs):
     try:
         # 解析配置字符串
         doc = tomlkit.parse(data['toml'])
-        save(doc)
+        with open(ET_CONFIG_FILE, "w", encoding="utf-8") as f:
+            f.write(tomlkit.dumps(doc))
+        Path(ET_CONFIG_INIT_FILE).unlink(missing_ok=True)
         http_util.http_response_ok('配置保存成功')    
     except Exception as e:
         logging.error(f"解析配置字符串失败: {e}")

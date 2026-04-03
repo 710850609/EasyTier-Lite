@@ -151,7 +151,7 @@
                   />
                 </template>
                 <template v-else>
-                  <var-tooltip v-if="col.key === 'hostname'" :content="parseNode(node, col.key)">
+                  <var-tooltip v-if="['hostname', 'tunnel_proto'].includes(col.key)" :content="parseNode(node, col.key)">
                     <span class="cell-text" @click="handleClickCell(node, col.key)">{{ parseNode(node, col.key) }}</span>
                   </var-tooltip>
                   <span v-else class="cell-text" @click="handleClickCell(node, col.key)">{{ parseNode(node, col.key) }}</span>
