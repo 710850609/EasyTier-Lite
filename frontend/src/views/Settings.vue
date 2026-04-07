@@ -28,7 +28,7 @@
       </div>
       
       <var-cell>
-        <template #description>用于移动端调试，显示控制台日志</template>
+        <template #description>用于移动端调试</template>
         <template #extra>
           <var-switch v-model="vConsoleEnabled" @change="toggleVConsole" />
         </template>

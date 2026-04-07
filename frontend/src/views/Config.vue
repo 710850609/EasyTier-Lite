@@ -44,18 +44,18 @@
         </var-input>
 
         
-        <span v-if="fastSettingMode" style="font-size: 12px; color: var(--color-warning); margin-top: 8px;"> 将使用动态社区节点用于发现组网节点。如不想用，请刷新页面重新选择正常模式设置，并输入公共节点 </span>
+        <span v-if="fastSettingMode" style="font-size: 12px; color: var(--color-warning); margin-top: 8px;"> 将使用动态社区节点用于发现组网节点。如不想用，请刷新页面重新选择正常模式设置，并输入初始节点 </span>
         <var-select
           v-if="!fastSettingMode"
           v-model="config.peer"
           multiple
-          placeholder="公共节点"
+          placeholder="初始节点"
           :chip="true"
           blur-color="var(--color-primary)"
         >
           <var-cell v-for="peer in ['1']"  icon="tag-outline" title="peer">
             <template #>
-              <var-input placeholder="输入公共节点" size="small" v-model="customPeer" blur-color="var(--color-primary)" />
+              <var-input placeholder="输入初始节点" size="small" v-model="customPeer" blur-color="var(--color-primary)" />
             </template>
             <template #extra>
               <var-button type="primary" size="small" @click="addPeer">添加</var-button>
@@ -178,54 +178,62 @@
                 :value="e"
               />
             </var-select>
-            <!-- <var-input
-              v-model="config.proxy_network"
-              placeholder="例如：10.0.0.0/24, 输入后在下拉框中选择生效"
-              variant="outlined"
-            /> -->
           </div>
 
-          <!-- 监听端口 -->
-          <!-- <div class="input-section">
-            <div class="section-subtitle">监听端口</div>
-            <var-input
-              v-model="listenPortStr"
-              type="number"
-              placeholder="15888"
+          <!-- 监听地址 -->           
+          <div class="input-section">
+            <div class="section-subtitle">监听地址</div>
+            <var-select
+              v-if="!fastSettingMode"
+              v-model="config.listeners"
+              multiple
+              placeholder="监听地址"
               variant="outlined"
-            />
-          </div> -->
-
-          <!-- MTU 大小 -->
-          <!-- <div class="input-section">
-            <div class="section-subtitle">MTU 大小</div>
-            <var-input
-              v-model="mtuStr"
-              type="number"
-              placeholder="1380"
-              variant="outlined"
-            />
-          </div> -->
+              :chip="true"
+            >
+              <var-cell icon="tag-outline">
+                <template #>
+                  <var-input placeholder="自定义监听" size="small" v-model="customListener" blur-color="var(--color-primary)" />
+                </template>
+                <template #extra>
+                  <var-button type="primary" size="small" @click="addListener">添加</var-button>
+                </template>
+              </var-cell>
+              <var-option 
+                v-for="(e, index) in listenerOptions"
+                :key="index"
+                :label="e"
+                :value="e"
+              />
+            </var-select>
+          </div>
         </div>
       </var-collapse-item>
     </var-collapse>
 
+    <!-- 操作按钮 -->
     <div class="actions">
-       <var-space justify="center" :size="[40, 10]">
-         <var-button type="primary" size="normal" block auto-loading @click="saveConfig">
+       <var-space :size="[20, 8]" justify="space-around">
+         <!-- <var-button type="primary" size="normal" block @click="uploaddConfig" v-if="!fastSettingMode">
+            <var-icon name="upload"/>
+            导入配置
+         </var-button> -->
+        <var-button style="min-width: 180px;" type="primary" size="normal" block auto-loading @click="saveConfig">
             <var-icon name="checkbox-marked-circle"/>
-           保存并重启 
-         </var-button>
-         <var-button type="primary" size="normal" block @click="openCodePage" auto-loading v-if="!fastSettingMode">
-            <var-icon name="tag"/>
-           编辑文件
-         </var-button>
-         <var-button type="primary" size="normal" block @click="downloadConfig" v-if="!fastSettingMode">
-            <var-icon name="download"/>
-           导出配置
-         </var-button>
+            保存重启 
+        </var-button>
+        <var-button style="min-width: 180px;" type="primary" size="normal" block @click="openCodePage" auto-loading v-if="!fastSettingMode">
+          <var-icon name="tag"/>
+          编辑文件
+        </var-button>
+        <var-button style="min-width: 180px;" type="primary" size="normal" block @click="downloadConfig" v-if="!fastSettingMode">
+          <var-icon name="download"/>
+          导出配置
+        </var-button>
        </var-space>
     </div>
+
+    <!-- 编辑配置弹窗 -->
      <var-popup
        v-model:show="showCodePage"
        class="code-editor-popup"
@@ -235,10 +243,10 @@
         <div class="code-editor-header">
           <span class="editor-title">编辑配置</span>
           <var-space>
-            <var-button type="info" size="small" round @click="saveToml" auto-loading>
+            <var-button type="primary" size="small" round @click="saveToml" auto-loading elevation="false">
               <var-icon name="check"/>                
             </var-button>
-            <var-button type="warning" size="small" round @click="showCodePage = false">
+            <var-button type="default" size="small" round @click="showCodePage = false" elevation="false">
               <var-icon name="window-close"/>               
             </var-button>
           </var-space>
@@ -265,6 +273,7 @@ const publicPeerOptions = ref([
 ])
 const customPeer = ref('')
 const customProxyNetwork = ref('')
+const customListener = ref('')
 const flagsOpen = ref([])
 const form = ref(null)
 const showCodePage = ref(false)
@@ -282,8 +291,7 @@ const config = ref({
   "listeners": [
     "tcp://0.0.0.0:11010",
     "udp://0.0.0.0:11010",
-    "wg://0.0.0.0:11011",
-    // "ws://0.0.0.0:11011",
+    "quic://0.0.0.0:11013",
   ],
   "peer": [],
   // 功能开关
@@ -292,7 +300,6 @@ const config = ref({
     "multi_thread": true,
     "enable_kcp_proxy": true,
     "private_mode": true,
-    "mtu": '',
   },
   // 子网代理
   "proxy_network": []
@@ -323,6 +330,25 @@ const featureSwitches = [
   { key: 'bind_device', label: '仅使用物理网卡', tooltip: '只使用物理网卡进行通信，排除虚拟网卡' },
   { key: 'user_stack', label: '使用用户态协议栈', tooltip: '使用用户态网络协议栈代替内核协议栈' },
 ]
+
+const listenerOptions = ref([
+    "tcp://0.0.0.0:11010",
+    "udp://0.0.0.0:11010",
+    "wg://0.0.0.0:11011",
+    "ws://0.0.0.0:11011",
+    "wss://0.0.0.0:11012",  
+    "quic://0.0.0.0:11012",
+    "faketcp://0.0.0.0:11013",
+])
+
+const addListener = () => {
+  const listener = customProxyNetwork.value
+  if (!listener) {
+    return
+  }
+  config.value.listeners.unshift(listener)
+  customProxyNetwork.value = ''
+}
 
 // 监听端口字符串（用于输入框）
 const listenPortStr = computed({
@@ -368,6 +394,9 @@ const saveConfig = async () => {
     data.peer = data.peer.map(e => ({uri: e}))
     data.proxy_network = data.proxy_network.map(e => ({cidr: e}))
     data.dhcp = !data.ipv4 || !(data.ipv4.trim())
+    if (data.flags.mtu && typeof data.flags.mtu === 'string') {
+      data.flags.mtu = parseInt(data.flags.mtu, 10)
+    }
     api.configs.save(data).then(res => {
       const restartLoading = toast.loading('保存成功，服务重启中...')
       api.services.restart().then(() => {
@@ -420,6 +449,16 @@ onMounted(async () => {
     json.hostname = json.hostname || null
     json.peer = (json.peer || []).map(e => e.uri)
     json.proxy_network = (json.proxy_network || []).map(e => e.cidr)
+    if (json.listeners) {
+      json.listeners.forEach(e => {
+        if (!listenerOptions.value.includes(e)) {
+          listenerOptions.value.unshift(e)
+        }
+      })
+    }
+    if (json.flags.mtu) {
+      json.flags.mtu = String(json.flags.mtu)
+    }
     config.value = json
   })
 })
@@ -626,15 +665,15 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   padding: 14px 24px;
-  background: var(--color-primary) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--color-surface-container) !important;
+  border-bottom: 1px solid var(--color-outline);
   flex-shrink: 0;
 }
 
 .editor-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--color-on-primary);
+  color: var(--color-primary);
   letter-spacing: 0.5px;
 }
 
