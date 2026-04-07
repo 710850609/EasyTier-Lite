@@ -34,15 +34,19 @@ def status(*kwargs):
     running = pm.status()
     http_util.http_response_ok({'running': running})
 
-def stop(*kwargs):
+def stop(http_response=True, *kwargs):
+    logging.info('停止ET服务')
     pm = _get_process_manager()
     pm.stop()
-    http_util.http_response_ok({})
+    if http_response:
+        http_util.http_response_ok({})
 
-def start(*kwargs):
+def start(http_response=True, *kwargs):
+    logging.info('启动ET服务')
     pm = _get_process_manager()
     pm.start()
-    http_util.http_response_ok({})
+    if http_response:
+        http_util.http_response_ok({})
 
 def restart(*kwargs):
     pm = _get_process_manager()

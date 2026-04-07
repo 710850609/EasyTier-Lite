@@ -49,7 +49,7 @@
           <var-divider />
         </template>
         <template #description>
-          <var-select variant="outlined" placeholder="可选内核版本" size="small" v-model="etVersion.version">
+          <var-select variant="outlined" placeholder="可选内核版本" size="small" v-model="etVersion.selected_version">
             <template #default>
               <var-option v-for="item in etVersionList" :key="item.version" :label="item.version">
                 <!-- <var-icon class="selected-icon" name="cake-variant" /> -->
@@ -160,10 +160,10 @@ import { getVersionList } from '../utils/github.js'
 const vConsoleEnabled = ref(false)
 const vConsoleInstance = ref(null)
 const isFetchingEtCoreVersion = ref(true)
-const etVersion = ref({ version: '', raw_version: '', latest_version: '' })
+const etVersion = ref({ version: '', raw_version: '', latest_version: '', selected_version: '' })
 const etVersionList = ref([])
 
-const hasNewVersion = computed(() => etVersion.version && etVersion.latest_version && etVersion.version !== etVersion.latest_version)
+const hasNewVersion = computed(() => etVersion.value.version && etVersion.value.latest_version && etVersion.value.version !== etVersion.value.latest_version)
 // 计算当前主题模式（从 theme.js 获取）
 const currentThemeMode = computed(() => themeMode.value)
 
@@ -207,8 +207,7 @@ const getEtVersion = async () => {
   try {
     isFetchingEtCoreVersion.value = true
     const { data } = await api.etCore.getVersion()
-    etVersion.value = data
-    console.log(etVersion.value)
+    etVersion.value = { ...etVersion.value, ...data }
   } catch (e) {
     console.error('获取内核版本失败:', e)
     etVersion.value.raw_version = '获取内核版本失败:' + e.message
@@ -221,23 +220,24 @@ const getEtVersionList = async () => {
   try {
     etVersionList.value = await getVersionList('easyTier/easytier')
     etVersion.value.latest_version = etVersionList.value[0].version
+    etVersion.value.selected_version = etVersionList.value[0].version
   } catch (e) {
     console.error('获取版本列表失败:', e)
-    toast.error('获取版本列表失败:' + e.message)
   }
 }
 
-const installEtCore = async (prerelease = false) => {
-    await getEtVersionList()
-  // return new Promise((resolve, reject) => {
-  //   api.etCore.install({ prerelease: prerelease })
-  //   .then((res) => {
-  //     resolve(res)
-  //   })
-  //   .catch((err) => {
-  //     reject(err)
-  //   })
-  // })
+const installEtCore = async () => {
+  return new Promise((resolve, reject) => {
+    api.etCore.install({ version: etVersion.value.selected_version })
+    .then((res) => {
+      toast.success(res.data || `安装内核版本 ${etVersion.value.selected_version} 成功`)
+      resolve(res)
+    })
+    .catch((err) => {
+      // toast.error(err.message || `安装内核版本 ${etVersion.value.selected_version} 失败`)
+      reject(err)
+    })
+  })
 }
 
 onMounted(() => {
