@@ -40,16 +40,69 @@
         <var-icon name="lock" size="24" color="var(--color-primary)" />
         <span class="block-title">内核</span>
       </div>      
+      
+      <!-- 当前版本信息 -->
       <var-cell>
-        <template #description>EasyTier 版本 2.5.0</template>
-        <template #extra>
-          <var-button type="danger" round icon-container>
-            <var-icon name="window-close" />
-          </var-button>
-          <var-icon name="close-circle" />
-          <var-icon name="play-circle" />
+        <template #default>
+          <h3>EasyTier-Core</h3>
+          <var-divider />
+          当前版本
+        </template>
+        <template #description>
+          <var-chip type="primary" size="small">{{ currentVersion || '未安装' }}</var-chip>
         </template>
       </var-cell>
+       <var-paper :elevation="3">
+          <div class="item-actions">
+            <var-button type="primary" size="normal" @click="download('amd64.deb', true)" auto-loading>
+              <var-icon name="download"  />
+              最新版
+            </var-button>
+            <var-button type="primary" size="normal" @click="download('amd64.deb', false)" auto-loading>
+              <var-icon name="download"  />
+              稳定版
+            </var-button>
+          </div>
+        </var-paper>
+      
+      <!-- 版本选择 -->
+      <!-- <div class="kernel-actions">        
+        <var-select 
+          v-model="selectedVersion" 
+          placeholder="选择版本"
+          size="small"
+          class="version-select"
+        >
+          <var-option 
+            v-for="version in availableVersions" 
+            :key="version"
+            :label="version"
+            :value="version"
+          />
+        </var-select>
+        
+        <div class="action-buttons">
+          <var-button 
+            type="info" 
+            size="small" 
+            @click="fetchLatestVersion"
+            :loading="fetchingVersion"
+          >
+            <var-icon name="refresh" />
+            获取最新
+          </var-button>
+          <var-button 
+            type="primary" 
+            size="small" 
+            @click="installVersion"
+            :loading="installing"
+            :disabled="!selectedVersion"
+          >
+            <var-icon name="download" />
+            安装
+          </var-button>
+        </div>
+      </div> -->
     </var-paper>
 
     <!-- 网络设置 -->
@@ -88,7 +141,7 @@
         <template #default></template>
         <template #description>
           <div>
-            <span>EasyTier 在飞牛上简化使用的版本，更合适新手简单上手使用，简记：<strong>易组网</strong></span>
+            <span>EasyTier 在飞牛上简化使用的UI，更合适新手上手，快速享受异地网络访问设备，简记：<strong>易组网</strong></span>
           </div>
           <var-divider />
           <div>
@@ -110,6 +163,7 @@
 import { themeOptions, setThemeMode, themeMode } from '../config/theme.js'
 import { VCONSOLE_ENABLED_KEY } from '../config/storage-keys.js'
 import toast from '../components/toast.js'
+import api from '../utils/api.js'
 
 const vConsoleEnabled = ref(false)
 const vConsoleInstance = ref(null)
@@ -152,6 +206,58 @@ const toggleVConsole = async (val) => {
   }
 }
 
+// 内核版本管理
+const currentVersion = ref('')
+const selectedVersion = ref('')
+const availableVersions = ref([])
+const fetchingVersion = ref(false)
+const installing = ref(false)
+
+// 获取当前版本
+const fetchCurrentVersion = async () => {
+  try {
+    const { data } = await api.et.getVersion()
+    currentVersion.value = data.version
+  } catch (e) {
+    currentVersion.value = ''
+  }
+}
+
+// 获取可用版本列表
+const fetchEtCore = async () => {
+  fetchingVersion.value = true
+  try {
+    const { data } = await api.etCore.version()
+    availableVersions.value = data.versions || []
+    if (data.latest) {
+      selectedVersion.value = data.latest
+    }
+    toast.success('获取版本列表成功')
+  } catch (e) {
+    toast.error('获取版本列表失败')
+  } finally {
+    fetchingVersion.value = false
+  }
+}
+
+// 安装指定版本
+const installVersion = async () => {
+  if (!selectedVersion.value) return
+  
+  installing.value = true
+  const loading = toast.loading(`正在安装 ${selectedVersion.value}...`)
+  try {
+    await api.et.installVersion(selectedVersion.value)
+    toast.success('安装成功')
+    await fetchCurrentVersion()
+  } catch (e) {
+    toast.error('安装失败')
+  } finally {
+    installing.value = false
+    loading.clear()
+  }
+}
+
 onMounted(() => {
   // 从 localStorage 加载 VConsole 开关状态
   const enabled = localStorage.getItem(VCONSOLE_ENABLED_KEY) === 'true'
@@ -161,6 +267,9 @@ onMounted(() => {
   if (enabled) {
     loadVConsole()
   }
+  
+  // 获取当前内核版本
+  fetchCurrentVersion()
 })
 </script>
 
@@ -205,6 +314,24 @@ onMounted(() => {
 
 :deep(.var-cell__description) {
   margin-top: 4px;
+}
+
+/* 内核版本管理样式 */
+.kernel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.version-select {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 /* 主题选项样式 */

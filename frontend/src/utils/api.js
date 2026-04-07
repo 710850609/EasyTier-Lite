@@ -129,6 +129,11 @@ export const api = {
   windows: {
     getDownloadUrl: () => getFulllUrl('/windows/download')
   },
+  // ET 核心相关
+  etCore: {
+    version: () => get('/et_core/version'),
+    install: (data) => post('/et_core/install', data)
+  }
 }
 
 // 导出基础配置

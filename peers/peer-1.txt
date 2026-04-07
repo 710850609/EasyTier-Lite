@@ -1,1 +1,1 @@
-tcp://ramon2009.dpdns.org:11010
+tcp://e.927425.xyz:10063

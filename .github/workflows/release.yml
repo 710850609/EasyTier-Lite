@@ -181,18 +181,18 @@ jobs:
           ls -la combined-release/
           echo "================"
 
-      - name: Push FnDepot
-        if: ${{ needs.setup.outputs.prerelease == 'false' }}
-        run: |
-          new_version="${{ needs.build-multi-arch.outputs.release_version }}"
-          changelog="${{ needs.build-multi-arch.outputs.release_notes }}"
+      # - name: Push FnDepot
+      #   if: ${{ needs.setup.outputs.prerelease == 'false' }}
+      #   run: |
+      #     new_version="${{ needs.build-multi-arch.outputs.release_version }}"
+      #     changelog="${{ needs.build-multi-arch.outputs.release_notes }}"
           
-          gh workflow run update-version.yml \
-            --repo "710850609/FnDepot" \
-            -f app_name="EasyTier-Lite" \
-            -f new_version="$new_version" \
-            -f download_url_amd64="https://github.com/710850609/fpk-EasyTier-Lite/releases/download/$new_version/EasyTier-Lite-x86_64-$new_version.fpk" \
-            -f download_url_aarch64="https://github.com/710850609/fpk-EasyTier-Lite/releases/download/$new_version/EasyTier-Lite-aarch64-$new_version.fpk" \
-            -f changelog="$changelog"
-        env:
-          GH_TOKEN: ${{ secrets.FNDEPOT_TOKEN }}
+      #     gh workflow run update-version.yml \
+      #       --repo "710850609/FnDepot" \
+      #       -f app_name="EasyTier-Lite" \
+      #       -f new_version="$new_version" \
+      #       -f download_url_amd64="https://github.com/710850609/fpk-EasyTier-Lite/releases/download/$new_version/EasyTier-Lite-x86_64-$new_version.fpk" \
+      #       -f download_url_aarch64="https://github.com/710850609/fpk-EasyTier-Lite/releases/download/$new_version/EasyTier-Lite-aarch64-$new_version.fpk" \
+      #       -f changelog="$changelog"
+      #   env:
+      #     GH_TOKEN: ${{ secrets.FNDEPOT_TOKEN }}
