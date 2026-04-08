@@ -580,7 +580,6 @@ const loadConfig = () => {
         multi_thread_count: json.flags?.multi_thread_count || undefined
       }
     }
-    console.log(config.value)
   })
 }
 

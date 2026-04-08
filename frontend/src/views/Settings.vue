@@ -28,13 +28,11 @@
       </div>
       <!-- 当前版本信息 -->
       <var-cell>
-        <template #default>
-          <var-loading type="wave" v-if="isFetchingEtCoreVersion" />
-          <div v-if="!isFetchingEtCoreVersion">
-            <span style="font-weight: bold;">EasyTier </span>
-            <span>{{ etVersion.version }}</span>
-          </div>
-        </template>
+        <var-loading type="wave" v-if="isFetchingEtCoreVersion" />
+        <div v-if="!isFetchingEtCoreVersion">
+          <span>EasyTier </span>
+          <span>{{ etVersion.version }}</span>
+        </div>
       </var-cell>
       <var-cell>
         <template #description>
@@ -86,16 +84,9 @@
         <var-loading type="wave" v-if="isFetchingGithubMirrors" />
       </var-cell>
       <var-cell>
-        <template #description>
-          <var-select v-model="githubMirror" label="GitHub 加速地址" variant="outlined" size="small">
-            <var-option 
-              v-for="mirror in githubMirrors" 
-              :key="mirror"
-              :label="mirror"
-              :value="mirror"
-            />
-          </var-select>
-        </template>
+        <var-select v-model="githubMirror" variant="outlined" size="small" :line="true"
+          :options="githubMirrors" label-key="label" value-key="value">
+        </var-select>
       </var-cell>
       <var-cell>
         <template #extra>          
@@ -229,7 +220,6 @@ const getEtVersionList = async (useCache = true) => {
     }
   } catch (e) {
     console.error('获取版本列表失败:', e)
-    toast.error('获取版本列表失败')
   } finally {
     isFetchingVersionList.value = false
   }
@@ -261,7 +251,6 @@ const saveGitHubMirror = async () => {
     toast.success('GitHub 加速地址已保存')
   } catch (e) {
     console.error('保存 GitHub 加速地址失败:', e)
-    toast.error('保存 GitHub 加速地址失败')
   }
 }
 
@@ -273,7 +262,6 @@ const getGithubMirrors = async () => {
     githubMirrors.value = data.sources
   } catch (e) {
     console.error('获取 GitHub 加速地址失败:', e)
-    toast.error('获取 GitHub 加速地址失败')
   } finally {
     isFetchingGithubMirrors.value = false
   }

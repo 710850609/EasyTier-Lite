@@ -19,10 +19,7 @@ ET_BIN_DIR = f"{TRIM_APPDEST}/bin"
 GITHUB_PROXY_FILE = f"{TRIM_APPDEST}/github_proxy_url.txt";
 
 def save_github_mirror(data, *kwargs):
-    url = data['url']
-    if not url:
-        http_util.http_response_error(f"请输入代理地址")
-        return
+    url = data['url'] or ''
     try:
         cfg_path = Path(GITHUB_PROXY_FILE)
         cfg_path.write_text(url.strip())
@@ -41,9 +38,10 @@ def github_mirrors(*kwargs):
             lines = [l.strip() for l in content.split('\n') if l.strip()]
             selected = lines[0] if lines else ""
         sources = [
-            "https://ghfast.top",
-            "https://gh.llkk.cc",
-            "https://gh-proxy.org",
+            { "value": "", "label": "不使用"},
+            { "value": "https://ghfast.top", "label": "ghfast.top"},
+            { "value": "https://gh.llkk.cc", "label": "gh.llkk.cc"},
+            { "value": "https://gh-proxy.org", "label": "gh-proxy.org"},
         ]
         http_util.http_response_ok({ 'selected': selected, 'sources': sources })
     except Exception as e:
