@@ -1,0 +1,39 @@
+name: update-peers
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0/6 * * *' 
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 更新节点数据
+        run: |
+          cd peers/src
+          python3 main.py
+
+      - name: 更新仓库
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add peers/*.txt
+          git add peers/*.json
+
+          # 只检查是否有变更（已暂存）
+          if git diff --cached --quiet peers; then
+            echo "没有变更，跳过推送"
+          else
+            echo "peers 修改内容:"
+            git diff --cached peers
+          git add peers
+          git commit -m "更新节点数据"
+          git push origin HEAD:main
+          echo "提交并推送变更"

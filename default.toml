@@ -15,6 +15,18 @@ uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTi
 [[peer]]
 uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-3.txt"
 
+[file_logger]
+# 文件日志级别 off error warn info debug
+level = "error"
+# 存储日志文件的目录
+dir = "/var/apps/EasyTier-Lite/var/logs"
+# 日志文件名
+file = "log"
+# 单个文件日志大小，单位 MB，默认值为 100MB 
+count = 100
+# 最大文件日志数量，默认值为 10
+size = 10
+
 [flags]
 # 使用 KCP 代理 TCP 流，提高在 UDP 丢包网络上的延迟和吞吐量 (KCP 代理会优先于 QUIC 代理生效)
 enable_kcp_proxy = true
