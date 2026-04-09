@@ -353,7 +353,7 @@ def main():
         with open(peer_meta_path, 'w', encoding='utf-8') as f:
             meta = {
                 "count": len(available_peers),
-                "baseUrl": "https://github.com/710850609/EasyTier-Lite/raw/refs/heads/main/peer",
+                "baseUrl": "https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers",
                 "peers": available_peers,
             }
             json.dump(meta, f, ensure_ascii=False, indent=2)

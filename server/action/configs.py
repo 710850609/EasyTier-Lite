@@ -8,6 +8,7 @@ import util.github_util as github_util
 import requests
 import logging
 import tomlkit
+import json
 from tomlkit.items import Comment
 import os
 
@@ -142,7 +143,13 @@ def public_peers(data, *kwargs):
             peer_uris.append(peer)
     peers = []
     for uri in peer_uris:
-        label = uri.replace(f'{github_proxy}/https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers/peer-', '')
+        label = uri
+        logging.info(f"label1: {label}")
+        if github_proxy and github_proxy != '':
+            label = uri.replace(f"{github_proxy}/", '')
+            logging.info(f"label2: {label}")
+        label = label.replace(f'https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers/peer-', '')
+        logging.info(f"label3: {label}")
         if (len(label) != len(uri)):
             label = "动态节点" + label.replace('.txt', '')
         peers.append({'label': label, 'uri': uri})
@@ -195,13 +202,12 @@ def __get_public_peers(refresh=False):
         return __download_peer_meta()
     else:
         with open(ET_PEER_META_FILE, "r", encoding="utf-8") as f:
-            return f.readlines()
+            return json.load(f)
 
 def __download_peer_meta():
     try:
         github_proxy = github_util.get_github_proxy()
-        peer_meta_url = f"https://github.com/710850609/EasyTier-Lite/raw/refs/heads/main/peers/peer-meta.json"
-        logging.info(f"使用GitHub代理: {github_proxy}")
+        peer_meta_url = f"https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers/peer-meta.json"
         if github_proxy and github_proxy != '':
             peer_meta_url = f"{github_proxy}/{peer_meta_url}"
         response = requests.get(peer_meta_url, timeout=30)

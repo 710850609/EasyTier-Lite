@@ -1,6 +1,6 @@
 {
   "count": 7,
-  "baseUrl": "https://github.com/710850609/EasyTier-Lite/raw/refs/heads/main/peer",
+  "baseUrl": "https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers",
   "peers": [
     {
       "url": "tcp://103.184.47.79:11010",
