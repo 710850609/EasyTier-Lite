@@ -136,7 +136,7 @@ def public_peers(data, *kwargs):
 
     github_proxy = github_util.get_github_proxy();
     for item in peer_meta["peers"]:
-        peer = f"{peer_meta["baseUrl"]}/{item['fileName']}"
+        peer = f"{peer_meta['baseUrl']}/{item['fileName']}"
         if github_proxy:
             peer = f"{github_proxy}/{peer}"
         if peer not in config_peers_set:
