@@ -1,4 +1,3 @@
-# 设备的主机名
 hostname = ""
 dhcp = true
 ipv4 = ""
@@ -10,15 +9,15 @@ network_name = ""
 network_secret = ""
 
 [[peer]]
-uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-1.txt"
+uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-1.txt"
 [[peer]]
-uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-2.txt"
+uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-2.txt"
 [[peer]]
-uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-3.txt"
+uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-3.txt"
 [[peer]]
-uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-4.txt"
+uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-4.txt"
 [[peer]]
-uri = "https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-5.txt"
+uri = "https://ghfast.top/https://raw.githubusercontent.com/710850609/fpk-EasyTier-Lite/refs/heads/main/peers/peer-5.txt"
 
 [flags]
 # 使用 KCP 代理 TCP 流，提高在 UDP 丢包网络上的延迟和吞吐量 (KCP 代理会优先于 QUIC 代理生效)
