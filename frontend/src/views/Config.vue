@@ -9,6 +9,7 @@
         </div>
         <var-divider />
         
+        <var-skeleton :loading="isLoadingConfig">
           <!-- 网络名称 + 网络密码 一行 -->
           <div class="input-row">
             <var-cell>
@@ -20,7 +21,7 @@
                 blur-color="var(--color-primary)"
               >
                 <template #prepend-icon>
-                   <svg-icon type="mdi" :path="mdilAccount"></svg-icon>
+                    <svg-icon type="mdi" :path="mdilAccount"></svg-icon>
                 </template>
                 <template #label>网络名称</template>
               </var-input>
@@ -90,10 +91,11 @@
             </template>
           </var-select>
           </var-cell>
+        </var-skeleton>
       </var-paper>
 
       <!-- 高级设置 -->
-      <var-collapse v-if="!fastSettingMode" v-model="flagsOpen" class="flags-section" :class="`var-elevation--2`">
+      <var-collapse v-if="!fastSettingMode" v-model="flagsOpen" :accordion="true" class="flags-section" :class="`var-elevation--2`">
         <var-collapse-item name="flags">
           <template #title>
             <div class="collapse-title">
@@ -102,254 +104,255 @@
               <span class="section-title">高级设置</span>
             </div>
           </template>
-          <var-divider />        
-          <div class="flags-content">
-            <!-- 功能开关 -->
-            <div class="feature-section">
-              <div class="section-subtitle">功能开关</div>
-              <div class="feature-grid">
-                <div 
-                  v-for="feature in featureSwitches" 
-                  :key="feature.key"
-                  class="feature-item"
-                >
-                  <var-checkbox v-model="config.flags[feature.key]">
-                    {{ feature.label }}
-                  </var-checkbox>
-                  <var-tooltip :content="feature.tooltip" v-if="feature.tooltip">
-                    <var-icon 
-                      name="help-circle-outline" 
-                      size="16" 
-                      class="help-icon"
-                    />
-                  </var-tooltip>
+          <var-skeleton :loading="isLoadingConfig">
+            <var-divider />   
+            <div class="flags-content">
+                <!-- 功能开关 -->
+                <div class="feature-section">
+                  <div class="section-subtitle">功能开关</div>
+                  <div class="feature-grid">
+                    <div 
+                      v-for="feature in featureSwitches" 
+                      :key="feature.key"
+                      class="feature-item"
+                    >
+                      <var-checkbox v-model="config.flags[feature.key]">
+                        {{ feature.label }}
+                      </var-checkbox>
+                      <var-tooltip :content="feature.tooltip" v-if="feature.tooltip">
+                        <var-icon 
+                          name="help-circle-outline" 
+                          size="16" 
+                          class="help-icon"
+                        />
+                      </var-tooltip>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <var-divider />
-
-            <!-- 主机名 + 虚拟IPv4 一行 -->
-            <div class="input-row">
-              <!-- 主机名 -->
-              <div class="input-section">
-                <div class="section-subtitle">主机名</div>
-                <var-input
-                  v-model="config.hostname"
-                  placeholder="留空默认为主机名"
-                  variant="outlined"
-                  size="small"
-                />
-              </div>
-
-              <!-- 虚拟IPv4 -->
-              <div class="input-section">
-                <div class="section-subtitle">虚拟IPv4</div>
-                <var-input
-                  v-model="config.ipv4"
-                  placeholder="固定虚拟IPv4"
-                  variant="outlined"
-                  size="small"
-                />
-              </div>
-            </div>
-
-            <!-- TUN接口名称 + 监听地址 一行 -->
-            <div class="input-row">
-              <!-- TUN接口名称 -->
-              <div class="input-section">
-                <div class="section-subtitle">TUN接口名称
-                  <var-tooltip content="当多个网络同时使用相同的TUN接口名称时，将会在设置TUN的IP时产生冲突" :offset-x="160">
-                    <var-icon 
-                      name="help-circle-outline" 
-                      size="16" 
-                      class="help-icon"
+                <var-divider />
+    
+                <!-- 主机名 + 虚拟IPv4 一行 -->
+                <div class="input-row">
+                  <!-- 主机名 -->
+                  <div class="input-section">
+                    <div class="section-subtitle">主机名</div>
+                    <var-input
+                      v-model="config.hostname"
+                      placeholder="留空默认为主机名"
+                      variant="outlined"
+                      size="small"
                     />
-                  </var-tooltip>
-                </div>
-                <var-input
-                  v-model="config.flags.dev_name"
-                  placeholder="留空自动生成随机名称"
-                  variant="outlined"
-                  size="small"
-                />
-              </div>
-              <div class="input-section">
-                <div class="section-subtitle">MTU
-                  <var-tooltip content="TUN设备的MTU，默认加密: 1360，不加密: 1380。取值范围 400 ~ 1380" :offset-x="160">
-                    <var-icon 
-                      name="help-circle-outline" 
-                      size="16" 
-                      class="help-icon"
+                  </div>
+    
+                  <!-- 虚拟IPv4 -->
+                  <div class="input-section">
+                    <div class="section-subtitle">虚拟IPv4</div>
+                    <var-input
+                      v-model="config.ipv4"
+                      placeholder="固定虚拟IPv4"
+                      variant="outlined"
+                      size="small"
                     />
-                  </var-tooltip>
+                  </div>
                 </div>
-                <var-input
-                  v-model="mtuStr"
-                  type="number"
-                  :rules="(v) => (v === '' || v >= 400 && v <= 1380) || 'MTU值超出范围[400, 1380]'"
-                  placeholder="留空默认加密:1360, 不加密:1380"
-                  variant="outlined"
-                  size="small"
-                />
-              </div>
-            </div>
-
-            <div class="input-row">
-              <div class="input-section">
-                <div class="section-subtitle">线程数
-                  <var-tooltip content="仅当开启多线程时生效，取值必须大于2" :offset-x="60">
-                    <var-icon 
-                      name="help-circle-outline" 
-                      size="16" 
-                      class="help-icon"
+    
+                <!-- TUN接口名称 + 监听地址 一行 -->
+                <div class="input-row">
+                  <!-- TUN接口名称 -->
+                  <div class="input-section">
+                    <div class="section-subtitle">TUN接口名称
+                      <var-tooltip content="当多个网络同时使用相同的TUN接口名称时，将会在设置TUN的IP时产生冲突" :offset-x="160">
+                        <var-icon 
+                          name="help-circle-outline" 
+                          size="16" 
+                          class="help-icon"
+                        />
+                      </var-tooltip>
+                    </div>
+                    <var-input
+                      v-model="config.flags.dev_name"
+                      placeholder="留空自动生成随机名称"
+                      variant="outlined"
+                      size="small"
                     />
-                  </var-tooltip>
-                </div>
-                <var-input
-                  v-model="multiThreadCountStr"
-                  placeholder="留空默认为2"
-                  variant="outlined"
-                  type="number"
-                  :rules="(v) => (v === '' || v >= 2) || '线程数必须大于等于2'"
-                  size="small"
-                />
-              </div>
-              <div class="input-section">
-                <div class="section-subtitle">加密算法</div>
-                <var-select
-                v-model="config.flags.encryption_algorithm"
-                placeholder="留空默认aes-gcm"
-                variant="outlined"
-                :chip="true"
-                size="small"
-              >
-                <var-option 
-                  v-for="(e, index) in encryptionAlgorithmList"
-                  :key="index"
-                  :label="e"
-                  :value="e"
-                />
-              </var-select>
-              </div>
-            </div>
-
-            <div class="input-row">
-              <!-- 仅转发白名单网络 -->
-              <div class="input-section">
-                <div class="section-subtitle">转发白名单网络                
-                  <var-tooltip content="仅转发白名单网络的流量，支持通配*符字符串。多个网络名称间可以使用英文空格间隔" :offset-x="60">
-                    <var-icon 
-                      name="help-circle-outline" 
-                      size="16" 
-                      class="help-icon"
+                  </div>
+                  <div class="input-section">
+                    <div class="section-subtitle">MTU
+                      <var-tooltip content="TUN设备的MTU，默认加密: 1360，不加密: 1380。取值范围 400 ~ 1380" :offset-x="160">
+                        <var-icon 
+                          name="help-circle-outline" 
+                          size="16" 
+                          class="help-icon"
+                        />
+                      </var-tooltip>
+                    </div>
+                    <var-input
+                      v-model="mtuStr"
+                      type="number"
+                      :rules="(v) => (v === '' || v >= 400 && v <= 1380) || 'MTU值超出范围[400, 1380]'"
+                      placeholder="留空默认加密:1360, 不加密:1380"
+                      variant="outlined"
+                      size="small"
                     />
-                  </var-tooltip>
+                  </div>
                 </div>
-                <var-input
-                  v-model="config.flags.relay_network_whitelist"
-                  multiple
-                  placeholder="网络名称，支持通配*符字符串"
-                  variant="outlined"
-                  :chip="true"
-                  size="small"
-                >
-                </var-input>
-              </div>
-              <!-- 子网代理CIDR -->
-              <div class="input-section">
-                <div class="section-subtitle">子网代理CIDR</div>
-                <var-select
-                  v-model="config.proxy_network"
-                  multiple
-                  placeholder="子网网段"
-                  variant="outlined"
-                  :chip="true"
-                  size="small"
-                >
-                  <var-cell>
-                    <template #icon>
-                      <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
-                    </template>
-                    <template #description>
-                      <var-input placeholder="格式: 192.168.1.1/24 或 192.168.1.1/32 等" size="small" v-model="customProxyNetwork" blur-color="var(--color-primary)" />
-                    </template>
-                    <template #extra>
-                      <var-button type="primary" size="small" @click="addProxyNetwork">添加</var-button>
-                    </template>
-                  </var-cell>
-                  <var-option 
-                    v-for="(e, index) in config.proxy_network"
-                    :key="index"
+    
+                <div class="input-row">
+                  <div class="input-section">
+                    <div class="section-subtitle">线程数
+                      <var-tooltip content="仅当开启多线程时生效，取值必须大于2" :offset-x="60">
+                        <var-icon 
+                          name="help-circle-outline" 
+                          size="16" 
+                          class="help-icon"
+                        />
+                      </var-tooltip>
+                    </div>
+                    <var-input
+                      v-model="multiThreadCountStr"
+                      placeholder="留空默认为2"
+                      variant="outlined"
+                      type="number"
+                      :rules="(v) => (v === '' || v >= 2) || '线程数必须大于等于2'"
+                      size="small"
+                    />
+                  </div>
+                  <div class="input-section">
+                    <div class="section-subtitle">加密算法</div>
+                    <var-select
+                    v-model="config.flags.encryption_algorithm"
+                    placeholder="留空默认aes-gcm"
+                    variant="outlined"
+                    :chip="true"
+                    size="small"
+                  >
+                    <var-option 
+                      v-for="(e, index) in encryptionAlgorithmList"
+                      :key="index"
+                      :label="e"
+                      :value="e"
+                    />
+                  </var-select>
+                  </div>
+                </div>
+    
+                <div class="input-row">
+                  <!-- 仅转发白名单网络 -->
+                  <div class="input-section">
+                    <div class="section-subtitle">转发白名单网络                
+                      <var-tooltip content="仅转发白名单网络的流量，支持通配*符字符串。多个网络名称间可以使用英文空格间隔" :offset-x="60">
+                        <var-icon 
+                          name="help-circle-outline" 
+                          size="16" 
+                          class="help-icon"
+                        />
+                      </var-tooltip>
+                    </div>
+                    <var-input
+                      v-model="config.flags.relay_network_whitelist"
+                      multiple
+                      placeholder="网络名称，支持通配*符字符串"
+                      variant="outlined"
+                      :chip="true"
+                      size="small"
+                    >
+                    </var-input>
+                  </div>
+                  <!-- 子网代理CIDR -->
+                  <div class="input-section">
+                    <div class="section-subtitle">子网代理CIDR</div>
+                    <var-select
+                      v-model="config.proxy_network"
+                      multiple
+                      placeholder="子网网段"
+                      variant="outlined"
+                      :chip="true"
+                      size="small"
+                    >
+                      <var-cell>
+                        <template #icon>
+                          <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
+                        </template>
+                        <template #description>
+                          <var-input placeholder="格式: 192.168.1.1/24 或 192.168.1.1/32 等" size="small" v-model="customProxyNetwork" blur-color="var(--color-primary)" />
+                        </template>
+                        <template #extra>
+                          <var-button type="primary" size="small" @click="addProxyNetwork">添加</var-button>
+                        </template>
+                      </var-cell>
+                      <var-option 
+                        v-for="(e, index) in config.proxy_network"
+                        :key="index"
+                        :label="e"
+                        :value="e"
+                      />
+                    </var-select>
+                  </div>            
+                </div>
+    
+                <div class="input-row">
+                  <div class="input-section">
+                    <div class="section-subtitle">默认协议</div>
+                    <var-select
+                      v-model="config.flags.default_protocol"
+                      placeholder="默认协议"
+                      variant="outlined"
+                      :chip="true"
+                      size="small"
+                    >
+                      <var-option 
+                        v-for="(e, index) in defaultProtocolList"
+                        :key="index"
+                        :label="e.label"
+                        :value="e.value"
+                      />
+                    </var-select>
+                  </div>            
+                </div>
+                
+                <!-- 监听地址 -->
+                <div class="input-section">
+                  <div class="section-subtitle">监听地址
+                    <var-tooltip content="部分协议需要较高版本支持，具体可加ET群咨询" :offset-x="50">
+                      <var-icon 
+                        name="help-circle-outline" 
+                        size="16" 
+                        class="help-icon"
+                      />
+                    </var-tooltip>
+                  </div>
+                  <var-select
+                    v-model="config.listeners"
+                    multiple
+                    placeholder="监听地址"
+                    variant="outlined"
+                    :chip="true"
+                    size="small"
+                  >
+                    <var-cell>
+                      <template #icon>
+                        <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
+                      </template>
+                      <template #description>
+                        <var-input placeholder="自定义监听" size="small" v-model="customListener" blur-color="var(--color-primary)" />
+                      </template>
+                      <template #extra>
+                        <var-button type="primary" size="small" @click="addListener">添加</var-button>
+                      </template>
+                    </var-cell>
+                    <var-option 
+                      v-for="(e, index) in listenerOptions"
+                      :key="index"
                     :label="e"
                     :value="e"
                   />
                 </var-select>
-              </div>            
-            </div>
-
-            <div class="input-row">
-              <div class="input-section">
-                <div class="section-subtitle">默认协议</div>
-                <var-select
-                  v-model="config.flags.default_protocol"
-                  placeholder="默认协议"
-                  variant="outlined"
-                  :chip="true"
-                  size="small"
-                >
-                  <var-option 
-                    v-for="(e, index) in defaultProtocolList"
-                    :key="index"
-                    :label="e.label"
-                    :value="e.value"
-                  />
-                </var-select>
-              </div>            
-            </div>
-            
-            <!-- 监听地址 -->
-            <div class="input-section">
-              <div class="section-subtitle">监听地址
-                <var-tooltip content="部分协议需要较高版本支持，具体可加ET群咨询" :offset-x="50">
-                  <var-icon 
-                    name="help-circle-outline" 
-                    size="16" 
-                    class="help-icon"
-                  />
-                </var-tooltip>
               </div>
-              <var-select
-                v-model="config.listeners"
-                multiple
-                placeholder="监听地址"
-                variant="outlined"
-                :chip="true"
-                size="small"
-              >
-                <var-cell>
-                  <template #icon>
-                    <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
-                  </template>
-                  <template #description>
-                    <var-input placeholder="自定义监听" size="small" v-model="customListener" blur-color="var(--color-primary)" />
-                  </template>
-                  <template #extra>
-                    <var-button type="primary" size="small" @click="addListener">添加</var-button>
-                  </template>
-                </var-cell>
-                <var-option 
-                  v-for="(e, index) in listenerOptions"
-                  :key="index"
-                :label="e"
-                :value="e"
-              />
-            </var-select>
-          </div>
-        </div>
+            </div>
+          </var-skeleton>
       </var-collapse-item>
       </var-collapse>
     </var-form>
-
     <!-- 操作按钮 -->
     <div class="actions">
        <var-space :size="[20, 8]" justify="space-around">

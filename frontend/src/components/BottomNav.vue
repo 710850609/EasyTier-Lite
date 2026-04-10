@@ -7,7 +7,18 @@
       :class="{ active: currentActive === item.key }"
       @click="handleNavClick(item)"
     >
-      <var-icon :name="item.icon" :size="24" />
+      <!-- Varlet 内置图标 -->
+      <var-icon v-if="isVarletIcon(item.icon)" :name="item.icon" :size="24" />
+      <!-- SVG 图标 (@mdi/js 或 @mdi/light-js) -->
+      <svg-icon
+        v-else-if="isSvgIcon(item.icon)"
+        type="mdi"
+        :path="getIconPath(item.icon)"
+        width="24"
+        height="24"
+      />
+      <!-- 图片图标 -->
+      <img v-else-if="isImageIcon(item.icon)" :src="item.icon" class="nav-icon" />
       <span class="nav-label">{{ item.label }}</span>
     </div>
   </div>
@@ -25,7 +36,18 @@
         class="popup-item"
         @click="handleSubMenuClick(item.key)"
       >
-        <var-icon :name="item.icon" size="20" />
+        <!-- Varlet 内置图标 -->
+        <var-icon v-if="isVarletIcon(item.icon)" :name="item.icon" size="20" />
+        <!-- SVG 图标 (@mdi/js 或 @mdi/light-js) -->
+        <svg-icon
+          v-else-if="isSvgIcon(item.icon)"
+          type="mdi"
+          :path="getIconPath(item.icon)"
+          width="20"
+          height="20"
+        />
+        <!-- 图片图标 -->
+        <img v-else-if="isImageIcon(item.icon)" :src="item.icon" class="popup-icon" />
         <span>{{ item.label }}</span>
       </div>
     </div>
@@ -34,6 +56,8 @@
 
 <script setup>
 import { menuTree } from '../config/menu.js'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { isVarletIcon, isImageIcon, isSvgIcon, getIconPath } from '../utils/iconHelper.js'
 
 const props = defineProps({
   active: String
@@ -126,6 +150,12 @@ const handleSubMenuClick = (key) => {
   font-weight: 500;
 }
 
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 .submenu-popup {
   padding: 16px;
   background: transparent;
@@ -157,5 +187,11 @@ const handleSubMenuClick = (key) => {
 
 .popup-item:active {
   background: var(--color-surface-container);
+}
+
+.popup-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 </style>
