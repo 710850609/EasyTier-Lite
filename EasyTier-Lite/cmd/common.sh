@@ -37,7 +37,7 @@ makesure_cfg_file() {
         if [ "${TRIM_APP_STATUS}" == "INSTALL" ]; then
             log_msg "安装应用，生成随机网络名称、网络密码"
             nw_name=$(cat /dev/urandom | tr -dc 'A-Z0-9' | fold -w 8 | head -n 1)
-            nw_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*' | fold -w 16 | head -n 1)
+            nw_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
             update_network ${nw_name} ${nw_password}
         fi
     fi

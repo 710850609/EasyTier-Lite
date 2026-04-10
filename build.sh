@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_VERSION="0.3"
+APP_VERSION="0.4"
 ET_LATEST_VERSION="unknown"
 ET_DOWNLOAD_URL="unknown"
 DOWNLOAD_FILE="unknown"
