@@ -33,7 +33,8 @@ jobs:
           else
             echo "peers 修改内容:"
             git diff --cached peers
-          git add peers
-          git commit -m "更新节点数据"
-          git push origin HEAD:main
-          echo "提交并推送变更"
+            git add peers
+            git commit -m "更新节点数据"
+            git push origin HEAD:main
+            echo "提交并推送变更"
+          fi
