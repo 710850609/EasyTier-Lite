@@ -1,1 +1,1 @@
-tcp://sh.vomiku.com:7910
+udp://et.ruixuan.online:11010

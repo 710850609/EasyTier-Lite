@@ -21,3 +21,4 @@ udp://boi.de5.net:11010
 tcp://et.ruixuan.online:11010
 udp://et.ruixuan.online:11010
 tcp://e.927425.xyz:10063
+tcp://39.108.52.138:11010
