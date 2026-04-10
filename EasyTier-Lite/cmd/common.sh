@@ -33,6 +33,13 @@ makesure_cfg_file() {
         run_cmd "cp -f ${TRIM_APPDEST}/default.toml ${CFG_FILE}"
         log_msg "不存在配置文件，使用默认配置: ${CFG_FILE}"
         run_cmd "touch ${INIT_FILE}"
+        # 安装新场景，生成随机网络名称、网络密码
+        if [ "${TRIM_APP_STATUS}" == "INSTALL" ]; then
+            log_msg "安装应用，生成随机网络名称、网络密码"
+            nw_name=$(cat /dev/urandom | tr -dc 'A-Z0-9' | fold -w 8 | head -n 1)
+            nw_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*' | fold -w 16 | head -n 1)
+            update_network ${nw_name} ${nw_password}
+        fi
     fi
 }
 

@@ -127,7 +127,7 @@ def public_peers(data, *kwargs):
     peer_uris = []
     with open(ET_CONFIG_FILE, "r", encoding="utf-8") as f:
         doc = tomlkit.parse(f.read())
-        for i in (doc["peer"] or []):
+        for i in (doc.get("peer") or []):
             peer_uris.append(i["uri"])
     config_peers_set = set(peer_uris)
 

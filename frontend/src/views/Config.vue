@@ -53,16 +53,14 @@
             </var-cell>
           </div>
           
-          <span v-if="fastSettingMode" style="font-size: 12px; color: var(--color-warning); margin-top: 8px;"> 将使用动态社区节点用于发现组网节点。如不想用，请刷新页面重新选择正常模式设置，并输入初始节点 </span>
-          <var-cell>
-          <var-select variant="outlined" size="small"
-            v-if="!fastSettingMode"
+          <var-cell v-if="!fastSettingMode">
+            <var-select variant="outlined" size="small"
             v-model="config.peer"
             multiple
-            placeholder="初始节点"
+            placeholder="初始节点，用于发现组网设备"
             :chip="true"
             blur-color="var(--color-primary)"
-          >
+            >
             <template #default>
               <var-cell>
                 <template #icon>
@@ -74,22 +72,25 @@
                 <template #extra>
                   <var-button type="primary" size="small" @click="addPeer">添加</var-button>
                 </template>
-              </var-cell>
-              <var-option 
-                v-for="peer in publicPeerOptions"
-                :key="peer.uri"
-                :label="peer.label || peer.uri"
-                :value="peer.uri"
-              />
-            </template>
-            <template #append-icon>
-              <var-icon 
+                </var-cell>
+                <var-option 
+                  v-for="peer in publicPeerOptions"
+                  :key="peer.uri"
+                  :label="peer.label || peer.uri"
+                  :value="peer.uri"
+                />
+              </template>
+              <template #append-icon>
+                <var-icon 
                 name="refresh" 
                 :class="{ 'is-spinning': isRefreshingPublicPeerOptions }"
                 @click.stop="refreshPublicPeerOptions" 
-              />
-            </template>
-          </var-select>
+                />
+              </template>
+            </var-select>
+          </var-cell>
+          <var-cell v-if="fastSettingMode">
+            <span  style="font-size: 14px; color: var(--color-warning); margin-top: 8px;"> 默认使用动态社区节点用于发现组网节点。如不想用，请刷新页面重新选择正常模式设置，并输入初始节点 </span>
           </var-cell>
         </var-skeleton>
       </var-paper>
@@ -307,6 +308,23 @@
                         :value="e.value"
                       />
                     </var-select>
+                  </div>
+                  <div class="input-section">
+                    <div class="section-subtitle">压缩算法</div>
+                    <var-select
+                      v-model="config.flags.compression"
+                      placeholder="默认无"
+                      variant="outlined"
+                      :chip="true"
+                      size="small"
+                    >
+                      <var-option 
+                        v-for="(e, index) in compressionOptions"
+                        :key="index"
+                        :label="e.label"
+                        :value="e.value"
+                      />
+                    </var-select>
                   </div>            
                 </div>
                 
@@ -424,6 +442,7 @@ const isRefreshingPublicPeerOptions = ref(false)
 const showPassword = ref(false)
 const encryptionAlgorithmList = ref(['aes-gcm','xor','chacha20','aes-gcm','aes-gcm-256','openssl-aes128-gcm','openssl-aes256-gcm','openssl-chacha20'])
 const defaultProtocolList = ref([ {'label': '默认','value': ''}, {'label': 'tcp','value': 'tcp'}, {'label': 'udp','value': 'udp'}, {'label': 'quic','value': 'quic'}, {'label': 'wg','value': 'wg'}, {'label': 'ws','value': 'ws'}, {'label': 'wss','value': 'wss'}, {'label': 'faketcp','value': 'faketcp'}])
+const compressionOptions = ref([ {'label': '无压缩','value': 'none'}, {'label': 'zstd','value': 'zstd'} ])
 
 const config = ref({
   "hostname": undefined,
@@ -472,7 +491,7 @@ const featureSwitches = [
   { key: 'enable_encryption', label: '启用加密', tooltip: '开启数据传输加密，提高安全性但性能降低' },
   { key: 'enable_ipv6', label: '启用 IPv6', tooltip: '开启 IPv6 支持' },
   { key: 'no_tun', label: '无 TUN 模式', tooltip: '不使用 TUN 设备。' },
-  { key: 'accept_dns', label: '启用魔法 DNS', tooltip: '魔法 DNS 目前仅支持在 Windows 和 MacOS 上自动配置系统 DNS，Linux 上需要手动配置 DNS 服务器为 100.100.100.101 才可正常使用' },
+  { key: 'accept_dns', label: '启用魔法 DNS', tooltip: '启用魔法DNS，可使用域名访问其他节点，例如：<主机名>.et.net。 魔法 DNS 目前仅支持在 Windows 和 MacOS 上自动配置系统 DNS，Linux 上需要手动配置 DNS 服务器为 100.100.100.101 才可正常使用' },
   { key: 'relay_all_peer_rpc', label: '转发 RPC 包', tooltip: '允许转发 RPC 数据包' },
   { key: 'bind_device', label: '仅使用物理网卡', tooltip: '只使用物理网卡进行通信，排除虚拟网卡' },
   { key: 'user_stack', label: '使用用户态协议栈', tooltip: '使用用户态网络协议栈代替内核协议栈' },
@@ -559,7 +578,7 @@ const saveConfig = async () => {
       api.services.restart().then(() => {
         toast.success('服务重启成功')
         if (fastSettingMode.value) {
-          toast.info('退出快速设置模式')
+          toast.info('退出引导设置模式')
           fastSettingMode.value = false
         }
       }).finally(e => {
