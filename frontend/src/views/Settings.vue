@@ -3,9 +3,11 @@
     <!-- 外观设置 -->
     <var-paper class="setting-block" :elevation="1">
       <div class="block-header">
-        <var-icon name="palette" size="24" color="var(--color-primary)" />
+        <svg-icon type="mdi" :path="mdiBrightness6" size="24" color="var(--color-primary)"></svg-icon>
+        <!-- <var-icon name="palette" size="24" color="var(--color-primary)" /> -->
         <span class="block-title">外观设置</span>
-      </div>      
+      </div>  
+      <var-divider />
       <div class="theme-options">
         <div 
           v-for="option in themeOptions" 
@@ -23,9 +25,11 @@
     <!-- 内核设置 -->
      <var-paper class="setting-block" :elevation="1">
       <div class="block-header">
-        <var-icon name="lock" size="24" color="var(--color-primary)" />
+        <!-- <var-icon name="lock" size="24" color="var(--color-primary)" /> -->
+        <svg-icon type="mdi" :path="mdiShieldLock" size="24" color="var(--color-primary)"></svg-icon>
         <span class="block-title">内核</span>
       </div>
+      <var-divider />
       <!-- 当前版本信息 -->
       <var-cell>
         <var-loading type="wave" v-if="isFetchingEtCoreVersion" />
@@ -76,9 +80,10 @@
     <!-- 网络设置 -->
     <var-paper class="setting-block" :elevation="1">
       <div class="block-header">
-        <var-icon name="cog" size="24" color="var(--color-primary)" />
+        <svg-icon type="mdi" :path="mdiAccessPointNetwork"  color="var(--color-primary)"></svg-icon>
         <span class="block-title">网络</span>
       </div>      
+      <var-divider />
       <var-cell>
         GitHub加速地址
         <var-loading type="wave" v-if="isFetchingGithubMirrors" />
@@ -91,7 +96,7 @@
       <var-cell>
         <template #extra>          
           <var-button type="primary" size="small" @click="saveGitHubMirror" auto-loading style="min-width: 80px;">
-            <var-icon name="checkbox-marked-circle" />
+            <var-icon name="check" />
             保存           
           </var-button>
         </template>
@@ -101,9 +106,11 @@
     <!-- 开发者选项 -->
     <var-paper class="setting-block" :elevation="1">
       <div class="block-header">
-        <var-icon name="wrench" size="24" color="var(--color-primary)" />
+        <!-- <var-icon name="wrench" size="24" color="var(--color-primary)" /> -->
+        <svg-icon type="mdi" :path="mdiDevTo" size="24" color="var(--color-primary)"></svg-icon>
         <span class="block-title">开发者选项</span>
       </div>      
+      <var-divider />
       <var-cell>
         <template #description>移动端页面调试</template>
         <template #extra>
@@ -143,6 +150,9 @@ import { VCONSOLE_ENABLED_KEY } from '../config/storage-keys.js'
 import toast from '../components/toast.js'
 import api from '../utils/api.js'
 import { getLatestVersionWithCache } from '../utils/github.js'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiBrightness6, mdiAccessPointNetwork, mdiDevTo, mdiShieldLock } from '@mdi/js'
+import { mdilMemory } from '@mdi/light-js'
 
 const vConsoleEnabled = ref(false)
 const vConsoleInstance = ref(null)

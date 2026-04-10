@@ -3,9 +3,11 @@
     <var-form ref="form">
       <var-paper class="config-section" :elevation="1">
         <div class="section-header">
-          <var-icon name="cog" size="24" color="var(--color-primary)" />
+          <!-- <var-icon name="cog" size="24" color="var(--color-primary)" /> -->
+          <svg-icon type="mdi" :path="mdiHomeEdit" width="24" height="24" color="var(--color-primary)" />
           <span class="section-title">{{ fastSettingMode ? '快速设置' : '基础设置' }}</span>
         </div>
+        <var-divider />
         
           <!-- 网络名称 + 网络密码 一行 -->
           <div class="input-row">
@@ -14,12 +16,11 @@
                 v-model="config.network_identity.network_name"
                 placeholder="网络名称"
                 size="small"
-                :clearable="true"
                 :rules="[(v) => !!v || '网络名称不能为空']"
                 blur-color="var(--color-primary)"
               >
                 <template #prepend-icon>
-                  <var-icon name="wifi" />
+                   <svg-icon type="mdi" :path="mdilAccount"></svg-icon>
                 </template>
                 <template #label>网络名称</template>
               </var-input>
@@ -28,16 +29,25 @@
               <var-input
               v-model="config.network_identity.network_secret"
               placeholder="网络密码"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
               :rules="[(v) => !!v || '网络密码不能为空']"
               size="small"
-              :clearable="true"
               blur-color="var(--color-primary)"
             >
               <template #prepend-icon>
-                <var-icon name="lock-outline" />
-              </template>
+                <svg-icon type="mdi" :path="mdilLock" />
+              </template>              
               <template #label>网络密码</template>
+              <template #append-icon>
+                <svg-icon
+                  type="mdi"
+                  :path="showPassword ? mdiEyeOff : mdiEye"
+                  width="24"
+                  height="24"
+                  @click="showPassword = !showPassword"
+                  style="cursor: pointer; opacity: 0.54;"
+                />
+              </template>
               </var-input>
             </var-cell>
           </div>
@@ -53,8 +63,11 @@
             blur-color="var(--color-primary)"
           >
             <template #default>
-              <var-cell icon="tag-outline" title="peer">
-                <template #>
+              <var-cell>
+                <template #icon>
+                  <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
+                </template>
+                <template #description>
                   <var-input placeholder="输入初始节点" size="small" v-model="customPeer" blur-color="var(--color-primary)" />
                 </template>
                 <template #extra>
@@ -84,10 +97,12 @@
         <var-collapse-item name="flags">
           <template #title>
             <div class="collapse-title">
-              <var-icon name="cog" size="24" color="var(--color-primary)" />
+              <!-- <var-icon name="cog" size="24" color="var(--color-primary)" /> -->
+              <svg-icon type="mdi" :path="mdiShieldEdit" width="24" height="24" color="var(--color-primary)" />
               <span class="section-title">高级设置</span>
             </div>
-          </template>        
+          </template>
+          <var-divider />        
           <div class="flags-content">
             <!-- 功能开关 -->
             <div class="feature-section">
@@ -111,6 +126,7 @@
                 </div>
               </div>
             </div>
+            <var-divider />
 
             <!-- 主机名 + 虚拟IPv4 一行 -->
             <div class="input-row">
@@ -250,8 +266,11 @@
                   :chip="true"
                   size="small"
                 >
-                  <var-cell icon="tag-outline">
-                    <template #>
+                  <var-cell>
+                    <template #icon>
+                      <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
+                    </template>
+                    <template #description>
                       <var-input placeholder="格式: 192.168.1.1/24 或 192.168.1.1/32 等" size="small" v-model="customProxyNetwork" blur-color="var(--color-primary)" />
                     </template>
                     <template #extra>
@@ -307,8 +326,11 @@
                 :chip="true"
                 size="small"
               >
-                <var-cell icon="tag-outline">
-                  <template #>
+                <var-cell>
+                  <template #icon>
+                    <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
+                  </template>
+                  <template #description>
                     <var-input placeholder="自定义监听" size="small" v-model="customListener" blur-color="var(--color-primary)" />
                   </template>
                   <template #extra>
@@ -335,15 +357,15 @@
             <var-icon name="upload"/>
             导入配置
          </var-button> -->
-        <var-button style="min-width: 180px;" type="primary" size="normal" block auto-loading @click="saveConfig" :disabled="isLoadingConfig">
+        <var-button type="primary" size="normal" block auto-loading @click="saveConfig" :disabled="isLoadingConfig">
             <var-icon name="checkbox-marked-circle"/>
             保存重启 
         </var-button>
-        <var-button style="min-width: 180px;" type="primary" size="normal" block @click="openCodePage" auto-loading v-if="!fastSettingMode">
+        <var-button type="primary" size="normal" block @click="openCodePage" auto-loading v-if="!fastSettingMode">
           <var-icon name="tag"/>
           编辑文件
         </var-button>
-        <var-button style="min-width: 180px;" type="primary" size="normal" block @click="downloadConfig" v-if="!fastSettingMode">
+        <var-button type="primary" size="normal" block @click="downloadConfig" v-if="!fastSettingMode">
           <var-icon name="download"/>
           导出配置
         </var-button>
@@ -380,6 +402,9 @@
 import toast from '../components/toast.js'
 import { api } from '../utils/api.js'
 import CodeEditor from '../components/CodeEditor.vue'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiEye, mdiEyeOff, mdiHomeEdit, mdiShieldEdit } from '@mdi/js'
+import { mdilPencil, mdilAccount, mdilLock } from '@mdi/light-js'
 
 // 注入快速设置模式
 const fastSettingMode = inject('fastSettingMode', ref(false))
@@ -393,6 +418,7 @@ const showCodePage = ref(false)
 const isLoadingConfig = ref(true)
 const configToml = ref('')
 const isRefreshingPublicPeerOptions = ref(false)
+const showPassword = ref(false)
 const encryptionAlgorithmList = ref(['aes-gcm','xor','chacha20','aes-gcm','aes-gcm-256','openssl-aes128-gcm','openssl-aes256-gcm','openssl-chacha20'])
 const defaultProtocolList = ref([ {'label': '默认','value': ''}, {'label': 'tcp','value': 'tcp'}, {'label': 'udp','value': 'udp'}, {'label': 'quic','value': 'quic'}, {'label': 'wg','value': 'wg'}, {'label': 'ws','value': 'ws'}, {'label': 'wss','value': 'wss'}, {'label': 'faketcp','value': 'faketcp'}])
 
