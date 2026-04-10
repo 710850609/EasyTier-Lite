@@ -7,6 +7,7 @@ EasyTier-Lite/app/bin/*
 EasyTier-Lite/app/server
 EasyTier-Lite/app/frontend
 EasyTier-Lite/app/backend
+EasyTier-Lite/app/default.toml
 
 
 peers/.venv
