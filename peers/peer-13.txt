@@ -1,1 +1,1 @@
-tcp://sh.vomiku.com:7910
+udp://boi.de5.net:11010
