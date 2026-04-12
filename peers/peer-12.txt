@@ -1,1 +1,1 @@
-tcp://et.ruixuan.online:11010
+udp://mukongyun.top:11010
