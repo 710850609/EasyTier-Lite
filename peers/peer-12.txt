@@ -1,1 +1,1 @@
-tcp://kddi10gbps.xzcloudnode.sbs:49784
+udp://mukongyun.top:11010

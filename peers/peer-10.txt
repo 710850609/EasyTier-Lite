@@ -1,1 +1,1 @@
-udp://boi.de5.net:11010
+tcp://kddi10gbps.xzcloudnode.sbs:49784
