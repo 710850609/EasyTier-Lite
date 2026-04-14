@@ -14,7 +14,8 @@ peers/.venv
 peers/src/.venv
 peers/src/__pycache__
 peers/*.log
-peers/bin
+peers/bin/*
+peers/DYNV6_TOKEN.txt
 
 
 server/.venv

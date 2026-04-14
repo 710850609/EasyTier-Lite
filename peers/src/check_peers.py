@@ -167,13 +167,13 @@ def check_peers(peer_list, max_wait_time = 10):
     print(f"启动检测进程: {' '.join(cmd)}")
     
     def start_process():
+        print(" ".join(cmd))
         if sys.platform == 'win32':
             # Windows: 使用 CREATE_NEW_PROCESS_GROUP 来允许终止进程树
-            print(" ".join(cmd))
             return subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
                 text=True,
                 encoding='utf-8',
                 errors='ignore',

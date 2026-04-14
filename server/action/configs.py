@@ -18,7 +18,7 @@ TRIM_SHARE_DIR = os.getenv('TRIM_SHARE_DIR', f'/var/apps/{TRIM_APPNAME}/shares/{
 
 ET_CONFIG_FILE = f'{TRIM_SHARE_DIR}/config.toml'
 ET_CONFIG_INIT_FILE = f'{TRIM_PKGVAR}/.init'
-ET_PEER_META_FILE = f'{TRIM_PKGVAR}/peer-meta.json'
+ET_PEER_META_FILE = f'{TRIM_PKGVAR}/peer-txt-meta.json'
 
 CONFIG_COMMENTS = {
     'latency_first': '延迟优先模式，将尝试使用最低延迟路径转发流量，默认使用最短路径',
@@ -138,23 +138,13 @@ def public_peers(data, *kwargs):
     config_peers_set = set(peer_uris)
 
     github_proxy = github_util.get_github_proxy();
-    for item in peer_meta["peers"]:
-        peer = f"{peer_meta['baseUrl']}/{item['fileName']}"
-        if github_proxy:
-            peer = f"{github_proxy}/{peer}"
+    for key, item in peer_meta["peers"].items():
+        peer = f"{key}"
         if peer not in config_peers_set:
             peer_uris.append(peer)
     peers = []
-    baseUrl = 'https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers/peer-'
     for uri in peer_uris:
         label = uri
-        matchIndex = uri.find(baseUrl)
-        if matchIndex > -1:
-            label = '动态节点' + uri[matchIndex + len(baseUrl):].replace('.txt', '')
-            if matchIndex > 0:
-                github_proxy = uri[:matchIndex - 1]
-                github_proxy = github_proxy.replace('https://', '')
-                label = f'{label}({github_proxy})'
         peers.append({'label': label, 'uri': uri})
     http_util.http_response_ok(peers)
 
@@ -209,7 +199,7 @@ def __get_public_peers(refresh=False):
 def __download_peer_meta():
     try:
         github_proxy = github_util.get_github_proxy()
-        peer_meta_url = f"https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers/peer-meta.json"
+        peer_meta_url = f"https://raw.githubusercontent.com/710850609/EasyTier-Lite/refs/heads/main/peers/peer-txt-meta.json"
         if github_proxy and github_proxy != '':
             peer_meta_url = f"{github_proxy}/{peer_meta_url}"
         response = requests.get(peer_meta_url, timeout=30)
