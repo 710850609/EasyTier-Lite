@@ -33,7 +33,10 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    filename=LOG_FILE,  # 输出到文件
+    handlers=[
+        logging.FileHandler(LOG_FILE),  # 输出到文件
+        logging.StreamHandler()  # 输出到控制台
+    ]
 )
 
 logging.info(f"BACKEND_PATH: {BACKEND_PATH}")
@@ -234,12 +237,20 @@ class CGIProxyHandler(BaseHTTPRequestHandler):
                         content_type_sent = True
                         # 先发送状态码，再发送头部
                         self.send_response(status_code)
-                        self.send_header(line.split(':', 1)[0].strip(), line.split(':', 1)[1].strip())
+                        header_name = line.split(':', 1)[0].strip()
+                        header_value = line.split(':', 1)[1].strip()
+                        # 确保 header 值是 latin-1 编码
+                        header_value = header_value.encode('utf-8').decode('latin-1', 'replace')
+                        self.send_header(header_name, header_value)
                     elif ':' in line:
                         if not content_type_sent:
                             self.send_response(status_code)
                             content_type_sent = True
-                        self.send_header(line.split(':', 1)[0].strip(), line.split(':', 1)[1].strip())
+                        header_name = line.split(':', 1)[0].strip()
+                        header_value = line.split(':', 1)[1].strip()
+                        # 确保 header 值是 latin-1 编码
+                        header_value = header_value.encode('utf-8').decode('latin-1', 'replace')
+                        self.send_header(header_name, header_value)
                 
                 # 如果没有找到任何头部，发送默认响应
                 if not content_type_sent:

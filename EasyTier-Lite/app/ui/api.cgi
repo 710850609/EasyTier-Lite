@@ -7,12 +7,15 @@ import logging
 import importlib
 import json
 
+LOG_FILE = os.environ.get('LOG_FILE', '/var/apps/EasyTier-Lite/var/cgi.log')
 logging.basicConfig(
     level=logging.DEBUG,  # 设置日志级别
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # 日志格式
     datefmt='%Y-%m-%d %H:%M:%S',  # 日期格式
-    filename=os.environ.get('LOG_FILE', '/var/apps/EasyTier-Lite/var/cgi.log'),  # 输出到文件
-    filemode='a'  # 'a'追加，'w'覆盖
+    handlers=[
+        logging.FileHandler(LOG_FILE),  # 输出到文件
+        logging.StreamHandler()  # 输出到控制台
+    ]
 )
 
 # # 激活server虚拟环境

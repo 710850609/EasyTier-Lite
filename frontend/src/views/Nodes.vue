@@ -383,7 +383,7 @@ const fetchNodes = async () => {
   if (dataLoading.value) return
   dataLoading.value = true
   try {
-    const data = await api.nodes.getList();
+    const data = await api.monitor.getList();
     let peersData = []
     if (Array.isArray(data)) {
       peersData = data

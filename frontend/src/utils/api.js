@@ -105,19 +105,22 @@ export function del(url, options = {}, otherOptions = {}) {
 // API 接口定义
 export const api = {
   // 节点相关
-  nodes: {
-    getList: () => get('/peers/list', {}, {toastError: false}),
+  monitor: {
+    getList: () => get('/monitor/list', {}, {toastError: false}),
   },
   
   // 配置相关
   configs: {
     needSetting: () => get('/configs/need_setting'),
-    publicPeers: (params = {}) => get('/configs/public_peers', params),
     save: (data) => post('/configs/save', data),
     saveToml: (data) => post('/configs/save_toml', {toml: data}),
     get: () => get('/configs/get'),
     getToml: () => get('/configs/get_toml'),
     getDownloadUrl: () => getFulllUrl('/configs/download')
+  },
+  peers: {
+    checkPeers: () => get('/peers/check_peers'),
+    publicPeers: (params = {}) => get('/peers/public_peers', params),
   },
   // 服务相关
   services: {

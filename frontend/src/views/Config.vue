@@ -72,22 +72,37 @@
                 <template #extra>
                   <var-button type="primary" size="small" @click="addPeer">添加</var-button>
                 </template>
+              </var-cell>
+              <var-option 
+                v-for="peer in publicPeerOptions"
+                :key="peer.uri"
+                :label="peer.label || peer.uri"
+                :value="peer.uri"
+              >
+                <var-cell :title="peer.label || peer.uri">
+                  <template #extra v-if="peer.status !== undefined">
+                    <var-icon name="check" v-if="peer.status == 1" color="var(--color-success)"/>
+                    <var-icon name="window-close" v-else color="var(--color-danger)"/>
+                  </template>
                 </var-cell>
-                <var-option 
-                  v-for="peer in publicPeerOptions"
-                  :key="peer.uri"
-                  :label="peer.label || peer.uri"
-                  :value="peer.uri"
-                />
+              </var-option>
               </template>
               <template #append-icon>
-                <var-icon 
-                name="refresh" 
-                :class="{ 'is-spinning': isRefreshingPublicPeerOptions }"
-                @click.stop="refreshPublicPeerOptions" 
-                />
+                <var-tooltip content="获取最新节点列表">
+                  <var-icon 
+                  name="refresh" 
+                  :class="{ 'is-spinning': isRefreshingPublicPeerOptions }"
+                  @click.stop="refreshPublicPeerOptions" 
+                  />
+                </var-tooltip>
               </template>
             </var-select>
+            <template #extra>
+               <var-tooltip content="检测节点是否可用">
+                <svg-icon type="mdi" :path="mdiTextSearchVariant" color="var(--color-primary)" @click="checkPeers" v-if="!isPeerChecking"></svg-icon>
+                <var-loading type="wave" v-if="isPeerChecking" />
+               </var-tooltip>
+            </template>
           </var-cell>
           <var-cell v-if="fastSettingMode">
             <p>
@@ -429,7 +444,7 @@ import toast from '../components/toast.js'
 import { api } from '../utils/api.js'
 import CodeEditor from '../components/CodeEditor.vue'
 import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiEye, mdiEyeOff, mdiHomeEdit, mdiShieldEdit } from '@mdi/js'
+import { mdiEye, mdiEyeOff, mdiHomeEdit, mdiShieldEdit, mdiTextSearchVariant } from '@mdi/js'
 import { mdilPencil, mdilAccount, mdilLock } from '@mdi/light-js'
 
 // 注入快速设置模式
@@ -445,6 +460,7 @@ const isLoadingConfig = ref(true)
 const configToml = ref('')
 const isRefreshingPublicPeerOptions = ref(false)
 const showPassword = ref(false)
+const isPeerChecking = ref(false)
 const encryptionAlgorithmList = ref(['aes-gcm','xor','chacha20','aes-gcm','aes-gcm-256','openssl-aes128-gcm','openssl-aes256-gcm','openssl-chacha20'])
 const defaultProtocolList = ref([ {'label': '默认','value': ''}, {'label': 'tcp','value': 'tcp'}, {'label': 'udp','value': 'udp'}, {'label': 'quic','value': 'quic'}, {'label': 'wg','value': 'wg'}, {'label': 'ws','value': 'ws'}, {'label': 'wss','value': 'wss'}, {'label': 'faketcp','value': 'faketcp'}])
 const compressionOptions = ref([ {'label': '无压缩','value': 'none'}, {'label': 'zstd','value': 'zstd'} ])
@@ -624,13 +640,30 @@ const saveToml = () => {
 const refreshPublicPeerOptions = () => {
   isRefreshingPublicPeerOptions.value = true
   return new Promise((resolve, reject) => {
-    api.configs.publicPeers({ 'refresh': true }).then(data => {
+    api.peers.publicPeers({ 'refresh': true }).then(data => {
       publicPeerOptions.value = data.data
       toast.success('刷新可选节点成功')
     }).finally(() => {
       isRefreshingPublicPeerOptions.value = false
       resolve()
     })
+  })
+}
+
+const checkPeers = () => {
+  if (isPeerChecking.value) {
+    toast.warning('检测节点可用状态中，请稍后...')
+    return
+  }
+  toast.info('开始检测节点可用状态，这可能需要一些时间，请稍后...')
+  isPeerChecking.value = true
+  api.peers.checkPeers().then(data => {
+    publicPeerOptions.value = data.data.sort((a, b) => b.status - a.status)
+    toast.success('检测节点可用状态成功，请点击初始化节点列表查看')
+  }).catch(e => {
+    toast.error('检测节点可用状态失败')
+  }).finally(() => {
+    isPeerChecking.value = false
   })
 }
 
@@ -675,7 +708,7 @@ const loadConfig = () => {
 
 onMounted(async () => {
   // 加载公共节点
-  api.configs.publicPeers().then(data => {
+  api.peers.publicPeers().then(data => {
     publicPeerOptions.value = data.data
     if (fastSettingMode.value && config.value.peer.length === 0) {
       // 快速设置，默认最多取前5个

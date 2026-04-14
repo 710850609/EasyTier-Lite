@@ -4,7 +4,6 @@ import subprocess
 import logging
 import shutil
 import os
-import logging
 
 def run_cmd(command, *args, shell=False):
     """
