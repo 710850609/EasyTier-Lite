@@ -36,9 +36,9 @@ def check_peers(*kwargs):
     result = check_util.check_peers(ET_BIN_DIR, peer_uris, max_wait_second=6)
     for peer in peer_list:
         if peer['uri'] in result['success']:
-            peer['status'] = 0
-        else:
             peer['status'] = 1
+        else:
+            peer['status'] = 0
     http_util.http_response_ok(peer_list)
 
 
