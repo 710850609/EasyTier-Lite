@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-PyInstaller 打包脚本 - 系统托盘程序
+PyInstaller Build Script - System Tray App
 """
 
 import os
@@ -10,15 +10,21 @@ import subprocess
 import shutil
 from pathlib import Path
 
-# 项目路径
+# Set UTF-8 encoding (Windows compatible)
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+# Project paths
 PROJECT_ROOT = Path(__file__).parent.parent.parent.absolute()
 GUI_DIR = Path(__file__).parent.absolute()
 BUILD_DIR = GUI_DIR / "build"
 DIST_DIR = GUI_DIR / "dist"
 
 def run_command(cmd, cwd=None):
-    """执行命令并返回结果"""
-    print(f"执行: {cmd}")
+    """Execute command and return result"""
+    print(f"Execute: {cmd}")
     try:
         result = subprocess.run(
             cmd,
@@ -29,43 +35,43 @@ def run_command(cmd, cwd=None):
             encoding='utf-8'
         )
         if result.returncode != 0:
-            print(f"错误: {result.stderr}")
+            print(f"Error: {result.stderr}")
             return False
         if result.stdout:
             print(result.stdout)
         return True
     except Exception as e:
-        print(f"命令执行失败: {e}")
+        print(f"Command failed: {e}")
         return False
 
 def install_deps():
-    """安装依赖"""
-    print("[1/4] 安装依赖...")
+    """Install dependencies"""
+    print("[1/4] Installing dependencies...")
     deps = ["pyinstaller", "pystray", "pillow"]
     mirror = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
     
-    # 检测是否在虚拟环境中
+    # Check if in virtual environment
     in_venv = hasattr(sys, 'real_prefix') or (
         hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
     )
     
-    # 如果不在虚拟环境中，使用 --break-system-packages
+    # Use --break-system-packages if not in venv
     if not in_venv:
         break_system = "--break-system-packages"
-        print(f"  检测到系统 Python，使用 {break_system}")
+        print(f"  System Python detected, using {break_system}")
     else:
         break_system = ""
-        print("  检测到虚拟环境")
+        print("  Virtual environment detected")
     
     return run_command(f"pip install {' '.join(deps)} {mirror} {break_system}")
 
 def get_platform_name():
-    """获取平台名称（自动检测架构）"""
+    """Get platform name (auto-detect architecture)"""
     import platform
     system = platform.system().lower()
     machine = platform.machine().lower()
     
-    # 架构映射
+    # Architecture mapping
     arch_map = {
         'x86_64': 'x64',
         'amd64': 'x64',
@@ -88,18 +94,18 @@ def get_platform_name():
     return f"{system}-{arch}"
 
 def build_executable():
-    """构建可执行文件"""
-    print("[2/4] 开始打包...")
+    """Build executable"""
+    print("[2/4] Building...")
     
     platform_name = get_platform_name()
     output_name = f"EasyTierLite-Tray-{platform_name}"
     
-    # 图标路径
+    # Icon path
     icon_path = GUI_DIR / "icon.png"
     if not icon_path.exists():
         icon_path = PROJECT_ROOT / "frontend" / "icon.png"
     
-    # PyInstaller 命令
+    # PyInstaller command
     cmd = [
         "pyinstaller",
         "--onefile",
@@ -112,18 +118,18 @@ def build_executable():
         "--hidden-import", "PIL._tkinter_finder",
     ]
     
-    # 添加图标（Windows 使用 .ico，其他平台使用 .png）
+    # Add icon (Windows uses .ico, others use .png)
     if icon_path.exists():
         if sys.platform == "win32":
-            # Windows 需要 .ico 格式
+            # Windows prefers .ico format
             ico_path = GUI_DIR / "icon.ico"
             if not ico_path.exists():
-                print(f"  警告: Windows 建议使用 .ico 图标")
+                print(f"  Warning: Windows prefers .ico icon")
             else:
                 cmd.extend(["--icon", str(ico_path)])
         cmd.extend(["--add-data", f"{icon_path}{os.pathsep}."])
     
-    # Windows 特定选项
+    # Windows specific options
     if sys.platform == "win32":
         cmd.extend(["--console"])
     
@@ -133,8 +139,8 @@ def build_executable():
     return result, output_name
 
 def copy_output(output_name):
-    """复制输出文件"""
-    print("[3/4] 复制输出文件...")
+    """Copy output file"""
+    print("[3/4] Copying output...")
     
     ext = ".exe" if sys.platform == "win32" else ""
     source = DIST_DIR / f"{output_name}{ext}"
@@ -145,50 +151,50 @@ def copy_output(output_name):
     if source.exists():
         target = output_dir / f"{output_name}{ext}"
         shutil.copy2(source, target)
-        print(f"  复制到: {target}")
+        print(f"  Copied to: {target}")
         return True
     else:
-        print(f"  未找到: {source}")
+        print(f"  Not found: {source}")
         return False
 
 def clean():
-    """清理构建文件"""
-    print("[4/4] 清理...")
+    """Clean build files"""
+    print("[4/4] Cleaning...")
     if BUILD_DIR.exists():
         shutil.rmtree(BUILD_DIR)
     spec_file = GUI_DIR / f"EasyTierLite-Tray-*.spec"
     import glob
     for f in glob.glob(str(spec_file)):
         os.remove(f)
-    print("  清理完成")
+    print("  Clean complete")
 
 def main():
     print("=" * 50)
-    print("EasyTierLite Tray 打包工具")
+    print("EasyTierLite Tray Builder")
     print("=" * 50)
     
-    # 清理旧文件
+    # Clean old files
     if BUILD_DIR.exists():
         shutil.rmtree(BUILD_DIR)
     
     if not install_deps():
-        print("[错误] 安装依赖失败")
+        print("[Error] Failed to install dependencies")
         sys.exit(1)
     
     result, output_name = build_executable()
     if not result:
-        print("[错误] 打包失败")
+        print("[Error] Build failed")
         sys.exit(1)
     
     if not copy_output(output_name):
-        print("[错误] 复制文件失败")
+        print("[Error] Failed to copy output")
         sys.exit(1)
     
     clean()
     
     print("=" * 50)
-    print("打包完成!")
-    print(f"输出: dist/{output_name}")
+    print("Build complete!")
+    print(f"Output: dist/{output_name}")
     print("=" * 50)
 
 if __name__ == "__main__":

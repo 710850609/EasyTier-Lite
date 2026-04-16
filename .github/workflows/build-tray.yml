@@ -1,11 +1,11 @@
 name: Build Tray App
 
 on:
-  push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ main, master ]
+  # push:
+  #   branches: [ main, master ]
+  #   tags: [ 'v*' ]
+  # pull_request:
+  #   branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -53,6 +53,7 @@ jobs:
           -w /workspace \
           python:3.12-slim \
           bash -c "
+            apt-get update && apt-get install -y binutils &&
             pip install pyinstaller pystray pillow &&
             cd src/gui &&
             python build_stray.py
