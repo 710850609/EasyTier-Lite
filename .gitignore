@@ -26,7 +26,6 @@ server/dist
 server/*.spec
 
 
-node_modules
 frontend/logs
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
@@ -39,7 +38,20 @@ frontend/dist-ssr
 frontend/auto-imports.d.ts
 frontend/components.d.ts
 
-gui
+src/backend
+src/bin
+src/build
+src/dist
+src/cgi
+src/gui/.venv
+src/gui/build
+src/gui/dist
+src/gui/*.spec
+
+
+gui-go
+dist
+build
 
 *.local
 # Editor directories and files

@@ -1,0 +1,170 @@
+name: Build Tray App
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  # Linux AMD64
+  build-linux-amd64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller pystray pillow
+    
+    - name: Build
+      run: |
+        cd src/gui
+        python build_stray.py
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tray-linux-x64
+        path: dist/EasyTierLite-Tray-linux-x64
+
+  # Linux ARM64 (使用 QEMU 模拟)
+  build-linux-arm64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
+    
+    - name: Build in ARM64 container
+      run: |
+        docker run --rm --platform linux/arm64 \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace \
+          python:3.12-slim \
+          bash -c "
+            pip install pyinstaller pystray pillow &&
+            cd src/gui &&
+            python build_stray.py
+          "
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tray-linux-arm64
+        path: dist/EasyTierLite-Tray-linux-arm64
+
+  # Windows AMD64
+  build-windows-amd64:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller pystray pillow
+    
+    - name: Build
+      run: |
+        cd src/gui
+        python build_stray.py
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tray-windows-x64
+        path: dist/EasyTierLite-Tray-windows-x64.exe
+
+  # macOS AMD64
+  build-macos-amd64:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller pystray pillow
+    
+    - name: Build
+      run: |
+        cd src/gui
+        python build_stray.py
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tray-macos-x64
+        path: dist/EasyTierLite-Tray-macos-x64
+
+  # macOS ARM64 (Apple Silicon)
+  build-macos-arm64:
+    runs-on: macos-14  # macOS 14 支持 ARM64
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        architecture: arm64
+    
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller pystray pillow
+    
+    - name: Build
+      run: |
+        cd src/gui
+        python build_stray.py
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tray-macos-arm64
+        path: dist/EasyTierLite-Tray-macos-arm64
+
+  # 发布 Release
+  release:
+    needs: [build-linux-amd64, build-linux-arm64, build-windows-amd64, build-macos-amd64, build-macos-arm64]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          artifacts/tray-linux-x64/EasyTierLite-Tray-linux-x64
+          artifacts/tray-linux-arm64/EasyTierLite-Tray-linux-arm64
+          artifacts/tray-windows-x64/EasyTierLite-Tray-windows-x64.exe
+          artifacts/tray-macos-x64/EasyTierLite-Tray-macos-x64
+          artifacts/tray-macos-arm64/EasyTierLite-Tray-macos-arm64
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
