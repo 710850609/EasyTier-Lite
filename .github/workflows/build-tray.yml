@@ -8,6 +8,9 @@ on:
   #   branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: '3.9.13'
+
 jobs:
   # Linux AMD64
   build-linux-amd64:
@@ -18,10 +21,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9.13'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Install dependencies
       run: |
+        pip install --upgrade pip
         pip install pyinstaller pystray pillow
     
     - name: Build
@@ -51,9 +55,10 @@ jobs:
         docker run --rm --platform linux/arm64 \
           -v ${{ github.workspace }}:/workspace \
           -w /workspace \
-          python:3.9.13-slim \
+          python:${{ env.PYTHON_VERSION }}-slim \
           bash -c "
             apt-get update && apt-get install -y binutils &&
+            pip install --upgrade pip &&
             pip install pyinstaller pystray pillow &&
             cd src/gui &&
             python build_stray.py
@@ -74,10 +79,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9.13'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Install dependencies
       run: |
+        pip install --upgrade pip
         pip install pyinstaller pystray pillow
     
     - name: Build
@@ -100,10 +106,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9.13'
+        python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Install dependencies
       run: |
+        pip install --upgrade pip
         pip install pyinstaller pystray pillow
     
     - name: Build
@@ -126,11 +133,12 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9.13'
+        python-version: ${{ env.PYTHON_VERSION }}
         architecture: arm64
     
     - name: Install dependencies
       run: |
+        pip install --upgrade pip
         pip install pyinstaller pystray pillow
     
     - name: Build
