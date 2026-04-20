@@ -40,6 +40,7 @@ frontend/components.d.ts
 
 src/backend/.venv
 src/backend/*.log
+src/backend/__pycache__
 src/backend/build
 src/backend/dist
 src/bin
@@ -56,6 +57,7 @@ gui-go
 dist
 build
 
+__pycache__
 *.local
 # Editor directories and files
 frontend/.vscode
