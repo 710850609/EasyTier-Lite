@@ -54,7 +54,7 @@ def clean_build():
 def install_deps():
     """安装依赖"""
     print("[2/5] 安装依赖...")
-    deps = ["pyinstaller", "tomlkit", "requests", "pillow"]
+    deps = ["pyinstaller", "tomlkit", "requests", "pillow", "pystray"]
     mirror = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
     
     # 检测是否在虚拟环境中
