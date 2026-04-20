@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import logging
+import os
+import shutil
+import time
+import zipfile
+from pathlib import Path
+
+import actions.configs as configs
+import utils.common_util as common_util
+import utils.et_util as et_util
+import utils.github_util as github_util
+from htt_cgi.cgi import HttpResponse
+
+TRIM_APPNAME = os.getenv('TRIM_APPNAME', 'EasyTier-Lite')
+TRIM_APPDEST = os.getenv('TRIM_APPDEST', f'/var/apps/{TRIM_APPNAME}/target')
+TRIM_PKGVAR = os.getenv('TRIM_PKGVAR', f'/var/apps/{TRIM_APPNAME}/var')
+TRIM_SHARE_DIR = os.getenv('TRIM_SHARE_DIR', f'/var/apps/{TRIM_APPNAME}/shares/{TRIM_APPNAME}')
+TRIM_PKGTMP = os.getenv('TRIM_PKGTMP', f'/var/apps/{TRIM_APPNAME}/tmp')
+
+ET_BIN_DIR = os.getenv('ET_BIN_DIR', f"{TRIM_APPDEST}/bin")
+CONFIG_DIR = os.getenv('CONFIG_DIR', f"{TRIM_SHARE_DIR}/bin")
+DATA_DIR = os.getenv('DATA_DIR', f"{TRIM_PKGVAR}/bin")
+
+ET_CONFIG_FILE = f'{CONFIG_DIR}/config.toml'
+ET_CONFIG_INIT_FILE = f'{DATA_DIR}/.init'
+ET_PEER_META_FILE = f'{DATA_DIR}/peer-txt-meta.json'
+ET_PID_FILE = f'{DATA_DIR}/app.pid'
+ET_RESTART_FLAG_FILE = f'{DATA_DIR}/.restart'
+GITHUB_PROXY_FILE = f"{DATA_DIR}/github_proxy_url.txt"
+START_CMD = f"{ET_BIN_DIR}/easytier-core --config-file {ET_CONFIG_FILE}"
+
+et_min_version = "2.5.0"
+
+def download(*kwargs):
+    output_dir = DATA_DIR
+    download_temp_dir = f"{DATA_DIR}/tmp"
+    et_version = et_util.get_latest_version()
+    et_package = et_util.download_package(download_temp_dir, 'windows', 'x86_64', et_version)
+    et_mgr_version = _get_et_mgr_latest_version()
+    et_mgr_package = _get_et_mgr_package(et_mgr_version, download_temp_dir)
+    output_file = f"{output_dir}/easytier-manager-pro-v{et_mgr_version}-v{et_version}.zip"
+    _merge_package(et_package, et_mgr_package, output_file, download_temp_dir)
+    return HttpResponse(file=output_file, download_name=Path(output_file).name)
+
+def _get_et_mgr_latest_version():
+    api_url = "https://api.github.com/repos/EasyTier/easytier-manager/releases/latest"
+    return github_util.get_latest_version(api_url)
+
+def _get_et_mgr_package(et_mgr_version: str, download_dir: str):
+    # 不直接下载最新版本，先查版本号，方便保存文件名带版本号，用于后续自动下载最新版本
+    # https://github.com/EasyTier/easytier-manager/releases/latest/download/easytier-manager-pro.zip
+    last_version = et_mgr_version
+    download_file = download_dir + f"/easytier-manager-pro-v{last_version}.zip"
+    if Path(download_file).exists():
+        logging.debug(f"已存在缓存:{download_file}")
+        return download_file;
+    logging.debug(f"不存在缓存，开始下载 {download_file}");
+    download_url = f"https://github.com/EasyTier/easytier-manager/releases/download/v{last_version}/easytier-manager-pro.zip"
+    github_proxy = github_util.get_github_proxy()
+    if github_proxy and github_proxy != '':
+        download_url = f"{github_proxy}/{download_url}"
+    download_temp_file = f"{download_dir}/easytier-manager-pro-v{last_version}.zip.{int(time.time())}"
+    github_util.download_file(download_url, download_temp_file, f"easytier-windows-pro-v{last_version}.zip")
+    common_util.move(download_temp_file, download_file)
+    logging.debug(f"已下载： {download_file}")
+    return download_file
+
+def _merge_package(et_package, et_mgr_package, output_file, unzip_dir):
+    unzip_temp_dir = f"{unzip_dir}/{int(time.time())}"
+    logging.info(f"解压: {et_mgr_package} -> {unzip_temp_dir}")
+    with zipfile.ZipFile(et_mgr_package, 'r') as zf:
+        # zf.extractall(unzip_temp_dir)
+        for info in zf.infolist():
+            # 🔴 关键：统一转换为系统分隔符，再处理
+            # zipfile 读取的 filename 可能是 / 或 \，统一用 /
+            normalized_path = info.filename.replace('\\', '/')            
+            # 构建本地文件系统路径（自动适应 Windows/Unix）
+            local_path = os.path.join(unzip_temp_dir, *normalized_path.split('/'))            
+            if info.is_dir():
+                os.makedirs(local_path, exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(local_path), exist_ok=True)
+                with zf.open(info) as src, open(local_path, 'wb') as dst:
+                    dst.write(src.read())
+    logging.info(f"解压: {et_package} -> {unzip_temp_dir}")
+    with zipfile.ZipFile(et_package, 'r') as zf:
+        zf.extractall(unzip_temp_dir)
+    logging.info(f"移动: {unzip_temp_dir}/easytier-windows-x86_64  ->  {unzip_temp_dir}/resource")
+    common_util.move(f"{unzip_temp_dir}/easytier-windows-x86_64", f"{unzip_temp_dir}/resource")
+    # shutil.rmtree(f"{unzip_temp_dir}/easytier-windows-x86_64")
+    config_file = configs.copy()
+    cfg_target_file = f"{unzip_temp_dir}/config/et-fnos.toml"
+    Path(cfg_target_file).parent.mkdir(parents=True, exist_ok=True)
+    logging.info(f"复制: {config_file}  ->  {cfg_target_file}")
+    common_util.move(f"{config_file}", f"{cfg_target_file}")
+
+    logging.info(f"开始打包: {output_file}")
+    with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for item in Path(unzip_temp_dir).rglob('*'):
+            if item.is_file():
+                arch_name = item.relative_to(unzip_temp_dir)
+                zf.write(item, arch_name)
+    common_util.delete(unzip_temp_dir)
+

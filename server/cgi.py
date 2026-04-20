@@ -7,7 +7,7 @@ import logging
 import importlib
 import json
 
-LOG_FILE = os.environ.get('LOG_FILE', '/var/apps/EasyTier-Lite/var/cgi.log')
+LOG_FILE = os.environ.get('LOG_FILE', '/var/apps/EasyTier-Lite/var/htt_cgi.log')
 logging.basicConfig(
     level=logging.DEBUG,  # 设置日志级别
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # 日志格式
@@ -40,9 +40,9 @@ import util.http_util as http_util
 def http_handle():
     request_uri = os.environ.get('REQUEST_URI', '')
     query_string = os.environ.get('QUERY_STRING', '')
-    if 'api.cgi' in request_uri:
-        # 提取 api.cgi 后面的路径
-        path_part = request_uri.split('api.cgi', 1)[1]
+    if 'api.htt_cgi' in request_uri:
+        # 提取 api.htt_cgi 后面的路径
+        path_part = request_uri.split('api.htt_cgi', 1)[1]
         # 去掉 query string（如果有）
         if '?' in path_part:
             path_info = path_part.split('?', 1)[0]

@@ -38,7 +38,10 @@ frontend/dist-ssr
 frontend/auto-imports.d.ts
 frontend/components.d.ts
 
-src/backend
+src/backend/.venv
+src/backend/*.log
+src/backend/build
+src/backend/dist
 src/bin
 src/build
 src/dist

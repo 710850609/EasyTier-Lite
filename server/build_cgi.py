@@ -71,7 +71,7 @@ def build_executable():
     print("[3/5] 开始打包...")
     
     platform_name = get_platform_name()
-    output_name = f"cgi"
+    output_name = f"htt_cgi"
     
     # 根据平台选择分隔符
     separator = ";" if sys.platform == "win32" else ":"
@@ -102,7 +102,7 @@ def build_executable():
         "--hidden-import", "util.process_util",
         "--add-data", f"{SERVER_DIR}/action{separator}action",
         "--add-data", f"{SERVER_DIR}/util{separator}util",
-        str(SERVER_DIR / "cgi.py")
+        str(SERVER_DIR / "htt_cgi.py")
     ]
     
     # Windows 特定选项
@@ -126,7 +126,7 @@ def copy_output(output_name):
     
     # 复制文件
     if source.exists():
-        target = output_dir / f"cgi{ext}"
+        target = output_dir / f"htt_cgi{ext}"
         shutil.copy2(source, target)
         print(f"  复制到: {target}")
         return True

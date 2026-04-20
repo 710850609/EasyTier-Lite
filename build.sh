@@ -85,7 +85,7 @@ build_backend() {
         -d ${app_script_path}/wheels
         
     echo "写入脚本到app"
-    rsync -a --exclude='.venv' --exclude='__pycache__' --exclude='test' --exclude='dist' --exclude='build' --exclude='*.spec' --exclude='main.py'  --exclude='build.py' --exclude='*.md' server/ "${app_script_path}/"
+    rsync -a --exclude='.venv' --exclude='__pycache__' --exclude='test' --exclude='dist' --exclude='build' --exclude='*.spec' --exclude='main_cgi.py'  --exclude='build.py' --exclude='*.md' server/ "${app_script_path}/"
 }
 
 build_frontend() {

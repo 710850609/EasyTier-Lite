@@ -48,6 +48,7 @@ def install_deps():
     print("[2/5] 安装依赖...")
     deps = ["pyinstaller", "tomlkit", "requests"]
     mirror = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
+    # 使用 --break-system-packages 绕过系统保护（Python 3.11+）
     return run_command(f"pip install {' '.join(deps)} {mirror}")
 
 def get_platform_name():
@@ -96,11 +97,9 @@ def build_executable():
         "--hidden-import", "util.http_util",
         "--hidden-import", "util.github_util",
         "--hidden-import", "util.et_util",
-        "--hidden-import", "config.config",
         "--add-data", f"{SERVER_DIR}/action{separator}action",
         "--add-data", f"{SERVER_DIR}/util{separator}util",
-        "--add-data", f"{SERVER_DIR}/config{separator}config",
-        str(SERVER_DIR / "main.py")
+        str(SERVER_DIR / "main_cgi.py")
     ]
     
     # Windows 特定选项

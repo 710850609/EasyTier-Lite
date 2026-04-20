@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.DEBUG,  # 设置日志级别
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # 日志格式
     datefmt='%Y-%m-%d %H:%M:%S',  # 日期格式
-    filename=os.environ.get('LOG_FILE', '/var/apps/EasyTier-Lite/var/cgi.log'),  # 输出到文件
+    filename=os.environ.get('LOG_FILE', '/var/apps/EasyTier-Lite/var/htt_cgi.log'),  # 输出到文件
     filemode='a'  # 'a'追加，'w'覆盖
 )
 
@@ -18,13 +18,13 @@ def http_handle():
     # 静态文件根目录
     BASE_PATH = "../frontend/"
 
-    # 从 REQUEST_URI 里拿到 index.cgi 后面的路径
+    # 从 REQUEST_URI 里拿到 index.htt_cgi 后面的路径
     REQUEST_URI = os.environ.get("REQUEST_URI", "")
     URI_NO_QUERY = REQUEST_URI.split("?", 1)[0]
     REL_PATH = "/"
 
-    if "index.cgi" in URI_NO_QUERY:
-        REL_PATH = URI_NO_QUERY.split("index.cgi", 1)[1]
+    if "index.htt_cgi" in URI_NO_QUERY:
+        REL_PATH = URI_NO_QUERY.split("index.htt_cgi", 1)[1]
 
     if REL_PATH == "" or REL_PATH == "/":
         REL_PATH = "/index.html"
