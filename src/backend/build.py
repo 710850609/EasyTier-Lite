@@ -10,8 +10,13 @@ import sys
 import subprocess
 import shutil
 import zipfile
-from os import mkdir
 from pathlib import Path
+
+# Fix Windows console encoding for GitHub Actions
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # 项目路径
 PROJECT_DIR = Path(__file__).parent.absolute()
@@ -318,19 +323,19 @@ def main():
     print("EasyTier-Lite Server 多平台打包")
     print(f"当前平台: {get_platform_name()}")
     print("=" * 50)
-    
+
     # 检查 Python
     if sys.version_info < (3, 7):
         print("[错误] 需要 Python 3.7+")
         sys.exit(1)
-    
+
     # 执行构建步骤
     clean_build()
-    
+
     if not install_deps():
         print("[错误] 依赖安装失败")
         sys.exit(1)
-    
+
     result, output_name = build_executable()
     if not result:
         print("[错误] 打包失败")
@@ -341,11 +346,11 @@ def main():
     if not et_file:
         print(f"[错误] 下载easytier失败")
         sys.exit(1)
-    
+
     if not copy_output(output_name, et_file):
         print("[错误] 复制文件失败")
         sys.exit(1)
-    
+
     print("=" * 50)
     print("打包完成!")
     print(f"输出: {DIST_DIR}")

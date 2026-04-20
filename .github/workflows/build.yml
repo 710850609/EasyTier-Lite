@@ -8,6 +8,10 @@ on:
     branches: [main1, master1]
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: '3.8'
+  PYTHONIOENCODING: 'utf-8'
+
 jobs:
   build-frontend:
     runs-on: ubuntu-latest
@@ -17,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -52,7 +56,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
@@ -71,7 +75,7 @@ jobs:
 
   build-linux-x64:
     needs: build-frontend
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -84,7 +88,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
@@ -103,7 +107,7 @@ jobs:
 
   build-linux-arm64:
     needs: build-frontend
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -122,15 +126,18 @@ jobs:
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
-          distro: ubuntu22.04
+          distro: ubuntu18.04
           githubToken: ${{ github.token }}
           install: |
             apt-get update -q -y
-            apt-get install -q -y python3 python3-pip
-            pip3 install pyinstaller tomlkit requests
+            apt-get install -q -y software-properties-common
+            add-apt-repository -y ppa:deadsnakes/ppa
+            apt-get update -q -y
+            apt-get install -q -y python3.8 python3.8-pip
+            python3.8 -m pip install pyinstaller tomlkit requests
           run: |
             cd src/backend
-            python3 build.py
+            python3.8 build.py
 
       - name: Upload Linux ARM64 artifact
         uses: actions/upload-artifact@v4
@@ -153,7 +160,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
