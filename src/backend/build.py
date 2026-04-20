@@ -54,7 +54,7 @@ def clean_build():
 def install_deps():
     """安装依赖"""
     print("[2/5] 安装依赖...")
-    deps = ["pyinstaller", "tomlkit", "requests"]
+    deps = ["pyinstaller", "tomlkit", "requests", "pillow"]
     mirror = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
     
     # 检测是否在虚拟环境中
@@ -125,6 +125,8 @@ def build_executable():
         "--hidden-import", "utils.http_util",
         "--hidden-import", "utils.process_util",
         "--hidden-import", "htt_cgi.api.htt_cgi",
+        "--hidden-import", "PIL",
+        "--hidden-import", "PIL.Image",
         "--add-data", f"{Path(__file__).absolute().parent.parent.parent}/frontend/dist{separator}frontend",
         # str(PROJECT_DIR / "http_server.py ")
         str(PROJECT_DIR / "stray.py ")
