@@ -121,6 +121,11 @@ jobs:
           distro: buster
           githubToken: ${{ github.token }}
           install: |
+            # Update sources.list to use archive.debian.org
+            sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list
+            sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list
+            sed -i '/buster-updates/d' /etc/apt/sources.list
+            echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
             apt-get update -q -y
             apt-get install -q -y build-essential libssl-dev zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libreadline-dev libffi-dev curl
             curl -O https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz
