@@ -128,6 +128,7 @@ def build_executable():
         "--hidden-import", "PIL",
         "--hidden-import", "PIL.Image",
         "--add-data", f"{Path(__file__).absolute().parent.parent.parent}/frontend/dist{separator}frontend",
+        "--add-data", f"{Path(__file__).absolute().parent}/assets{separator}assets",
         # str(PROJECT_DIR / "http_server.py ")
         str(PROJECT_DIR / "stray.py ")
     ]

@@ -59,15 +59,17 @@ def on_quit(icon, item):
     icon.stop()
     sys.exit(0)
 
+def get_resource_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.abspath(sys._MEIPASS)
+    return os.path.abspath(os.path.dirname(__file__))
+
 # --- 2. 创建托盘图标 ---
 def create_image():
     """加载应用图标"""
     import os
     # 获取图标路径（支持开发和打包后的环境）
-    icon_path = os.path.join(os.path.dirname(__file__), 'icon.png')
-    if not os.path.exists(icon_path):
-        # 打包后的路径
-        icon_path = os.path.join(os.path.dirname(sys.executable), 'icon.png')
+    icon_path = os.path.join(get_resource_dir(), 'assets', 'icon.png')
     
     if os.path.exists(icon_path):
         return Image.open(icon_path)
