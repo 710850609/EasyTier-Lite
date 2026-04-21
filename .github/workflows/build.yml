@@ -114,31 +114,16 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Build Linux ARM64
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: aarch64
-          distro: buster
-          githubToken: ${{ github.token }}
-          install: |
-            # Update sources.list to use archive.debian.org
-            sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list
-            sed -i 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list
-            sed -i '/buster-updates/d' /etc/apt/sources.list
-            echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until
-            apt-get update -q -y
-            apt-get install -q -y build-essential libssl-dev zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libreadline-dev libffi-dev curl
-            curl -O https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz
-            tar -xzf Python-3.8.18.tgz
-            cd Python-3.8.18
-            ./configure --enable-optimizations --prefix=/usr/local
-            make -j$(nproc)
-            make altinstall
-            cd ..
-            rm -rf Python-3.8.18 Python-3.8.18.tgz
-          run: |
-            cd src/backend
-            python3.8 build.py
+      - name: Build Linux ARM64 with manylinux_2_28
+        run: |
+          docker run --rm --platform linux/arm64 \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            quay.io/pypa/manylinux_2_28_aarch64:latest \
+            bash -c "
+              cd src/backend && \
+              /opt/python/cp38-cp38/bin/python build.py
+            "
 
       - name: Upload Linux ARM64 artifact
         uses: actions/upload-artifact@v4
@@ -162,6 +147,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up PyObjC
+        run: |
+          # 安装Python 3.8 支持的最高版本是 10.3, 避免不兼容
+          pip install pyobjc==10.3
 
       - name: Build macOS x64
         run: |
