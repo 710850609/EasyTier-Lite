@@ -208,7 +208,7 @@ update_app() {
     echo "开始复制应用文件"
     bash -c "cp -rf ${temp_dir}/easytier-linux-${et_platform}/easytier-cli ${bin_dir}" 2>&1
     bash -c "cp -rf ${temp_dir}/easytier-linux-${et_platform}/easytier-core ${bin_dir}" 2>&1
-    bash -c "cp -f default.toml $(dirname ${bin_dir})" 2>&1
+#    bash -c "cp -f default.toml $(dirname ${bin_dir})" 2>&1
     echo "更新应用文件完成"
     # get_et_version
     # { jq ".[0].items |= map(if .field == \"et_version\" then .initValue = \"$ET_VERSION\" else . end)" EasyTier-Lite/wizard/config > temp.json && mv temp.json EasyTier-Lite/wizard/config; } || { echo "更新 wizard config 失败" && exit 1; }
