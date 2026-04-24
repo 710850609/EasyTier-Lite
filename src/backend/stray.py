@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import platform
@@ -8,19 +9,21 @@ import threading
 import http_server
 from PIL import Image, ImageDraw
 
-try:
-    import pystray
-except Exception as e:
-    if "Namespace AyatanaAppIndicator3 not available" in str(e):
-        # 强制使用 GTK 后端（避免 AppIndicator 缺失问题）
-        # 必须在 import pystray 之前设置
-        if platform.system() == "Linux":
-            os.environ['PYSTRAY_BACKEND'] = 'gtk'
-            print(f"{e}。强制Linux使用 GTK 环境")
-            import pystray
-    else:
-        print(f"pystray 模块加载失败，无法使用托盘图标功能: {e}")
-        raise ImportError("pystray 模块加载失败") from e
+global pystray
+def use_stray():
+    try:
+        import pystray
+    except Exception as e:
+        if "Namespace AyatanaAppIndicator3 not available" in str(e):
+            # 强制使用 GTK 后端（避免 AppIndicator 缺失问题）
+            # 必须在 import pystray 之前设置
+            if platform.system() == "Linux":
+                os.environ['PYSTRAY_BACKEND'] = 'gtk'
+                print(f"{e}。强制Linux使用 GTK 环境")
+                import pystray
+        else:
+            print(f"pystray 模块加载失败，无法使用托盘图标功能: {e}")
+            raise ImportError("pystray 模块加载失败") from e
 
 
 
@@ -48,6 +51,10 @@ def is_x11_backend():
 host='127.0.0.1'
 port=5666
 base_url = '/cgi/ThirdParty/EasyTier-Lite/index.cgi'
+
+def start_web():
+    # 执行 CGI 脚本
+    http_server.start_server(host, port, base_url)
 
 # --- 1. 定义菜单项的功能 ---
 def on_open_browser(icon, item):
@@ -158,8 +165,8 @@ def setup_windows_console_handler():
         return _handler_instance
     return None
 
-# --- 3. 主程序启动托盘线程 ---
-if __name__ == '__main__':
+def setup():
+    # --- 3. 主程序启动托盘线程 ---
     # 注册 Ctrl+C 信号处理（必须在主线程）
     def signal_handler(sig, frame):
         print("\n收到退出信号，正在关闭...")
@@ -167,7 +174,7 @@ if __name__ == '__main__':
             _global_icon.stop()
         _stop_event.set()
         sys.exit(0)
-    
+
     if sys.platform == 'win32':
         # Windows 使用控制台事件处理
         _win_handler = setup_windows_console_handler()
@@ -178,9 +185,6 @@ if __name__ == '__main__':
 
     tray_thread = start_tray()
     if tray_thread:
-        def start_web():
-            # 执行 CGI 脚本
-            http_server.start_server(host, port, base_url)
         server_thread = threading.Thread(target=start_web, daemon=True)
         server_thread.start()
         webbrowser.open(f'http://{host}:{port}{base_url}')
@@ -200,3 +204,12 @@ if __name__ == '__main__':
                 _stop_event.wait(1)
             except KeyboardInterrupt:
                 break
+
+if __name__ == '__main__':
+    try:
+        use_stray()
+        raise Exception()
+        setup()
+    except Exception as e:
+        logging.error(f"不支持系统托盘，退化不使用系统托盘: {e}")
+        start_web()

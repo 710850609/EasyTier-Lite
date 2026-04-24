@@ -1,0 +1,4 @@
+tomlkit
+requests
+# 支持 glibc >= 2.28
+psutil==5.9.8

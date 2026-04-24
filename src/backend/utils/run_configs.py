@@ -5,7 +5,8 @@
 """
 
 import os
-from typing import Optional
+from pathlib import Path
+from typing import Optional, List
 
 TRIM_APPNAME = os.getenv('TRIM_APPNAME', 'EasyTier-Lite')
 TRIM_APPDEST = os.getenv('TRIM_APPDEST', f'/var/apps/{TRIM_APPNAME}/target')
@@ -42,18 +43,25 @@ def et_log_dir():
     return os.path.join(log_dir(), 'easytier')
 
 def et_config_file(file_name=None):
-    file_name = 'config.toml' if file_name is None else file_name
+    file_name = 'default.toml' if file_name is None else file_name
     return os.path.join(config_dir(), file_name)
+
+def et_config_files() -> List[str]:
+    config_files = []
+    for file in os.listdir(config_dir()):
+        if Path(file).name.lower().endswith('.toml'):
+            config_files.append(file)
+    return config_files
 
 def et_pid_file(profile: Optional[str]):
     file_name = 'app.pid' if profile is None else f"{profile}.pid"
     return os.path.join(data_dir(), file_name)
 
-def et_restart_flag_file():
-    return os.path.join(data_dir(), '.restart')
+# def et_restart_flag_file():
+#     return os.path.join(data_dir(), '.restart')
 
-def et_init_flag_file():
-    return os.path.join(data_dir(), '.init')
+# def et_init_flag_file():
+#     return os.path.join(data_dir(), '.init')
 
 def et_peer_meta_file():
     return os.path.join(data_dir(), 'peer-meta.json')
@@ -64,3 +72,5 @@ def github_proxy_file():
 def et_run_file():
     return os.path.join(data_dir(), 'et_run.json')
 
+def fn_check_file():
+    return os.path.join(data_dir(), 'fn_check.txt')

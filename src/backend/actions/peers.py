@@ -8,6 +8,7 @@ from pathlib import Path
 import requests
 import tomlkit
 
+from backend.http_dispatcher.dispatcher import HttpException
 from utils import check_peers as check_util, run_configs
 from utils import github_util
 
@@ -35,7 +36,12 @@ def check_peers(*kwargs):
 def public_peers(data, *kwargs):
     refresh = data and 'refresh' in data and data['refresh'] or False
     profile = None if data is None else data.get('profile')
-    public_peer_list = __get_public_peers(refresh)
+    public_peer_list = []
+    try:
+        public_peer_list = __get_public_peers(refresh)
+    except Exception as e:
+        logging.exception('获取公共节点失败')
+        raise HttpException(f"获取公共节点失败，请尝试在设置修改Github加速地址后重试")
     peer_meta = public_peer_list
     peer_uris = []
     config_file = run_configs.et_config_file(profile)

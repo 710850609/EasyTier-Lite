@@ -4,7 +4,6 @@
 import logging
 from pathlib import Path
 
-import utils.http_util as http_util
 from http_dispatcher.dispatcher import HttpException
 from utils import run_configs
 
@@ -15,7 +14,7 @@ def save_github_mirror(data, *kwargs):
         github_proxy_file = run_configs.github_proxy_file()
         cfg_path = Path(github_proxy_file)
         cfg_path.write_text(url.strip())
-        http_util.http_response_ok('保存成功')
+        return '保存成功'
     except Exception as e:
         logging.error(f"保存代理配置失败: {e}")
         raise HttpException(f"保存代理配置失败: {e}") from e

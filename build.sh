@@ -54,12 +54,12 @@ if [ "${arch}" == "x86_64" ]; then
     platform="x86"
     et_platform="x86_64"
     os_min_version="1.1.8"
-    py_platform="manylinux_2_34_x86_64"
+    py_platform="manylinux_2_28_x86_64"
 elif [ "${arch}" == "aarch64" ]; then
     platform="arm"
     et_platform="aarch64"
     os_min_version="1.0.2"
-    py_platform="manylinux_2_34_aarch64"
+    py_platform="manylinux_2_28_aarch64"
 elif [ "${arch}" == "linux-riscv64" ]; then
     platform="riscv64"
     py_platform="manylinux_2_34_riscv64"
@@ -81,11 +81,22 @@ build_backend() {
         --only-binary=:all: \
         --platform $py_platform \
         --python-version 311 \
-        -r server/requirements.txt \
+        -r src/backend/requirements-fnos.txt \
         -d ${app_script_path}/wheels
         
     echo "写入脚本到app"
-    rsync -a --exclude='.venv' --exclude='__pycache__' --exclude='test' --exclude='dist' --exclude='build' --exclude='*.spec' --exclude='main_cgi.py'  --exclude='build.py' --exclude='*.md' server/ "${app_script_path}/"
+    rsync -a --exclude='.venv' \
+    --exclude='__pycache__' \
+    --exclude='build' \
+    --exclude='dist' \
+    --exclude='assets' \
+    --exclude='build.py' \
+    --exclude='http_server.py'  \
+    --exclude='stray.py'  \
+    --exclude='requirements-gui.txt'  \
+    --exclude='*.spec' \
+    --exclude='*.md' \
+    src/backend/ "${app_script_path}/"
 }
 
 build_frontend() {

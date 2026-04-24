@@ -12,23 +12,27 @@ from utils import run_configs
 
 
 def need_setting(*kwargs):
-    flag_file = run_configs.et_init_flag_file()
-    need_config = Path(flag_file).exists()
-    return {"needConfig": need_config}
+    config_files = run_configs.et_config_files()
+    return { "needConfig": len(config_files) == 0 }
 
 def save(data, *kwargs):
     et_config_file = run_configs.et_config_file()
-    os.makedirs(os.path.dirname(et_config_file), exist_ok=True)
+    path_config_file = Path(et_config_file)
+    if not path_config_file.exists():
+        path_config_file.parent.mkdir(parents=True, exist_ok=True)
+        path_config_file.touch()
     with open(et_config_file, "r", encoding="utf-8") as f:
         doc = tomlkit.parse(f.read())
-    if not doc["network_identity"]:
+    if not doc.get("network_identity"):
         doc["network_identity"] = {"network_name": '', "network_secret": ''}
     __deep_merge(doc, data)
+    if doc.get("rpc_portal") == '':
+        doc.pop("rpc_portal")
     # 头部注释
     with open(et_config_file, "w", encoding="utf-8") as f:
         f.write(tomlkit.dumps(doc))
-    flag_file = run_configs.et_init_flag_file()
-    Path(flag_file).unlink(missing_ok=True)
+    # flag_file = run_configs.et_init_flag_file()
+    # Path(flag_file).unlink(missing_ok=True)
 
 
 def save_toml(data: str, *kwargs):
@@ -38,8 +42,8 @@ def save_toml(data: str, *kwargs):
         et_config_file = run_configs.et_config_file()
         with open(et_config_file, "w", encoding="utf-8") as f:
             f.write(tomlkit.dumps(doc))
-        flag_file = run_configs.et_init_flag_file()
-        Path(flag_file).unlink(missing_ok=True)
+        # flag_file = run_configs.et_init_flag_file()
+        # Path(flag_file).unlink(missing_ok=True)
     except Exception as e:
         logging.error(f"解析配置字符串失败: {e}")
         raise e
