@@ -124,7 +124,7 @@ jobs:
           -w /workspace \
           python:${{ env.PYTHON_VERSION }}-slim \
           bash -c "
-            RUN apt-get update && apt-get install -y binutils &&
+            apt-get update && apt-get install -y binutils &&
             pip install --upgrade pip &&
             cd backend &&
             python3 build.py
