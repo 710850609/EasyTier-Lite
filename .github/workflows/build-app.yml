@@ -70,7 +70,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-x64
-        path: backend/dist/EasyTier-Lite-windows-x64.zip
+        path: backend/dist/*.zip
 
   # Linux AMD64
   build-linux-amd64:
@@ -103,7 +103,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: linux-x64
-        path: backend/dist/EasyTier-Lite-linux-x64.zip
+        path: backend/dist/*.zip
 
   # Linux ARM64 (使用 QEMU 模拟)
   build-linux-arm64:
@@ -124,6 +124,7 @@ jobs:
           -w /workspace \
           python:${{ env.PYTHON_VERSION }}-slim \
           bash -c "
+            RUN apt-get update && apt-get install -y binutils &&
             pip install --upgrade pip &&
             cd backend &&
             python3 build.py
@@ -133,7 +134,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: linux-arm64
-        path: backend/dist/EasyTierLite-linux-arm64.zip
+        path: backend/dist/*.zip
 
   # macOS AMD64
   build-macos-amd64:
@@ -166,7 +167,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: macos-x64
-        path: backend/dist/EasyTierLite-macos-x64.zip
+        path: backend/dist/*.zip
 
   # macOS ARM64 (Apple Silicon)
   build-macos-arm64:
@@ -200,7 +201,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: macos-arm64
-        path: backend/dist/EasyTierLite-macos-arm64.zip
+        path: backend/dist/*.zip
 
   # 发布 Release
   release:
@@ -218,11 +219,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          artifacts/windows-x64/EasyTierLite-windows-x64.zip
-          artifacts/linux-x64/EasyTierLite-linux-x64.zip
-          artifacts/linux-arm64/EasyTierLite-linux-arm64.zip
-          artifacts/macos-x64/EasyTierLite-macos-x64.zip
-          artifacts/macos-arm64/EasyTierLite-macos-arm64.zip
+          artifacts/*/*.zip
+          artifacts/*/*.fpk
         draft: false
         prerelease: true
       env:
