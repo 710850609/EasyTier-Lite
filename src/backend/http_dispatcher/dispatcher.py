@@ -61,10 +61,11 @@ class HttpResponse:
         self.status_code = status_code
         self.headers = headers
         self.data = data
-        self.json = {'code': self.code, 'data': self.data}
+        self.json = None if data is None else {'code': self.code, 'data': self.data}
         self.file = file
         self.download_name = download_name
         self.mime_type = mime_type
+        self._fill_headers()
 
     def get_file_disposition(self):
         # 检查文件
@@ -90,7 +91,9 @@ class HttpResponse:
                 disposition = f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{encoded}'
         return disposition
 
-    def output_cgi(self):
+    def _fill_headers(self):
+        if self.headers is None:
+            self.headers = {}
         if self.file:
             mime_type = self.mime_type
             if not mime_type:
@@ -111,16 +114,23 @@ class HttpResponse:
                 mime_type = mime_map.get(ext, "application/octet-stream")
             # 文件大小
             file_size = os.path.getsize(self.file)
-            # ===== 关键：必须先发送状态头 =====
-            sys.stdout.buffer.write(b"Status: 200 OK\r\n")
-            sys.stdout.buffer.write(f"Content-Type: {mime_type}\r\n".encode())
+            self.headers['Content-Length'] = file_size
+            self.headers['Content-Type'] = mime_type
             disposition = self.get_file_disposition()
             if disposition:
-                sys.stdout.buffer.write(f"Content-Disposition: {disposition}\r\n".encode())
-            sys.stdout.buffer.write(f"Content-Length: {file_size}\r\n".encode())
-            sys.stdout.buffer.write(b"\r\n")  # 头结束空行
-            sys.stdout.buffer.flush()
+                self.headers['Content-Disposition'] = disposition
+        else:
+            self.headers['Content-Type'] = 'application/json; charset=utf-8'
 
+
+    def output_cgi(self):
+        sys.stdout.buffer.write(f"Status: {self.status_code}\r\n".encode())
+        for h_key, h_value in self.headers:
+            sys.stdout.buffer.write(f"{h_key}: {h_value}\r\n".encode())
+        sys.stdout.buffer.write("\r\n".encode())
+        if self.json:
+            sys.stdout.buffer.write(json.dumps(self.json, ensure_ascii=False).encode())
+        else:
             # 流式发送文件
             try:
                 with open(self.file, "rb") as f:
@@ -135,12 +145,7 @@ class HttpResponse:
             except Exception as e:
                 logging.error(f"Send file error: {e}\n")
                 sys.stderr.write(f"Send file error: {e}\n")
-        else:
-            sys.stdout.buffer.write(f"Status: {self.status_code}\r\n".encode())
-            sys.stdout.buffer.write("Content-Type: application/json; charset=utf-8\r\n".encode())
-            sys.stdout.buffer.write("\r\n".encode())
-            sys.stdout.buffer.write(json.dumps(self.json, ensure_ascii=False).encode())
-        pass
+
 
     def to_json(self):
         """返回一个可被 json.dumps 序列化的字典"""
@@ -204,7 +209,10 @@ def http_handle(base_uri="/", body_data=None, cgi_module=True) -> HttpResponse:
     response = HttpResponse()
     try:
         request = get_request(base_uri, body_data, cgi_module)
-        logging.debug(f"request: {request.__dict__}")
+        req_msg = f"{request.method} {request.request_uri}"
+        req_msg += '' if not request.request_body else '\n' + request.request_body
+        logging.info(f"{req_msg}")
+        # logging.debug(f"request: {request.__dict__}")
         module_name = request.module_name
         function_name = request.function_name
         if not module_name and not function_name:
@@ -221,7 +229,7 @@ def http_handle(base_uri="/", body_data=None, cgi_module=True) -> HttpResponse:
             response = HttpResponse(file=str(resource_path))
         else:
             function_params = request.function_params
-            logging.debug(f"request: {request.__dict__}")
+            # logging.debug(f"request: {request.__dict__}")
             module = importlib.import_module(module_name)
             func = getattr(module, function_name)
             response = func(function_params)
@@ -235,7 +243,12 @@ def http_handle(base_uri="/", body_data=None, cgi_module=True) -> HttpResponse:
             logging.exception("服务异常")
             response = HttpResponse(code=1, data=str(e))
     finally:
-        logging.debug(f"response: {response.__dict__}")
+        resp_msg = ''
+        # resp_msg = f"Status Code: {response.status_code}"
+        # resp_msg += '' if not response.headers else '\nHeaders: ' + json.dumps(response.headers)
+        resp_msg += '' if not response.json else 'Response JSON: ' + json.dumps(response.json, ensure_ascii=False)
+        resp_msg += '' if not response.file else 'Download File: ' + response.file
+        logging.debug(f"{resp_msg}")
         if cgi_module:
             response.output_cgi()
         return response
