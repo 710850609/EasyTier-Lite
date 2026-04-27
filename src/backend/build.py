@@ -54,7 +54,7 @@ def clean_build():
 def install_deps():
     """安装依赖"""
     print("[2/5] 安装依赖...")
-    # deps = ["pyinstaller", "tomlkit", "requests", "pillow", "pystray"]
+    # deps = ["pyinstaller", "tomlkit", "requests", "pillow", "pystray", "psutil"]
     # mirror = "-i https://pypi.tuna.tsinghua.edu.cn/simple"
     
     # 检测是否在虚拟环境中
@@ -263,6 +263,7 @@ def extract_easytier(zip_path, core_dir):
                     subdir_path = Path(core_dir) / subdir
                     if subdir_path.is_dir():
                         # 移动子目录内容到core_dir
+                        ext = ".exe" if sys.platform == "win32" else ""
                         for item in subdir_path.iterdir():
                             target = Path(core_dir) / item.name
                             if target.exists():
@@ -270,6 +271,9 @@ def extract_easytier(zip_path, core_dir):
                                     shutil.rmtree(target)
                                 else:
                                     os.remove(target)
+                            if item.name in [f'easytier-web{ext}', f'easytier-web-embed{ext}']:
+                                continue
+                            print(f"  复制: {item.name}")
                             shutil.move(str(item), str(target))
                         # 删除空子目录
                         shutil.rmtree(subdir_path)

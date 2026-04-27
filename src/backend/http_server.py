@@ -198,7 +198,7 @@ def build_server(host='127.0.0.1', port=18080, base_uri=None) -> Optional[Thread
     acc_host = host
     if acc_host == '0.0.0.0':
         acc_host = '127.0.0.1'
-    logging.info(f"local access http://{acc_host}:{port}{base_uri}")
+    logging.info(f"local access http://{acc_host}:{port}{BASE_URI}")
     return server
 
 
