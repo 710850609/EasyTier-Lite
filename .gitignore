@@ -29,11 +29,11 @@ EasyTier-Lite/app/backend
 EasyTier-Lite/app/default.toml
 
 peers/.venv
-peers/src/.venv
-peers/src/__pycache__
+peers/.venv
+peers/__pycache__
 peers/*.log
 peers/bin/*
-peers/src/DYNV6_TOKEN.txt
+peers/DYNV6_TOKEN.txt
 
 server/.venv
 server/*/__pycache__
@@ -54,16 +54,12 @@ frontend/dist-ssr
 frontend/auto-imports.d.ts
 frontend/components.d.ts
 
-src/backend/.venv
-src/backend/*.log
-src/backend/__pycache__
-src/backend/__pycache__
-src/backend/build
-src/backend/dist
-src/bin
-src/build
-src/dist
-src/cgi
+backend/.venv
+backend/*.log
+backend/__pycache__
+backend/*/__pycache__
+backend/build
+backend/dist
 
 __IDp
 /
@@ -78,3 +74,4 @@ Thnmbn.lb
 
 *.sw?
 *.idea
+__pycache__

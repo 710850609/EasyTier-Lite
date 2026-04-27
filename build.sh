@@ -81,7 +81,7 @@ build_backend() {
         --only-binary=:all: \
         --platform $py_platform \
         --python-version 311 \
-        -r src/backend/requirements-base.txt \
+        -r backend/requirements-base.txt \
         -d ${app_script_path}/wheels
         
     echo "写入脚本到app"

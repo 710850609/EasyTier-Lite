@@ -54,20 +54,19 @@ class HttpRequest:
         return fun_params
 
 class HttpResponse:
-    def __init__(self, code=0, data=None, file: str=None, mime_type=None, download_name:str=None, status_code=200, headers={}):
+    def __init__(self, code=0, data=None, file: str=None, mime_type=None, download_name:str=None, status_code=200, headers=None):
         if data and file:
             raise AssertionError(f"不能同时存在data和file")
         self.code = code
         self.status_code = status_code
         self.headers = headers
         self.data = data
-        self.json = None if data is None else {'code': self.code, 'data': self.data}
+        self.json = {'code': self.code, 'data': self.data} if file is None else None
         self.file = file
         self.download_name = download_name
         self.mime_type = mime_type
-        self._fill_headers()
 
-    def get_file_disposition(self):
+    def _get_file_disposition(self):
         # 检查文件
         if not self.download_name:
             return None
@@ -91,7 +90,7 @@ class HttpResponse:
                 disposition = f'attachment; filename="{ascii_name}"; filename*=UTF-8\'\'{encoded}'
         return disposition
 
-    def _fill_headers(self):
+    def fill_headers(self):
         if self.headers is None:
             self.headers = {}
         if self.file:
@@ -116,11 +115,12 @@ class HttpResponse:
             file_size = os.path.getsize(self.file)
             self.headers['Content-Length'] = file_size
             self.headers['Content-Type'] = mime_type
-            disposition = self.get_file_disposition()
+            disposition = self._get_file_disposition()
             if disposition:
                 self.headers['Content-Disposition'] = disposition
         else:
             self.headers['Content-Type'] = 'application/json; charset=utf-8'
+        return self.headers
 
 
     def output_cgi(self):
@@ -243,6 +243,7 @@ def http_handle(base_uri="/", body_data=None, cgi_module=True) -> HttpResponse:
             logging.exception("服务异常")
             response = HttpResponse(code=1, data=str(e))
     finally:
+        response.fill_headers()
         resp_msg = ''
         # resp_msg = f"Status Code: {response.status_code}"
         # resp_msg += '' if not response.headers else '\nHeaders: ' + json.dumps(response.headers)

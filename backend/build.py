@@ -136,7 +136,7 @@ def build_executable():
         "--hidden-import", "utils.http_util",
         "--hidden-import", "utils.process_util",
         "--hidden-import", "http_dispatcher.http_dispatcher",
-        "--add-data", f"{Path(__file__).absolute().parent.parent.parent}/frontend/dist{separator}frontend",
+        "--add-data", f"{Path(__file__).absolute().parent.parent}/frontend/dist{separator}frontend",
         "--add-data", f"{Path(__file__).absolute().parent}/assets{separator}assets",
         # str(PROJECT_DIR / "http_server.py ")
         str(PROJECT_DIR / "stray.py ")
@@ -373,4 +373,5 @@ def main():
     print("=" * 50)
 
 if __name__ == "__main__":
+    os.environ['PYTHONUTF8'] = "1"
     main()

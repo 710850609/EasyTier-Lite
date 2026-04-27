@@ -37,7 +37,7 @@ def setup_env(base_uri: str):
         # PACKAGE_PATH = str(sys._MEIPASS)
     else:
         print("本地模式运行...")
-        project_root_path = Path(__file__).absolute().parent.parent.parent
+        project_root_path = Path(__file__).absolute().parent.parent
         WORK_DIR = str(project_root_path.joinpath('temp').joinpath('EasyTier-Lite').absolute())
         Path(WORK_DIR).mkdir(parents=True, exist_ok=True)
         FRONTEND_PATH = str(project_root_path.joinpath('frontend').joinpath('dist'))
@@ -142,29 +142,6 @@ class CGIProxyHandler(BaseHTTPRequestHandler):
 
             resp = http_dispatcher.http_handle(base_uri=BASE_URI, body_data=stdin_data, cgi_module=False)
             self.send_response(resp.status_code)
-            if resp.file:
-                ext = resp.file.split(".")[-1].lower()
-                mime_map = {
-                    "html": "text/html; charset=utf-8",
-                    "css": "text/css; charset=utf-8",
-                    "js": "application/javascript; charset=utf-8",
-                    "json": "application/json; charset=utf-8",
-                    "png": "image/png",
-                    "jpg": "image/jpeg",
-                    "jpeg": "image/jpeg",
-                    "gif": "image/gif",
-                    "svg": "image/svg+xml",
-                    "woff": "font/woff",
-                    "woff2": "font/woff2",
-                }
-                mime = mime_map.get(ext, "application/octet-stream")
-                self.send_header('Content-type', mime)
-                disposition = resp.get_file_disposition()
-                if disposition:
-                    self.send_header('Content-Disposition', disposition)
-            else:
-                self.send_header('Content-Type', 'application/json; charset=utf-8')
-
             if resp.headers is not None:
                 for key, value in resp.headers.items():
                     self.send_header(key, value)
