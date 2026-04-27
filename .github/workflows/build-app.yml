@@ -116,6 +116,12 @@ jobs:
       uses: docker/setup-qemu-action@v3
       with:
         platforms: arm64
+
+    - name: Download frontend
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-dist
+        path: frontend/dist
     
     - name: Build in ARM64 container
       run: |
