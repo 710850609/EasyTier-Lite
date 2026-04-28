@@ -241,7 +241,7 @@ jobs:
   # macOS AMD64
   build-macos-amd64:
     needs: build-frontend
-    runs-on: macos-latest
+    runs-on: macos-13  # ← 唯一还在的 Intel 运行器
     steps:
     - uses: actions/checkout@v4
     
@@ -274,7 +274,7 @@ jobs:
   # macOS ARM64 (Apple Silicon)
   build-macos-arm64:
     needs: build-frontend
-    runs-on: macos-14  # macOS 14 支持 ARM64
+    runs-on: macos-14  # 或 macos-latest macOS 14 开始支持 ARM64
     steps:
     - uses: actions/checkout@v4
     
