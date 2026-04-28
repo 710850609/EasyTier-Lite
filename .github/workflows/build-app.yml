@@ -15,8 +15,8 @@ env:
   BUILD_LINUX_AMD64: true
   BUILD_LINUX_ARM64: true
   BUILD_LINUX_RISCV64: false
-  BUILD_MACOS_AMD64: true
-  BUILD_MACOS_ARM64: false
+  BUILD_MACOS_AMD64: true    # 在 ARM64 运行器上构建 x86_64 版本
+  BUILD_MACOS_ARM64: false   # 原生 ARM64 构建（如需可改为 true）
 
 permissions:
   contents: write
@@ -84,12 +84,10 @@ jobs:
         run: |
           cd frontend
           npm install
-
       - name: Build frontend
         run: |
           cd frontend
           npm run build
-
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
@@ -112,7 +110,6 @@ jobs:
     - name: Upgrade pip
       run: |
         pip install --upgrade pip
-
     - name: Download frontend
       uses: actions/download-artifact@v4
       with:
@@ -123,7 +120,6 @@ jobs:
       run: |
         cd backend
         python build.py
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -146,7 +142,6 @@ jobs:
     - name: Upgrade pip
       run: |
         pip install --upgrade pip
-
     - name: Download frontend
       uses: actions/download-artifact@v4
       with:
@@ -157,7 +152,6 @@ jobs:
       run: |
         cd backend
         python3 build.py
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -198,7 +192,6 @@ jobs:
             cd backend &&
             python3 build.py
           "
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -239,31 +232,28 @@ jobs:
             cd backend &&
             python3 build.py
           "
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: linux-riscv64
         path: backend/dist/*.zip
 
-
-  # macOS AMD64
+  # macOS AMD64 (Intel x86_64) 通过 Rosetta 2 在 ARM64 运行器上构建
   build-macos-amd64:
     if: env.BUILD_MACOS_AMD64 == 'true'
     needs: build-frontend
-    runs-on: macos-latest  # ← macos-13 唯一支持的 Intel 运行器。 GitHub action 已经不再支持，无法构建
+    runs-on: macos-latest          # ARM64 运行器，内置 Rosetta 2
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python (x86_64)
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-        architecture: 'x64'  # 强制安装 x86_64 版本的 Python
-        
-    - name: Upgrade pip
+        architecture: 'x64'        # 强制安装 Intel 版 Python
+
+    - name: Upgrade pip (x86_64)
       run: |
-#        pip install --upgrade pip
         arch -x86_64 pip install --upgrade pip
 
     - name: Download frontend
@@ -272,10 +262,9 @@ jobs:
         name: frontend-dist
         path: frontend/dist
 
-    - name: Build
+    - name: Build (x86_64)
       run: |
         cd backend
-#        python3 build.py
         arch -x86_64 python3 build.py
 
     - name: Upload artifact
@@ -284,11 +273,11 @@ jobs:
         name: macos-x64
         path: backend/dist/*.zip
 
-  # macOS ARM64 (Apple Silicon)
+  # macOS ARM64 (Apple Silicon) - 如需原生 ARM64 构建，将 BUILD_MACOS_ARM64 改为 true
   build-macos-arm64:
     if: env.BUILD_MACOS_ARM64 == 'true'
     needs: build-frontend
-    runs-on: macos-latest  # 或 macos-latest macOS 14 开始支持 ARM64
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
 
@@ -301,7 +290,6 @@ jobs:
     - name: Upgrade pip
       run: |
         pip install --upgrade pip
-
     - name: Download frontend
       uses: actions/download-artifact@v4
       with:
@@ -312,7 +300,6 @@ jobs:
       run: |
         cd backend
         python3 build.py
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -341,6 +328,6 @@ jobs:
         draft: ${{ needs.build-info.outputs.prerelease == 'true' }}
         prerelease: ${{ needs.build-info.outputs.prerelease == 'true' }}
         body: ${{ needs.build-info.outputs.release_notes }}
-        fail_on_unmatched_files: false   # 可选，如果没有匹配文件则报错
+        fail_on_unmatched_files: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
