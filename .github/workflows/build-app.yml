@@ -47,7 +47,7 @@ jobs:
               echo "- 草稿预发布版本" > release_notes.txt
           fi
           
-          echo "是否正式版: $( $prerelease == 'false' )"            
+          echo '是否正式版: '$([[ "$prerelease" == "false" ]] && echo "是" || echo "否")
           echo "构建版本: ${version}"            
           echo "变更日志: $(cat release_notes.txt)"            
           
@@ -179,6 +179,7 @@ jobs:
           -w /workspace \
           python:${{ env.PYTHON_VERSION }}-slim \
           bash -c "
+            export PIP_ROOT_USER_ACTION=ignore
             apt-get update && apt-get install -y binutils &&
             pip install --upgrade pip &&
             cd backend &&
@@ -216,6 +217,7 @@ jobs:
           -w /workspace \
           riscv64/python \
           bash -c "
+            export PIP_ROOT_USER_ACTION=ignore
             apt-get update && apt-get install -y binutils &&
             pip install --upgrade pip &&
             cd backend &&
@@ -298,7 +300,8 @@ jobs:
 
   # 发布 Release
   release:
-    needs: [build-info, build-windows-amd64, build-linux-amd64, build-linux-arm64, build-linux-riscv64, build-macos-amd64, build-macos-arm64]
+#    needs: [build-info, build-windows-amd64, build-linux-amd64, build-linux-arm64, build-linux-riscv64, build-macos-amd64, build-macos-arm64]
+    needs: [build-info, build-windows-amd64, build-linux-amd64]
     runs-on: ubuntu-latest
     
     steps:
@@ -314,10 +317,10 @@ jobs:
           artifacts/*/*.zip
           artifacts/*/*.fpk
         name: ${{ needs.build-info.outputs.version }}
-        tag: ${{ needs.build-info.outputs.version }}
+        tag_name: ${{ needs.build-info.outputs.version }}
         draft: ${{ needs.build-info.outputs.prerelease == 'true' }}
         prerelease: ${{ needs.build-info.outputs.prerelease == 'true' }}
         body: ${{ needs.build-info.outputs.release_notes }}
-        skipIfReleaseExists: true
+        fail_on_unmatched_files: false   # 可选，如果没有匹配文件则报错
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
