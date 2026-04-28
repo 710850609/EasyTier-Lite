@@ -110,7 +110,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Upgrade pip
-        run: pip install --upgrade pip
+        run: python.exe -m pip install --upgrade pip
       - name: Download frontend
         uses: actions/download-artifact@v4
         with:
