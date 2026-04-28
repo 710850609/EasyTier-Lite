@@ -1,22 +1,35 @@
 name: Build App
 
 on:
-  # push:
-  #   branches: [ main, master ]
-  #   tags: [ 'v*' ]
-  # pull_request:
-  #   branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      build_windows:
+        description: '构建 Windows (AMD64)'
+        type: boolean
+        default: true
+      build_linux_amd64:
+        description: '构建 Linux (AMD64)'
+        type: boolean
+        default: true
+      build_linux_arm64:
+        description: '构建 Linux (ARM64)'
+        type: boolean
+        default: true
+      build_linux_riscv64:
+        description: '构建 Linux (RISC-V 64)'
+        type: boolean
+        default: false
+      build_macos_x64:
+        description: '构建 macOS (x86_64, Intel)'
+        type: boolean
+        default: true
+      build_macos_arm64:
+        description: '构建 macOS (ARM64, Apple Silicon)'
+        type: boolean
+        default: false
 
 env:
   PYTHON_VERSION: '3.9.13'
-  # 平台构建开关（设为 false 可跳过对应平台的构建）
-  BUILD_WINDOWS: true
-  BUILD_LINUX_AMD64: true
-  BUILD_LINUX_ARM64: true
-  BUILD_LINUX_RISCV64: false
-  BUILD_MACOS_AMD64: true    # 在 ARM64 运行器上构建 x86_64 版本
-  BUILD_MACOS_ARM64: false   # 原生 ARM64 构建（如需可改为 true）
 
 permissions:
   contents: write
@@ -85,9 +98,8 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
-  # ⬇️ 所有平台的 if 条件已统一使用 fromJSON 转换
   build-windows-amd64:
-    if: ${{ fromJSON(env.BUILD_WINDOWS) }}
+    if: ${{ github.event.inputs.build_windows == 'true' }}
     needs: build-frontend
     runs-on: windows-latest
     steps:
@@ -112,7 +124,7 @@ jobs:
           path: backend/dist/*.zip
 
   build-linux-amd64:
-    if: ${{ fromJSON(env.BUILD_LINUX_AMD64) }}
+    if: ${{ github.event.inputs.build_linux_amd64 == 'true' }}
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -137,7 +149,7 @@ jobs:
           path: backend/dist/*.zip
 
   build-linux-arm64:
-    if: ${{ fromJSON(env.BUILD_LINUX_ARM64) }}
+    if: ${{ github.event.inputs.build_linux_arm64 == 'true' }}
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -173,7 +185,7 @@ jobs:
           path: backend/dist/*.zip
 
   build-linux-riscv64:
-    if: ${{ fromJSON(env.BUILD_LINUX_RISCV64) }}
+    if: ${{ github.event.inputs.build_linux_riscv64 == 'true' }}
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -209,7 +221,7 @@ jobs:
           path: backend/dist/*.zip
 
   build-macos-amd64:
-    if: ${{ fromJSON(env.BUILD_MACOS_AMD64) }}
+    if: ${{ github.event.inputs.build_macos_x64 == 'true' }}
     needs: build-frontend
     runs-on: macos-latest
     steps:
@@ -237,7 +249,7 @@ jobs:
           path: backend/dist/*.zip
 
   build-macos-arm64:
-    if: ${{ fromJSON(env.BUILD_MACOS_ARM64) }}
+    if: ${{ github.event.inputs.build_macos_arm64 == 'true' }}
     needs: build-frontend
     runs-on: macos-latest
     steps:
