@@ -96,18 +96,19 @@ def install_deps():
 
 def get_platform_name():
     """获取平台名称"""
-    system = sys.platform
-    machine = os.uname().machine if hasattr(os, 'uname') else 'unknown'
-    
-    if system == "win32":
-        return "windows-x64"
-    elif system == "linux":
-        if "arm" in machine.lower() or "aarch64" in machine.lower():
-            return "linux-arm64"
-        return "linux-x64"
-    elif system == "darwin":
-        return "macos-x64"
-    return f"{system}-{machine}"
+    return get_easytier_platform()
+    # system = sys.platform
+    # machine = os.uname().machine if hasattr(os, 'uname') else 'unknown'
+    #
+    # if system == "win32":
+    #     return "windows-x64"
+    # elif system == "linux":
+    #     if "arm" in machine.lower() or "aarch64" in machine.lower():
+    #         return "linux-arm64"
+    #     return "linux-x64"
+    # elif system == "darwin":
+    #     return "macos-x64"
+    # return f"{system}-{machine}"
 
 def build_executable():
     """构建可执行文件"""
@@ -173,7 +174,7 @@ def build_executable():
 def get_easytier_platform():
     """获取 EasyTier 平台标识"""
     system = sys.platform
-    machine = os.uname().machine if hasattr(os, 'uname') else 'x86_64'
+    machine = os.uname().machine if hasattr(os, 'uname') else platform.machine()
     
     # 系统映射
     sys_map = {
@@ -191,7 +192,9 @@ def get_easytier_platform():
     }
     
     sys_name = sys_map.get(system, system)
-    arch_name = arch_map.get(machine.lower(), "x86_64")
+    arch_name = arch_map.get(machine.lower())
+    if not arch_name:
+        raise AssertionError(f"不支持的系统架构：: {system} {machine}")
     
     return f"{sys_name}-{arch_name}"
 
