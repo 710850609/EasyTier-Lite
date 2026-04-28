@@ -29,7 +29,8 @@ on:
         default: false
 
 env:
-  PYTHON_VERSION: '3.9.13'
+#  PYTHON_VERSION: '3.9.13'
+  PYTHON_VERSION: '3.12'
 
 permissions:
   contents: write
