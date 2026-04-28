@@ -95,7 +95,7 @@ jobs:
           path: frontend/dist
 
   build-windows-amd64:
-    if: ${{ env.BUILD_WINDOWS == 'true' }}
+    if: env.BUILD_WINDOWS == 'true'
     needs: build-frontend
     runs-on: windows-latest
     steps:
@@ -125,7 +125,7 @@ jobs:
         path: backend/dist/*.zip
 
   build-linux-amd64:
-    if: ${{ env.BUILD_LINUX_AMD64 == 'true' }}
+    if: env.BUILD_LINUX_AMD64 == 'true'
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -156,7 +156,7 @@ jobs:
         path: backend/dist/*.zip
 
   build-linux-arm64:
-    if: ${{ env.BUILD_LINUX_ARM64 == 'true' }}
+    if: env.BUILD_LINUX_ARM64 == 'true'
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -195,7 +195,7 @@ jobs:
         path: backend/dist/*.zip
 
   build-linux-riscv64:
-    if: ${{ env.BUILD_LINUX_RISCV64 == 'true' }}
+    if: env.BUILD_LINUX_RISCV64 == 'true'
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -234,7 +234,7 @@ jobs:
         path: backend/dist/*.zip
 
   build-macos-amd64:
-    if: ${{ env.BUILD_MACOS_AMD64 == 'true' }}
+    if: env.BUILD_MACOS_AMD64 == 'true'
     needs: build-frontend
     runs-on: macos-latest          # ARM64 运行器，内置 Rosetta 2
     steps:
@@ -268,7 +268,7 @@ jobs:
         path: backend/dist/*.zip
 
   build-macos-arm64:
-    if: ${{ env.BUILD_MACOS_ARM64 == 'true' }}
+    if: env.BUILD_MACOS_ARM64 == 'true'
     needs: build-frontend
     runs-on: macos-latest
     steps:
