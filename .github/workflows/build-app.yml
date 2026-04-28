@@ -27,14 +27,14 @@ jobs:
           CHANGE_LOG_FILE="${{ github.workspace }}/CHANGELOG.md"
           
           CHANGE_VER=$(awk '/^## / {print $2; exit}' "${CHANGE_LOG_FILE}")
+          prerelease='true'
+          version="${CHANGE_VER}-$(date +'%Y%m%d%H%M%S')"
           if git ls-remote --tags origin "refs/tags/$CHANGE_VER*" | grep -q .; then
             echo "存在 $CHANGE_VER 开头的 tag"
-            echo "prerelease=false" >> $GITHUB_OUTPUT
-            echo "version=${CHANGE_VER}-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
           else
             echo "不存在 $CHANGE_VER 开头的 tag"
-            echo "prerelease=true" >> $GITHUB_OUTPUT
-            echo "version=$CHANGE_VER" >> $GITHUB_OUTPUT
+            prerelease='false'
+            version="${CHANGE_VER}"
           fi
           
           awk -v ver="$CHANGE_VER" '
@@ -45,13 +45,19 @@ jobs:
           # 检查是否提取到内容
           if [ ! -s release_notes.txt ]; then
               echo "- 草稿预发布版本" > release_notes.txt
-            fi
-            echo "更新日志: $(cat release_notes.txt)"            
-            {
-              echo "release_notes<<EOF"
-              cat release_notes.txt
-              echo "EOF"
-            } >> $GITHUB_OUTPUT
+          fi
+          
+          echo "是否正式版: $( $prerelease == 'false' )"            
+          echo "构建版本: ${version}"            
+          echo "变更日志: $(cat release_notes.txt)"            
+          
+          echo "prerelease=${prerelease}" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          {
+            echo "release_notes<<EOF"
+            cat release_notes.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
           
     
 
@@ -208,7 +214,7 @@ jobs:
         docker run --rm --platform linux/riscv64 \
           -v ${{ github.workspace }}:/workspace \
           -w /workspace \
-          riscv64/ubuntu \
+          riscv64/python \
           bash -c "
             apt-get update && apt-get install -y binutils &&
             pip install --upgrade pip &&
