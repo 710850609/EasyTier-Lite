@@ -289,6 +289,7 @@ jobs:
       - build-macos-amd64
       - build-macos-arm64
     runs-on: ubuntu-latest
+    if: ${{ always() && !failure() && !cancelled() }}
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
