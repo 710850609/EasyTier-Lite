@@ -47,16 +47,42 @@ jobs:
       - name: Get Release Version And Notes
         id: release-info
         run: |
+          chmod +x version-util.sh
+          
+          # 获取 easytier 版本号，转义为子版本号
+          local min_et_version='2.5.0'
+          local fetch_url="https://api.github.com/repos/EasyTier/EasyTier/releases/latest"
+          local latest_release=$(curl -s "${fetch_url}") 
+          if [ -z "$latest_release" ]; then
+            echo "获取最新EasyTier版本信息失败"
+            exit 1
+          fi
+          # 提取版本号
+          local et_version=$(echo "$latest_release" | jq -r .tag_name | sed 's/^v//' )
+          # 检查版本是否符合要求
+          if [[ "$et_version" < "${min_et_version}" ]]; then
+            echo "EasyTier release 版本 $et_version 过低，使用最低构建版本 ${min_et_version}"
+            et_version="${min_et_version}"
+          fi
+          et_version_raw=$(version-util.sh -x "$et_version")
+          echo "转换 easytier 版本 ${$et_version} 为 ${et_version_raw}"
+          
           CHANGE_LOG_FILE="${{ github.workspace }}/CHANGELOG.md"
           CHANGE_VER=$(awk '/^## / {print $2; exit}' "${CHANGE_LOG_FILE}")
+          if [[ -z "${CHANGE_VER}" ]]; then
+            # 如果第一个出现的版本号为空，则取第二个版本号
+            CHANGE_VER=$(awk '/^## / {c++; if(c==2) {print $2; exit}}' "${CHANGE_LOG_FILE}")
+          fi
+          
+          
           prerelease='true'
-          version="${CHANGE_VER}-$(date +'%Y%m%d%H%M%S')"
+          version="${CHANGE_VER}.${et_version_raw}"
           if git ls-remote --tags origin "refs/tags/$CHANGE_VER*" | grep -q .; then
             echo "存在 $CHANGE_VER 开头的 tag"
+            version="${version}-$(date +'%Y%m%d%H%M%S')"
           else
             echo "不存在 $CHANGE_VER 开头的 tag"
             prerelease='false'
-            version="${CHANGE_VER}"
           fi
           awk -v ver="$CHANGE_VER" '
                 $0 ~ "^## " ver { found=1; next }
@@ -65,7 +91,7 @@ jobs:
               ' "${CHANGE_LOG_FILE}" > release_notes.txt
           # 检查是否提取到内容
           if [ ! -s release_notes.txt ]; then
-              echo "- 草稿预发布版本" > release_notes.txt
+              echo "- 测试版本" > release_notes.txt
           fi
           
           echo '是否正式版: '$([[ "$prerelease" == "false" ]] && echo "是" || echo "否")
