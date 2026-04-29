@@ -61,11 +61,11 @@ jobs:
           et_version=$(echo "$latest_release" | jq -r .tag_name | sed 's/^v//' )
           # 检查版本是否符合要求
           if [[ "$et_version" < "${min_et_version}" ]]; then
-            echo "EasyTier release 版本 $et_version 过低，使用最低构建版本 ${min_et_version}"
+            echo "EasyTier release 版本 ${et_version} 过低，使用最低构建版本 ${min_et_version}"
             et_version="${min_et_version}"
           fi
           et_version_raw=$(./version-util.sh -x "$et_version")
-          echo "转换 easytier 版本 ${$et_version} 为 ${et_version_raw}"
+          echo "转换 easytier 版本 ${et_version} 为 ${et_version_raw}"
           
           CHANGE_LOG_FILE="${{ github.workspace }}/CHANGELOG.md"
           CHANGE_VER=$(awk '/^## / {print $2; exit}' "${CHANGE_LOG_FILE}")
