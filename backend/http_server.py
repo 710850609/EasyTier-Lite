@@ -64,6 +64,13 @@ def setup_env(base_uri: str):
 
 class CGIProxyHandler(BaseHTTPRequestHandler):
     """处理 HTTP 请求并转发给 CGI 脚本"""
+
+    def log_message(self, format, *args):
+        if sys.stdout is None:
+            return
+        logging.debug("[%s] - %s\n" %
+                         (self.address_string(),
+                          format % args))
     
     def do_GET(self):
         """处理 GET 请求"""

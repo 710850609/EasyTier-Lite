@@ -11,7 +11,7 @@ _log_setup_done = False
 
 # 配置日志
 # Windows 控制台编码处理
-if sys.platform == 'win32':
+if sys.platform == 'win32' and sys.stdout:
     import io
     # 强制 stdout/stderr 使用 utf-8
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -55,7 +55,7 @@ def setup_log(log_file:str = None, log_level:int = logging.INFO, enabled_console
         )
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
-    if enabled_console:
+    if enabled_console and sys.stdout is not None:
         console_handler = logging.StreamHandler(sys.stdout)  # 默认输出到 sys.stderr
         console_handler.setLevel(log_level)  # 可选，设置控制台的最低级别
         console_handler.setFormatter(formatter)

@@ -211,7 +211,7 @@ def http_handle(base_uri="/", body_data=None, cgi_module=True) -> HttpResponse:
         request = get_request(base_uri, body_data, cgi_module)
         req_msg = f"{request.method} {request.request_uri}"
         req_msg += '' if not request.request_body else '\n' + request.request_body
-        logging.info(f"{req_msg}")
+        logging.debug(f"{req_msg}")
         # logging.debug(f"request: {request.__dict__}")
         module_name = request.module_name
         function_name = request.function_name

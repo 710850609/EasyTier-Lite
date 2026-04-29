@@ -165,8 +165,11 @@ def build_executable():
         print(f"  警告: 图标文件不存在: {icon_path}")
 
     # Windows 特定选项
-    if sys.platform != "win32":
+    if sys.platform == "win32":
+        cmd.extend(["--noconsole"])
+    else:
         cmd.extend(["--console"])
+
     
     result = run_command(" ".join(cmd), cwd=str(PROJECT_DIR))
     return result, output_name
