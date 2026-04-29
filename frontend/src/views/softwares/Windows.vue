@@ -4,6 +4,37 @@
       <div class="platform-header">
         <div class="platform-info">
           <h2>
+            易组网
+            <var-badge type="info">
+               <template #value>新手推荐</template>
+            </var-badge>
+          </h2>
+        </div>
+      </div>
+      <div class="version-info">
+        <var-cell>当前使用界面的Windows版本</var-cell>
+        <var-cell>集成当前配置、EasyTier内核，解压启动后选择配置，即可组网</var-cell>
+        <var-cell>
+          <var-link type="primary" underline="none" href="https://github.com/710850609/EasyTier-Lite/releases" target="_blank"><img src="https://img.shields.io/github/v/release/710850609/EasyTier-Lite?color=blue&logo=github" /></var-link>
+        </var-cell>
+      </div>
+      <div>
+        <var-divider />
+        <var-space :size="[20, 20]" justify="center">
+          <var-button type="primary" size="normal" block @click="downloadEasyTierLite" auto-loading>
+            <template #default>
+              <var-icon name="download"/>
+              稳定版
+            </template>
+          </var-button>
+        </var-space>
+      </div>
+    </var-paper>
+
+    <var-paper class="download-card" :elevation="2">
+      <div class="platform-header">
+        <div class="platform-info">
+          <h2>
             EasyTier 管理器 
             <var-badge type="info">
                <template #value>新手推荐</template>
@@ -21,7 +52,7 @@
       <div>
         <var-divider />
         <var-space :size="[20, 20]" justify="center">
-          <var-button type="primary" size="normal" block @click="download" auto-loading>
+          <var-button type="primary" size="normal" block @click="downloadMgrPro" auto-loading>
             <template #default>
               <var-icon name="download"/>
               稳定版
@@ -117,14 +148,21 @@
 import { api } from '../../utils/api.js'
 import { downloadEasyTierGUI } from '../../utils/github.js'
 
-const download = () => {
+const downloadMgrPro = () => {
   return new Promise((resolve, reject) => {
-    let url = api.windows.getDownloadUrl()
+    let url = api.windows.getDownloadMgrProUrl()
     window.open(url, '_blank')
     resolve()
   })
 }
 
+const downloadEasyTierLite = () => {
+  return new Promise((resolve, reject) => {
+    let url = api.windows.getDownloadEasyTierLiteUrl()
+    window.open(url, '_blank')
+    resolve()
+  })
+}
 
 const downloadGithub = (arch, prerelease) => {
   return downloadEasyTierGUI(arch, prerelease)

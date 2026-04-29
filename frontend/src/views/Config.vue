@@ -67,7 +67,7 @@
                   <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
                 </template>
                 <template #description>
-                  <var-input placeholder="输入初始节点" size="small" v-model="customPeer" blur-color="var(--color-primary)" />
+                  <var-input placeholder="输入初始节点" size="mini" v-model="customPeer" blur-color="var(--color-primary)" />
                 </template>
                 <template #extra>
                   <var-button type="primary" size="small" @click="addPeer">添加</var-button>
@@ -97,6 +97,8 @@
                 </var-tooltip>
               </template>
             </var-select>
+          </var-cell>
+          <var-cell v-if="!fastSettingMode">
             <template #extra>
                <var-tooltip content="检测节点是否可用">
                 <svg-icon type="mdi" :path="mdiTextSearchVariant" color="var(--color-primary)" @click="checkPeers" v-if="!isPeerChecking"></svg-icon>
@@ -116,7 +118,7 @@
       </var-paper>
 
       <!-- 高级设置 -->
-      <var-collapse v-if="!fastSettingMode" v-model="flagsOpen" :accordion="true" class="flags-section" :class="`var-elevation--2`">
+      <var-collapse v-if="!fastSettingMode" v-model="flagsOpen" :accordion="true" class="flags-section" :class="`var-elevation--3`">
         <var-collapse-item name="flags">
           <template #title>
             <div class="collapse-title">
@@ -295,7 +297,7 @@
                           <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
                         </template>
                         <template #description>
-                          <var-input placeholder="格式: 192.168.1.1/24 或 192.168.1.1/32 等" size="small" v-model="customProxyNetwork" blur-color="var(--color-primary)" />
+                          <var-input placeholder="格式: 192.168.1.1/24 或 192.168.1.1/32 等" size="mini" v-model="customProxyNetwork" blur-color="var(--color-primary)" />
                         </template>
                         <template #extra>
                           <var-button type="primary" size="small" @click="addProxyNetwork">添加</var-button>
@@ -372,7 +374,7 @@
                         <svg-icon type="mdi" :path="mdilPencil" color="var(--color-primary)" />
                       </template>
                       <template #description>
-                        <var-input placeholder="自定义监听" size="small" v-model="customListener" blur-color="var(--color-primary)" />
+                        <var-input placeholder="自定义监听" size="mini" v-model="customListener" blur-color="var(--color-primary)" />
                       </template>
                       <template #extra>
                         <var-button type="primary" size="small" @click="addListener">添加</var-button>
@@ -480,8 +482,6 @@ const config = ref({
   "flags": {
     "bind_device": true,
     "multi_thread": true,
-    "enable_kcp_proxy": true,
-    "enable_encryption": true,
     "enable_ipv6": true,
   },
   // 子网代理

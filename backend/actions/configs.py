@@ -8,10 +8,18 @@ from pathlib import Path
 import tomlkit
 
 from http_dispatcher.dispatcher import HttpResponse
+from http_dispatcher.dispatcher import HttpException
 from utils import run_configs
+from actions import et_core
 
 
 def need_setting(*kwargs):
+    if not et_core.check_core():
+        raise HttpException('内核不存在，请到【设置-内核】安装内核')
+    et_config_file = run_configs.core_dir()
+    if not os.path.exists(et_config_file):
+        return { "needConfig": True }
+
     config_files = run_configs.et_config_files()
     return { "needConfig": len(config_files) == 0 }
 

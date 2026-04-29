@@ -454,7 +454,6 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('获取配置状态失败:', error)
-    toast.error('获取配置状态失败: ' + error.message)
     return
   }
   try {

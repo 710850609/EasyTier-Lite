@@ -166,10 +166,10 @@ class ProcessManager:
         
         # 等待进程退出（最多 10 秒）
         count = 0
-        while self.__check_process(pid) and count < 10:
+        while self.__check_process(pid) and count < 5:
             time.sleep(1)
             count += 1
-            logging.info(f"waiting process terminal... ({count}s/10s)")
+            logging.info(f"waiting process terminal... ({count}s/5s)")
         
         # 如果还在，强制终止
         if self.__check_process(pid):

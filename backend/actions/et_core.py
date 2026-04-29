@@ -15,8 +15,17 @@ import utils.github_util as github_util
 from http_dispatcher.dispatcher import HttpException
 from utils import run_configs
 
+def check_core(*kwargs):
+    core_dir = run_configs.core_dir();
+    ext = ".exe" if sys.platform == "win32" else ""
+    cli_file = f'{core_dir}/easytier-cli{ext}'
+    core_file = f'{core_dir}/easytier-core{ext}'
+    return os.path.exists(cli_file) and os.path.exists(core_file)
 
 def version(*kwargs):
+    if not check_core():
+        raise HttpException('内核不存在，请先安装内核')
+        
     core_dir = run_configs.core_dir();
     ext = ".exe" if sys.platform == "win32" else ""
     cmd = f'{core_dir}/easytier-core{ext} --version'

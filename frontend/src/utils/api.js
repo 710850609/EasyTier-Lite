@@ -130,7 +130,8 @@ export const api = {
   
   // 窗口相关
   windows: {
-    getDownloadUrl: () => getFulllUrl('/windows/download')
+    getDownloadEasyTierLiteUrl: () => getFulllUrl('/windows/download_easytier_lite'),
+    getDownloadMgrProUrl: () => getFulllUrl('/windows/download_mgr_pro')
   },
   // ET 核心相关
   etCore: {
