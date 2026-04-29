@@ -144,7 +144,7 @@ download_et() {
     DOWNLOAD_FILE="easytier-linux-${et_platform}-${ET_VER}.zip"
     # 非当前系统，强制下载最新版本，避免后续版本判断错误
     if [ "${build_all}" == "true" ] || [ ! -f "${DOWNLOAD_FILE}" ]; then
-        local download_url="https://github.com/EasyTier/EasyTier/releases/download/${version}/easytier-linux-${et_platform}-${version}.zip"
+        local download_url="https://github.com/EasyTier/EasyTier/releases/download/v${ET_VER}/easytier-linux-${et_platform}-v${ET_VER}.zip"
         if [ "$download_proxy" == "true" ]; then
             download_url=${proxy_url}/${download_url}
         fi

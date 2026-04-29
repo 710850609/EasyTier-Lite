@@ -228,8 +228,8 @@ def download_easytier(version:str=None, proxy_url=None):
     print(f"  平台: {platform}")
     
     # 构建下载链接
-    filename = f"easytier-{platform}-{version}.zip"
-    url = f"https://github.com/EasyTier/EasyTier/releases/download/{version}/{filename}"
+    filename = f"easytier-{platform}-v{version}.zip"
+    url = f"https://github.com/EasyTier/EasyTier/releases/download/v{version}/{filename}"
     if proxy_url:
         url = f"{proxy_url}/{url}"
     print(f"  下载: {url}")
