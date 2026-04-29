@@ -12,7 +12,7 @@ et_version() {
 
     # 带超时和重试的 curl
     local latest_release
-    latest_release=$(curl -fsSL --max-time 10 --retry 1 "${fetch_url}" 2>/dev/null)
+    latest_release=$(curl -fsSL --max-time 15 --retry 1 "${fetch_url}" 2>/dev/null)
 
     if [ -z "$latest_release" ]; then
         echo "获取最新 EasyTier 版本信息失败" >&2
@@ -76,20 +76,17 @@ app_info() {
     prerelease='false'
   fi
 
-  awk -v ver="$CHANGE_VER" '
-        $0 ~ "^## " ver { found=1; next }
-        found && $0 ~ "^## " { exit }
-        found { print }
-      ' "${CHANGE_LOG_FILE}" > release_notes.txt
-  # 检查是否提取到内容
-  if [ ! -s release_notes.txt ]; then
-      echo "- 测试版本" > release_notes.txt
-  fi
+#    awk -v ver="$CHANGE_VER" '
+#          $0 ~ "^## " ver { found=1; next }
+#          found && $0 ~ "^## " { exit }
+#          found { print }
+#        ' "${CHANGE_LOG_FILE}" > release_notes.txt
+  release_notes=$(awk '/^## /{if(p) exit; p=1; next} p' "${CHANGE_LOG_FILE}")
 
   BUILD_VER="${version}"
-  CHANGE_NOTES="$(cat release_notes.txt)"
+  CHANGE_NOTES="${release_notes}"
   PRE_RELEASE="${prerelease}"
-  rm -f release_notes.txt
+#  rm -f release_notes.txt
 }
 
 # et 版本

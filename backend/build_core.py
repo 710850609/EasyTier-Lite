@@ -7,9 +7,9 @@ EasyTier-Lite Server 多平台打包脚本
 
 import os
 import platform
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
 import venv
 import zipfile
 from pathlib import Path
@@ -206,18 +206,17 @@ def get_latest_version():
         response = requests.get("https://api.github.com/repos/EasyTier/EasyTier/releases/latest", timeout=10)
         if response.status_code == 200:
             data = response.json()
-            return data.get("tag_name", "v2.5.0")
+            return data.get("tag_name", "v2.5.0").replace('v', '')
     except Exception as e:
         print(f"  获取最新版本失败: {e}")
-    return "v2.5.0"
+    return "2.5.0"
 
 def download_easytier(version:str=None, proxy_url=None):
     """下载easytier核心"""
     print("[4/5] 下载easytier...")
     
     import requests
-    import zipfile
-    
+
     # 获取版本号
     if not version:
         version = get_latest_version()
@@ -311,7 +310,7 @@ def extract_easytier(zip_path, core_dir):
         return False
 
 
-def copy_output(output_name, et_file):
+def copy_output(output_name, et_file, build_ver):
     """复制输出文件"""
     print("[4/5] 复制输出文件...")
     
@@ -344,7 +343,7 @@ def copy_output(output_name, et_file):
         return False
     
     # 压缩
-    zipfile_name = DIST_DIR.joinpath(Path(output_dir).name + '.zip')
+    zipfile_name = DIST_DIR.joinpath(Path(output_dir).name + f'{"-"+build_ver if build_ver else ""}.zip')
     with zipfile.ZipFile(zipfile_name, 'w', zipfile.ZIP_DEFLATED) as zf:
         for item in Path(output_dir).rglob('*'):
             if item.is_file():
@@ -352,11 +351,13 @@ def copy_output(output_name, et_file):
                 zf.write(item, arch_name)
     return True, zipfile_name
 
-def main(et_ver=None, github_proxy_url=None):
+def main(et_ver:str=None, github_proxy_url:str=None, build_ver:str=""):
     """主函数"""
     print("=" * 50)
     print("EasyTier-Lite Server 多平台打包")
     print(f"当前平台: {get_platform_name()}")
+    print(f"et_ver: {et_ver}")
+    print(f"build_ver: {build_ver}")
     print(f"当前Python版本: {platform.python_version()}")
     print(f"当前Python: {sys.executable}")
     print(f"Python 路径: {sys.path}")
@@ -384,7 +385,7 @@ def main(et_ver=None, github_proxy_url=None):
         print(f"[错误] 下载easytier失败")
         sys.exit(1)
 
-    result, output_name = copy_output(output_name, et_file)
+    result, output_name = copy_output(output_name, et_file, build_ver)
     if not result:
         print("[错误] 复制文件失败")
         sys.exit(1)
@@ -399,11 +400,13 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--et_ver', default='', help='easytier 版本号')
+    parser.add_argument('--build_ver', default='', help='构建版本号')
     parser.add_argument('--github_proxy_url', default="https://ghfast.top", help='GitHub加速连接')
     args = parser.parse_args()
     et_ver = args.et_ver
+    build_ver = args.build_ver
     github_proxy_url = args.github_proxy_url
     print(f"et_ver: {et_ver}")
     print(f"github_proxy_url: {github_proxy_url}")
 
-    main(et_ver, github_proxy_url)
+    main(et_ver, github_proxy_url, build_ver)

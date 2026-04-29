@@ -88,15 +88,18 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--et_ver', default='', help='easytier 版本号')
+    parser.add_argument('--build_ver', default='', help='构建版本号')
     parser.add_argument('--github_proxy_url', default="https://ghfast.top", help='GitHub加速连接')
     args = parser.parse_args()
     et_ver = args.et_ver
+    build_ver = args.build_ver
     github_proxy_url = args.github_proxy_url
     print(f"et_ver: {et_ver}")
+    print(f"build_ver: {build_ver}")
     print(f"github_proxy_url: {github_proxy_url}")
 
     python_path, pip_cmd = install_deps()
     print("", flush=True)
     build_script_path = os.path.join(os.path.dirname(__file__), "build_core.py")
-    result = subprocess.run([str(python_path), build_script_path,  "--et_ver", et_ver, "--github_proxy_url", github_proxy_url])
+    result = subprocess.run([str(python_path), build_script_path,  "--et_ver", et_ver, "--build_ver", build_ver, "--github_proxy_url", github_proxy_url])
     sys.exit(result.returncode)
