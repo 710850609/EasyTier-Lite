@@ -125,7 +125,7 @@ class HttpResponse:
 
     def output_cgi(self):
         sys.stdout.buffer.write(f"Status: {self.status_code}\r\n".encode())
-        for h_key, h_value in self.headers:
+        for h_key, h_value in self.headers.items():
             sys.stdout.buffer.write(f"{h_key}: {h_value}\r\n".encode())
         sys.stdout.buffer.write("\r\n".encode())
         if self.json:
