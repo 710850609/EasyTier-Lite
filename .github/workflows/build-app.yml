@@ -51,6 +51,10 @@ jobs:
           if [[ -f "./build-info.sh" || -f "./version-util.sh" ]]; then
             chmod +x version-util.sh
             chmod +x build-info.sh
+            et_ver="unknown"
+            build_ver="unknown"
+            release_notes="unknown"
+            prerelease="unknown"
             source build-info.sh "${et_ver}" "${build_ver}" "${release_notes}" "${prerelease}"
           else
             echo "错误：build-info.sh 或 version-util.sh 不存在" >&2
@@ -58,7 +62,7 @@ jobs:
           fi
           
           echo '是否正式版: '$([[ "${prerelease}" == "false" ]] && echo "是" || echo "否")
-          echo "内置 easytier 版本: ${et_ver}"            
+          echo "内置 EasyTier 版本: ${et_ver}"            
           echo "构建版本: ${build_ver}"            
           echo "变更日志: ${release_notes}"
           
