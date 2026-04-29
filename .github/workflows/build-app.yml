@@ -18,7 +18,7 @@ on:
       build_linux_arm64:
         description: '构建 Linux (ARM64)'
         type: boolean
-        default: true
+        default: false
       build_linux_riscv64:
         description: '构建 Linux (RISC-V 64)'
         type: boolean
@@ -26,11 +26,11 @@ on:
       build_macos_x64:
         description: '构建 macOS (x86_64, Intel)'
         type: boolean
-        default: true
+        default: false
       build_macos_arm64:
         description: '构建 macOS (ARM64, Apple Silicon)'
         type: boolean
-        default: false
+        default: true
 
 env:
 #  PYTHON_VERSION: '3.9.13'
