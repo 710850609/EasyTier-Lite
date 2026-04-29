@@ -1,15 +1,18 @@
 FROM python:3.9-slim-buster
 
 # 替换 apt 源为清华（两种架构通用）
-RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
-    sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
-    sed -i '/buster-updates/d' /etc/apt/sources.list
+#RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+#    sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+#    sed -i '/buster-updates/d' /etc/apt/sources.list
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     wget \
+    jq \
+    zip \
+    rsync \
     ca-certificates \
     build-essential \
     python3-dev \
@@ -25,3 +28,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
+
+# 更新pip
+RUN pip install --upgrade pip

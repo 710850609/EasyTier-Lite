@@ -1,17 +1,11 @@
 #!/bin/bash
 
-APP_VERSION="0.4"
-ET_LATEST_VERSION="unknown"
-ET_DOWNLOAD_URL="unknown"
 DOWNLOAD_FILE="unknown"
-ET_VERSION="unknown"
-MIN_ET_VERSION="2.5.0"
 BIN_DIR="EasyTier-Lite/app/bin"
 
 declare -A PARAMS
 # 默认值
 PARAMS[build_all]="false"
-PARAMS[build_pre]="true"
 PARAMS[download_proxy]="true"
 PARAMS[proxy_url]="https://ghfast.top"
 PARAMS[arch]="x86_64"
@@ -35,12 +29,10 @@ for arg in "$@"; do
 done
 
 build_all="${PARAMS[build_all]}"
-build_pre="${PARAMS[build_pre]}"
 download_proxy="${PARAMS[download_proxy]}"
 proxy_url="${PARAMS[proxy_url]}"
 arch="${PARAMS[arch]}"
 echo "build_all: ${build_all}"
-echo "build_pre: ${build_pre}"
 echo "download_proxy: ${download_proxy}"
 echo "proxy_url: ${proxy_url}"
 echo "arch: ${arch}"
@@ -70,6 +62,32 @@ else
 fi
 echo "设置 platform 为: ${platform}"
 echo "---------------------------------------"
+
+ensure_build_info() {
+  # et 版本
+  ET_VER="${PARAMS[et_ver]}"
+  # 构建版本
+  BUILD_VER="${PARAMS[build_ver]}"
+  # 是否稳定版本
+  PRE_RELEASE="${PARAMS[pre_release]}"
+  # 变更说明
+  CHANGE_NOTES="${PARAMS[change_notes]}"
+  if [[ -z "${ET_VER}" || -z "${BUILD_VER}" || -z "${PRE_RELEASE}" ]]; then
+      echo "没同时传入 et_ver, build_ver, pre_release, 立即获取构建信息"
+     if [ -f "./build-info.sh" ]; then
+        chmod +x "build-info.sh"
+        source build-info.sh "${ET_VER}" "${BUILD_VER}" "${CHANGE_NOTES}" "${PRE_RELEASE}"
+    else
+        echo "错误：build-info.sh 不存在" >&2
+        exit 1
+    fi
+  fi
+
+  echo "ET_VER = ${ET_VER}"
+  echo "BUILD_VER = ${BUILD_VER}"
+  echo "PRE_RELEASE = ${PRE_RELEASE}"
+  echo "CHANGE_NOTES = ${CHANGE_NOTES}"
+}
 
 build_backend() {
     echo "下载py依赖"
@@ -122,74 +140,17 @@ build_frontend() {
     echo '编译并拷贝到app/frontend目录'
 }
 
-get_et_latest_version() {
-    local arch_type=$1
-    local featch_url="https://api.github.com/repos/EasyTier/EasyTier/releases/latest"
-    if [ "$download_proxy" == "true" ]; then
-        featch_url="${proxy_url}/https://api.github.com/repos/EasyTier/EasyTier/releases/latest"
-    fi
-    local latest_release=$(curl -s "${featch_url}") 
-    if [ -z "$latest_release" ]; then
-        echo "获取最新EasyTier版本信息失败"
-        exit 1
-    fi
-    # 提取版本号
-    local version=$(echo "$latest_release" | jq -r .tag_name | sed 's/^Release//')
-    # 检查版本是否符合要求
-    if [[ "$(echo "$version" | sed 's/^v//')" < "$MIN_ET_VERSION" ]]; then
-        echo "EasyTier release 版本 $version 过低，使用最低构建版本 $MIN_ET_VERSION"
-        version="v${MIN_ET_VERSION}"
-    fi
-    # 提取对应架构的下载地址
-    # local zip_file="easytier-linux-${et_platform}-${version}\.zip"
-    # download_url=$(echo "$latest_release" | grep -oP '"browser_download_url": "\K[^"]*'"$zip_file" | sed 's/"//g')
-    download_url="https://github.com/EasyTier/EasyTier/releases/download/${version}/easytier-linux-${et_platform}-${version}.zip"
-    # https://github.com/EasyTier/EasyTier/releases/download/v2.4.5/easytier-linux-x86_64-v2.4.5.zip
-    # 检查是否成功获取下载地址
-    if [ -z "$download_url" ]; then
-        echo "下载EasyTier失败"
-        exit 1
-    fi
-    # 将版本号和下载链接存储在全局变量中
-    ET_LATEST_VERSION="$version"
-    ET_DOWNLOAD_URL="$download_url"
-    echo "EasyTier最新版本: $ET_LATEST_VERSION"
-    echo "EasyTier最新版本下载地址: $ET_DOWNLOAD_URL"
-}
-
-get_et_version() {
-    if [ "${arch}" != "$(uname -m)" ]; then
-        echo "非当前系统架构，跳过获取已安装EasyTier版本"
-        ET_VERSION=$(echo $ET_LATEST_VERSION | sed 's/^v//')
-        return 0
-    fi
-    local bin_dir=$BIN_DIR
-    if [ -f "${bin_dir}/easytier-core" ]; then
-        local version_output=$("${bin_dir}/easytier-core" --version 2>&1)
-        local version=$(echo "$version_output" | grep -oP 'easytier-core \K(\d+\.\d+\.\d+)')
-        if [ -n "$version" ]; then
-            echo "当前 easytier 版本: $version"
-            ET_VERSION="$version"
-        else
-            echo "无法获取当前 easytier 版本"
-            exit 1
-        fi
-    else
-        echo "easytier-core 二进制文件不存在，无法获取版本"
-        exit 1
-    fi
-}
-
 download_et() {
-    DOWNLOAD_FILE="easytier-linux-${et_platform}-${ET_LATEST_VERSION}.zip"
+    DOWNLOAD_FILE="easytier-linux-${et_platform}-${ET_VER}.zip"
     # 非当前系统，强制下载最新版本，避免后续版本判断错误
     if [ "${build_all}" == "true" ] || [ ! -f "${DOWNLOAD_FILE}" ]; then
+        local download_url="https://github.com/EasyTier/EasyTier/releases/download/${version}/easytier-linux-${et_platform}-${version}.zip"
         if [ "$download_proxy" == "true" ]; then
-            ET_DOWNLOAD_URL=${proxy_url}/${ET_DOWNLOAD_URL}
+            download_url=${proxy_url}/${download_url}
         fi
-        echo "开始下载: ${ET_DOWNLOAD_URL}"
         rm -f "${DOWNLOAD_FILE}"
-        wget -O "${DOWNLOAD_FILE}" "${ET_DOWNLOAD_URL}"
+        echo "开始下载: ${download_url}"
+        wget -O "${DOWNLOAD_FILE}" "${download_url}"
         if [ ! -f "${DOWNLOAD_FILE}" ]; then
             echo "下载 EasyTier 失败"
             exit 1
@@ -208,28 +169,13 @@ update_app() {
     echo "开始复制应用文件"
     bash -c "cp -rf ${temp_dir}/easytier-linux-${et_platform}/easytier-cli ${bin_dir}" 2>&1
     bash -c "cp -rf ${temp_dir}/easytier-linux-${et_platform}/easytier-core ${bin_dir}" 2>&1
-#    bash -c "cp -f default.toml $(dirname ${bin_dir})" 2>&1
     echo "更新应用文件完成"
-    # get_et_version
-    # { jq ".[0].items |= map(if .field == \"et_version\" then .initValue = \"$ET_VERSION\" else . end)" EasyTier-Lite/wizard/config > temp.json && mv temp.json EasyTier-Lite/wizard/config; } || { echo "更新 wizard config 失败" && exit 1; }
-    # echo "更新配置向导中的EasyTier版本号为: ${ET_VERSION}"
-    # bash -c "rm -rf ${temp_dir}" 2>&1
     echo "---------------------------------------"
 }
 
 
 build_fpk() {
-    get_et_version
-    # IFS='.' read -r major minor patch <<< "$ET_VERSION"
-    # ET_LONG_VERSION=$(./version-util.sh -x "$ET_VERSION" | sed 's/^0*//')
-    ET_LONG_VERSION=$(./version-util.sh -x "$ET_VERSION")
-    echo "转换 easytier 长版本号: $ET_VERSION -> $ET_LONG_VERSION"  # 输出: 200050000
-    local fpk_version="${APP_VERSION}.${ET_LONG_VERSION}"
-    if [ "$build_pre" == 'true' ];then 
-        cur_time=$(date +"%Y%m%d%H%M%S")
-        echo "当前时间：$cur_time"
-        fpk_version="${fpk_version}-${cur_time}"
-    fi
+    local fpk_version=$BUILD_VER
     sed -i "s|^[[:space:]]*version[[:space:]]*=.*|version=${fpk_version}|" 'EasyTier-Lite/manifest'
     echo "设置 manifest 的 version 为: ${fpk_version}"
     sed -i "s|^[[:space:]]*platform[[:space:]]*=.*|platform=${platform}|" 'EasyTier-Lite/manifest'
@@ -252,9 +198,9 @@ build_fpk() {
     echo "打包完成: ${fpk_name}"
 }
 
+ensure_build_info
 build_backend
 build_frontend
-get_et_latest_version $arch
 download_et
 update_app
 build_fpk

@@ -41,70 +41,32 @@ jobs:
     outputs:
       prerelease: ${{ steps.release-info.outputs.prerelease }}
       version: ${{ steps.release-info.outputs.version }}
+      et_ver: ${{ steps.release-info.outputs.et_ver }}
       release_notes: ${{ steps.release-info.outputs.release_notes }}
     steps:
       - uses: actions/checkout@v4
       - name: Get Release Version And Notes
         id: release-info
-        run: |
-          chmod +x version-util.sh
-          
-          # 获取 easytier 版本号，转义为子版本号
-          min_et_version='2.5.0'
-          fetch_url="https://api.github.com/repos/EasyTier/EasyTier/releases/latest"
-          latest_release=$(curl -s "${fetch_url}") 
-          if [ -z "$latest_release" ]; then
-            echo "获取最新EasyTier版本信息失败"
+        run: |          
+          if [[ -f "./build-info.sh" || -f "./version-util.sh" ]]; then
+            chmod +x version-util.sh
+            chmod +x build-info.sh
+            source build-info.sh "${et_ver}" "${build_ver}" "${release_notes}" "${prerelease}"
+          else
+            echo "错误：build-info.sh 或 version-util.sh 不存在" >&2
             exit 1
           fi
-          # 提取版本号
-          et_version=$(echo "$latest_release" | jq -r .tag_name | sed 's/^v//' )
-          # 检查版本是否符合要求
-          if [[ "$et_version" < "${min_et_version}" ]]; then
-            echo "EasyTier release 版本 ${et_version} 过低，使用最低构建版本 ${min_et_version}"
-            et_version="${min_et_version}"
-          fi
-          et_version_raw=$(./version-util.sh -x "$et_version")
-          echo "转换 easytier 版本 ${et_version} 为 ${et_version_raw}"
           
-          CHANGE_LOG_FILE="${{ github.workspace }}/CHANGELOG.md"
-          CHANGE_VER=$(awk '/^## / {print $2; exit}' "${CHANGE_LOG_FILE}")
-          if [[ -z "${CHANGE_VER}" ]]; then
-            # 如果第一个出现的版本号为空，则取第二个版本号
-            CHANGE_VER=$(awk '/^## / {c++; if(c==2) {print $2; exit}}' "${CHANGE_LOG_FILE}")
-          fi
-          
-          
-          prerelease='true'
-          version="${CHANGE_VER}.${et_version_raw}"
-          if git ls-remote --tags origin "refs/tags/$CHANGE_VER*" | grep -q .; then
-            echo "存在 $CHANGE_VER 开头的 tag"
-            version="${version}-$(date +'%Y%m%d%H%M%S')"
-          else
-            echo "不存在 $CHANGE_VER 开头的 tag"
-            prerelease='false'
-          fi
-          awk -v ver="$CHANGE_VER" '
-                $0 ~ "^## " ver { found=1; next }
-                found && $0 ~ "^## " { exit }
-                found { print }
-              ' "${CHANGE_LOG_FILE}" > release_notes.txt
-          # 检查是否提取到内容
-          if [ ! -s release_notes.txt ]; then
-              echo "- 测试版本" > release_notes.txt
-          fi
-          
-          echo '是否正式版: '$([[ "$prerelease" == "false" ]] && echo "是" || echo "否")
-          echo "构建版本: ${version}"            
+          echo '是否正式版: '$([[ "${prerelease}" == "false" ]] && echo "是" || echo "否")
+          echo "内置 easytier 版本: ${et_ver}"            
+          echo "构建版本: ${build_ver}"            
           echo "变更日志: $(cat release_notes.txt)"            
           
           echo "prerelease=${prerelease}" >> $GITHUB_OUTPUT
-          echo "version=${version}" >> $GITHUB_OUTPUT
-          {
-            echo "release_notes<<EOF"
-            cat release_notes.txt
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          echo "et_ver=${et_ver}" >> $GITHUB_OUTPUT
+          echo "version=${build_ver}" >> $GITHUB_OUTPUT
+          echo "release_notes=${release_notes}" >> $GITHUB_OUTPUT
+
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -127,23 +89,27 @@ jobs:
 
   build-windows-amd64:
     if: ${{ github.event.inputs.build_windows == 'true' }}
-    needs: build-frontend
+    needs: [ build-frontend, build-info ]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Upgrade pip
         run: python.exe -m pip install --upgrade pip
+
       - name: Download frontend
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
           path: frontend/dist
+
       - name: Build
-        run: cd backend && python build.py
+        run: cd backend && python build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -152,7 +118,7 @@ jobs:
 
   build-linux-amd64:
     if: ${{ github.event.inputs.build_linux_amd64 == 'true' }}
-    needs: build-frontend
+    needs: [ build-frontend, build-info ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -168,7 +134,7 @@ jobs:
           name: frontend-dist
           path: frontend/dist
       - name: Build
-        run: cd backend && python3 build.py
+        run: cd backend && python3 build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -177,7 +143,7 @@ jobs:
 
   build-linux-arm64:
     if: ${{ github.event.inputs.build_linux_arm64 == 'true' }}
-    needs: build-frontend
+    needs: [ build-frontend, build-info ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -197,14 +163,15 @@ jobs:
             -w /workspace \
             -e CI=true \
             -e GITHUB_ACTIONS=true \
+            -e ET_VER=${{ needs.build-info.outputs.et_ver }} \
             python:${{ env.PYTHON_VERSION }}-slim \
-            bash -c "
+            bash -c '
               export PIP_ROOT_USER_ACTION=ignore
               apt-get update && apt-get install -y binutils &&
               pip install --upgrade pip &&
               cd backend &&
-              python3 build.py
-            "
+              python3 build.py --et_ver ${ET_VER} --github_proxy_url ""
+            '
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -213,7 +180,7 @@ jobs:
 
   build-linux-riscv64:
     if: ${{ github.event.inputs.build_linux_riscv64 == 'true' }}
-    needs: build-frontend
+    needs: [ build-frontend, build-info ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -233,14 +200,15 @@ jobs:
             -w /workspace \
             -e CI=true \
             -e GITHUB_ACTIONS=true \
+            -e ET_VER=${{ needs.build-info.outputs.et_ver }} \
             riscv64/python \
-            bash -c "
+            bash -c '
               export PIP_ROOT_USER_ACTION=ignore
               apt-get update && apt-get install -y binutils &&
               pip install --upgrade pip &&
               cd backend &&
-              python3 build.py
-            "
+              python3 build.py --et_ver ${ET_VER} --github_proxy_url ""
+            '
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -249,7 +217,7 @@ jobs:
 
   build-macos-amd64:
     if: ${{ github.event.inputs.build_macos_x64 == 'true' }}
-    needs: build-frontend
+    needs: [ build-frontend, build-info ]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -268,7 +236,7 @@ jobs:
       - name: Build (x86_64)
         run: |
           cd backend
-          arch -x86_64 python3 build.py
+          arch -x86_64 python3 build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -277,7 +245,7 @@ jobs:
 
   build-macos-arm64:
     if: ${{ github.event.inputs.build_macos_arm64 == 'true' }}
-    needs: build-frontend
+    needs: [ build-frontend, build-info ]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -294,7 +262,7 @@ jobs:
           name: frontend-dist
           path: frontend/dist
       - name: Build
-        run: cd backend && python3 build.py
+        run: cd backend && python3 build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

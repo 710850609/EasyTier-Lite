@@ -352,7 +352,7 @@ def copy_output(output_name, et_file):
                 zf.write(item, arch_name)
     return True, zipfile_name
 
-def main():
+def main(et_ver=None, github_proxy_url=None):
     """主函数"""
     print("=" * 50)
     print("EasyTier-Lite Server 多平台打包")
@@ -379,8 +379,7 @@ def main():
         print("[错误] 打包失败")
         sys.exit(1)
 
-    proxy_url = "https://ghfast.top"
-    et_file = download_easytier(proxy_url=proxy_url)
+    et_file = download_easytier(version=et_ver, proxy_url=github_proxy_url)
     if not et_file:
         print(f"[错误] 下载easytier失败")
         sys.exit(1)
@@ -397,4 +396,14 @@ def main():
 
 if __name__ == "__main__":
     os.environ['PYTHONUTF8'] = "1"
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--et_ver', default='', help='easytier 版本号')
+    parser.add_argument('--github_proxy_url', default="https://ghfast.top", help='GitHub加速连接')
+    args = parser.parse_args()
+    et_ver = args.et_ver
+    github_proxy_url = args.github_proxy_url
+    print(f"et_ver: {et_ver}")
+    print(f"github_proxy_url: {github_proxy_url}")
+
+    main(et_ver, github_proxy_url)
