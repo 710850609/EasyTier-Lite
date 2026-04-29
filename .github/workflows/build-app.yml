@@ -60,7 +60,7 @@ jobs:
           echo '是否正式版: '$([[ "${prerelease}" == "false" ]] && echo "是" || echo "否")
           echo "内置 easytier 版本: ${et_ver}"            
           echo "构建版本: ${build_ver}"            
-          echo "变更日志: $(cat release_notes.txt)"            
+          echo "变更日志: ${release_notes}"
           
           echo "prerelease=${prerelease}" >> $GITHUB_OUTPUT
           echo "et_ver=${et_ver}" >> $GITHUB_OUTPUT
@@ -109,7 +109,7 @@ jobs:
           path: frontend/dist
 
       - name: Build
-        run: cd backend && python build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
+        run: cd backend && python build.py --et_ver "${{ needs.build-info.outputs.et_ver }}" --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -134,7 +134,7 @@ jobs:
           name: frontend-dist
           path: frontend/dist
       - name: Build
-        run: cd backend && python3 build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
+        run: cd backend && python3 build.py --et_ver "${{ needs.build-info.outputs.et_ver }}" --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -170,7 +170,7 @@ jobs:
               apt-get update && apt-get install -y binutils &&
               pip install --upgrade pip &&
               cd backend &&
-              python3 build.py --et_ver ${ET_VER} --github_proxy_url ""
+              python3 build.py --et_ver "${ET_VER}" --github_proxy_url ""
             '
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -207,7 +207,7 @@ jobs:
               apt-get update && apt-get install -y binutils &&
               pip install --upgrade pip &&
               cd backend &&
-              python3 build.py --et_ver ${ET_VER} --github_proxy_url ""
+              python3 build.py --et_ver "${ET_VER}" --github_proxy_url ""
             '
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -236,7 +236,7 @@ jobs:
       - name: Build (x86_64)
         run: |
           cd backend
-          arch -x86_64 python3 build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
+          arch -x86_64 python3 build.py --et_ver "${{ needs.build-info.outputs.et_ver }}" --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -262,7 +262,7 @@ jobs:
           name: frontend-dist
           path: frontend/dist
       - name: Build
-        run: cd backend && python3 build.py --et_ver ${{ needs.build-info.outputs.et_ver }} --github_proxy_url ""
+        run: cd backend && python3 build.py --et_ver "${{ needs.build-info.outputs.et_ver }}" --github_proxy_url ""
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
