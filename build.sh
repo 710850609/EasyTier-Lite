@@ -68,15 +68,13 @@ ensure_build_info() {
   ET_VER="${PARAMS[et_ver]}"
   # 构建版本
   BUILD_VER="${PARAMS[build_ver]}"
-  # 是否稳定版本
-  PRE_RELEASE="${PARAMS[pre_release]}"
   # 变更说明
   CHANGE_NOTES="${PARAMS[change_notes]}"
-  if [[ -z "${ET_VER}" || -z "${BUILD_VER}" || -z "${PRE_RELEASE}" ]]; then
-      echo "没同时传入 et_ver, build_ver, pre_release, 立即获取构建信息"
+  if [[ -z "${ET_VER}" || -z "${BUILD_VER}" ]]; then
+      echo "没同时传入 et_ver, build_ver 立即获取构建信息"
      if [ -f "./build-info.sh" ]; then
         chmod +x "build-info.sh"
-        source build-info.sh "${ET_VER}" "${BUILD_VER}" "${CHANGE_NOTES}" "${PRE_RELEASE}"
+        source build-info.sh "${ET_VER}" "${BUILD_VER}" "${CHANGE_NOTES}" ""
     else
         echo "错误：build-info.sh 不存在" >&2
         exit 1
@@ -85,7 +83,6 @@ ensure_build_info() {
 
   echo "ET_VER = ${ET_VER}"
   echo "BUILD_VER = ${BUILD_VER}"
-  echo "PRE_RELEASE = ${PRE_RELEASE}"
   echo "CHANGE_NOTES = ${CHANGE_NOTES}"
 }
 
@@ -118,26 +115,30 @@ build_backend() {
 }
 
 build_frontend() {
-    echo '编译前端...'
-    if ! command -v node &> /dev/null; then
-        echo "当前环境未找到 node 命令，设置 node 环境..."
-        node_ver=24
-        export PATH="/var/apps/nodejs_v$node_ver/target/bin:$PATH"
-        if ! command -v node &> /dev/null; then
-            echo "nodejs ${node_ver} 不存在"
-            exit 1
-        fi
-        echo "已设置 node ${node_ver} 环境"
+    if [ "${build_all}" == "true" ] || [ ! -f "frontend/dist/index.html" ]; then
+      echo '编译前端...'
+      if ! command -v node &> /dev/null; then
+          echo "当前环境未找到 node 命令，设置 node 环境..."
+          node_ver=24
+          export PATH="/var/apps/nodejs_v$node_ver/target/bin:$PATH"
+          if ! command -v node &> /dev/null; then
+              echo "nodejs ${node_ver} 不存在"
+              exit 1
+          fi
+          echo "已设置 node ${node_ver} 环境"
+      fi
+      echo "使用node版本: $(node -v)"
+      cd frontend
+      npm install
+      npm run build
+      cd ../
+    else
+      echo "已存在前端编译资源，跳过编译前端"
     fi
-    echo "使用node版本: $(node -v)"
-    cd frontend
-    npm install
-    npm run build
-    cd ../
     rm -rf EasyTier-Lite/app/frontend
     mkdir -p EasyTier-Lite/app/frontend
     cp -rf frontend/dist/* EasyTier-Lite/app/frontend/
-    echo '编译并拷贝到app/frontend目录'
+    echo '拷贝前端资源到app/frontend目录'
 }
 
 download_et() {

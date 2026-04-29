@@ -78,6 +78,7 @@ jobs:
           } >> $GITHUB_OUTPUT
 
 
+
   build-frontend:
     runs-on: ubuntu-latest
     steps:
@@ -278,6 +279,49 @@ jobs:
         with:
           name: macos-arm64
           path: backend/dist/*.zip
+
+
+  build-fpk:
+    needs: [ build-frontend, build-info ]
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-latest
+          # - arch: riscv64
+          #   runner: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - name: Download frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+      - name: Run build
+        run: |
+          echo "开始构建架构: ${{ matrix.arch }}"
+          echo "Node 版本: $(node -v)"
+          chmod +x ./fnpack.sh 2>/dev/null || true
+          chmod +x ./version-util.sh 2>/dev/null || true
+          chmod +x ./build-info.sh 2>/dev/null || true
+          chmod +x ./build.sh 2>/dev/null || true
+          ./build.sh arch=${{ matrix.arch }} et_ver="${{ needs.build-info.outputs.et_ver }}" build_ver="${{ needs.build-info.outputs.build_ver }}" build_all="false" download_proxy="false" 2>/dev/null || true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fpk-${{ matrix.arch }}
+          path: EasyTier-Lite*.fpk
+
 
   release:
     needs:
