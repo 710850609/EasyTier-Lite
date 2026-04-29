@@ -51,11 +51,13 @@ jobs:
           if [[ -f "./build-info.sh" || -f "./version-util.sh" ]]; then
             chmod +x version-util.sh
             chmod +x build-info.sh
-            et_ver="unknown"
-            build_ver="unknown"
-            release_notes="unknown"
-            prerelease="unknown"
-            source build-info.sh "${et_ver}" "${build_ver}" "${release_notes}" "${prerelease}"
+          
+            source build-info.sh "unknown" "unknown" "unknown" "unknown"
+            # 从脚本获取实际计算后的值（注意大小写）
+            et_ver="${ET_VER}"
+            build_ver="${BUILD_VER}"
+            release_notes="${CHANGE_NOTES}"
+            prerelease="${PRE_RELEASE}"
           else
             echo "错误：build-info.sh 或 version-util.sh 不存在" >&2
             exit 1
