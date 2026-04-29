@@ -111,7 +111,7 @@ build_backend() {
     --exclude='requirements-gui.txt'  \
     --exclude='*.spec' \
     --exclude='*.md' \
-    src/backend/ "${app_script_path}/"
+    backend/ "${app_script_path}/"
 }
 
 build_frontend() {
