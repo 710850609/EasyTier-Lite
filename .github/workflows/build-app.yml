@@ -319,7 +319,7 @@ jobs:
           chmod +x ./version-util.sh 2>/dev/null || true
           chmod +x ./build-info.sh 2>/dev/null || true
           chmod +x ./build.sh 2>/dev/null || true
-          ./build.sh arch=${{ matrix.arch }} et_ver="${{ needs.build-info.outputs.et_ver }}" build_ver="${{ needs.build-info.outputs.build_ver }}" build_all="false" download_proxy="false" 2>/dev/null || true
+          ./build.sh arch=${{ matrix.arch }} et_ver="${{ needs.build-info.outputs.et_ver }}" build_ver="${{ needs.build-info.outputs.version }}" build_all="false" download_proxy="false" 2>/dev/null || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
