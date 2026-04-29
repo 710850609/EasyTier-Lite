@@ -50,15 +50,15 @@ jobs:
           chmod +x version-util.sh
           
           # 获取 easytier 版本号，转义为子版本号
-          local min_et_version='2.5.0'
-          local fetch_url="https://api.github.com/repos/EasyTier/EasyTier/releases/latest"
-          local latest_release=$(curl -s "${fetch_url}") 
+          min_et_version='2.5.0'
+          fetch_url="https://api.github.com/repos/EasyTier/EasyTier/releases/latest"
+          latest_release=$(curl -s "${fetch_url}") 
           if [ -z "$latest_release" ]; then
             echo "获取最新EasyTier版本信息失败"
             exit 1
           fi
           # 提取版本号
-          local et_version=$(echo "$latest_release" | jq -r .tag_name | sed 's/^v//' )
+          et_version=$(echo "$latest_release" | jq -r .tag_name | sed 's/^v//' )
           # 检查版本是否符合要求
           if [[ "$et_version" < "${min_et_version}" ]]; then
             echo "EasyTier release 版本 $et_version 过低，使用最低构建版本 ${min_et_version}"
