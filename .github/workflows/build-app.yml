@@ -71,7 +71,11 @@ jobs:
           echo "prerelease=${prerelease}" >> $GITHUB_OUTPUT
           echo "et_ver=${et_ver}" >> $GITHUB_OUTPUT
           echo "version=${build_ver}" >> $GITHUB_OUTPUT
-          echo "release_notes=${release_notes}" >> $GITHUB_OUTPUT
+          {
+            echo "release_notes<<GH_OUTPUT_EOF"
+            echo "$release_notes"
+            echo "GH_OUTPUT_EOF"
+          } >> $GITHUB_OUTPUT
 
 
   build-frontend:
