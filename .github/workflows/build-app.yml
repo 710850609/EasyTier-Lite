@@ -3,6 +3,10 @@ name: Build App
 on:
   workflow_dispatch:
     inputs:
+      build-fpk:
+        description: '构建 fpk (多架构)'
+        type: boolean
+        default: true
       build_windows:
         description: '构建 Windows (AMD64)'
         type: boolean
@@ -282,6 +286,7 @@ jobs:
 
 
   build-fpk:
+    if: ${{ github.event.inputs.build-fpk == 'true' }}
     needs: [ build-frontend, build-info ]
     strategy:
       matrix:
@@ -332,6 +337,7 @@ jobs:
       - build-linux-riscv64
       - build-macos-amd64
       - build-macos-arm64
+      - build-fpk
     runs-on: ubuntu-latest
     if: ${{ always() && !failure() && !cancelled() }}
     steps:
