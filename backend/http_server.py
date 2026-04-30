@@ -170,7 +170,12 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-def build_server(host='127.0.0.1', port=18080, base_uri=None) -> Optional[ThreadedHTTPServer]:
+    def __init__(self, server_address, RequestHandlerClass):
+        # 你自己的初始化代码（可选）
+        super().__init__(server_address, RequestHandlerClass)
+        # 也可以在这里做其他初始化
+
+def build_server(host='127.0.0.1', port=5666, base_uri=None) -> Optional[ThreadedHTTPServer]:
     """启动 HTTP 服务器"""
     BASE_URI = "/cgi/ThirdParty/EasyTier-Lite/index.cgi"
     setup_env(BASE_URI)

@@ -13,7 +13,7 @@
       </div>
       <div class="version-info">
         <var-cell>当前使用界面的Windows版本</var-cell>
-        <var-cell>集成当前配置、EasyTier内核，解压启动后选择配置，即可组网</var-cell>
+        <var-cell>集成当前EasyTier内核、配置，解压启动后启动服务即可组网</var-cell>
         <var-cell>
           <var-link type="primary" underline="none" href="https://github.com/710850609/EasyTier-Lite/releases" target="_blank"><img src="https://img.shields.io/github/v/release/710850609/EasyTier-Lite?color=blue&logo=github" /></var-link>
         </var-cell>
@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="version-info">
-        <var-cell>集成当前配置、EasyTier内核，解压启动后选择配置，即可组网</var-cell>
+        <var-cell>集成EasyTier内核、当前配置，解压启动后，再选择配置启动服务，即可组网</var-cell>
         <var-cell>其他使用说明，请访问 <var-link type="primary" href="https://easytier.cn/guide/gui/easytier-manager.html" target="_blank" underline="none">EasyTier 管理器使用</var-link></var-cell>
         <var-cell>
           <var-link type="primary" underline="none" href="https://github.com/EasyTier/easytier-manager/releases" target="_blank"><img src="https://img.shields.io/github/v/release/EasyTier/easytier-manager?color=blue&logo=github" /></var-link>
