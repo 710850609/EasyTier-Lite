@@ -1,6 +1,6 @@
 <template>
   <div class="platform-page">
-    <var-paper class="download-card" :elevation="2">
+    <var-paper class="download-card" :elevation="1">
       <div class="platform-header">
         <div class="platform-info">
           <h2>
@@ -31,14 +31,14 @@
       </div>
     </var-paper>
 
-    <var-paper class="download-card" :elevation="2">
+    <var-paper class="download-card" :elevation="1">
       <div class="platform-header">
         <div class="platform-info">
           <h2>
             EasyTier 管理器 
-            <var-badge type="info">
+            <!-- <var-badge type="info">
                <template #value>新手推荐</template>
-            </var-badge>
+            </var-badge> -->
           </h2>
         </div>
       </div>
@@ -62,7 +62,7 @@
       </div>
     </var-paper>
 
-    <var-paper class="download-card" :elevation="2">
+    <var-paper class="download-card" :elevation="1">
       <div class="platform-header">
         <div class="platform-info">
           <h2>EasyTier Windows GUI 版本</h2>
@@ -91,7 +91,7 @@
       </div>
       <var-divider />
       <div class="download-grid">
-        <var-paper class="download-item" :elevation="1">
+        <var-paper class="download-item" :elevation="3">
           <div class="item-header">
             <var-icon name="package" size="24" />
             <span class="item-title">64位系统(Intel/AMD CPU)</span>
@@ -107,7 +107,7 @@
             </var-button>
           </div>
         </var-paper>
-        <var-paper class="download-item" :elevation="1">
+        <var-paper class="download-item" :elevation="3">
           <div class="item-header">
             <var-icon name="package" size="24" />
             <span class="item-title">32位系统(Intel/AMD CPU)</span>
@@ -123,7 +123,7 @@
             </var-button>
           </div>
         </var-paper>
-        <var-paper class="download-item" :elevation="1">
+        <var-paper class="download-item" :elevation="3">
           <div class="item-header">
             <var-icon name="package" size="24" />
             <span class="item-title">64位系统(Arm CPU)</span>
@@ -158,7 +158,8 @@ const downloadMgrPro = () => {
 
 const downloadEasyTierLite = () => {
   return new Promise((resolve, reject) => {
-    let url = api.windows.getDownloadEasyTierLiteUrl()
+    let url = api.etLite.getDownloadEasyTierLiteUrl({platform: 'windows', 'arch': 'x86_64'})
+    console.log(url)
     window.open(url, '_blank')
     resolve()
   })

@@ -11,7 +11,7 @@ from pathlib import Path
 from socketserver import ThreadingMixIn
 from typing import Optional
 
-import http_dispatcher.dispatcher as http_dispatcher
+from http_dispatcher import dispatcher
 from utils import log_util
 
 BASE_URI:str = None
@@ -147,7 +147,7 @@ class CGIProxyHandler(BaseHTTPRequestHandler):
             for item in env.items():
                 os.environ[item[0]] = item[1]
 
-            resp = http_dispatcher.http_handle(base_uri=BASE_URI, body_data=stdin_data, cgi_module=False)
+            resp = dispatcher.http_handle(base_uri=BASE_URI, body_data=stdin_data, cgi_module=False)
             self.send_response(resp.status_code)
             if resp.headers is not None:
                 for key, value in resp.headers.items():

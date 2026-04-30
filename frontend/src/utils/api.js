@@ -8,8 +8,18 @@ import toast from '../components/toast.js'
 const API_BASE = typeof __API_BASE__ !== 'undefined' ? __API_BASE__ : '/'
 // console.log(API_BASE)
 
-function getFulllUrl(url) {
-  return url.startsWith('http') ? url : `${API_BASE}${url}`
+function getFullUrl(url, data) {
+  url = url.startsWith('http') ? url : `${API_BASE}${url}`
+  let search_parts = ''
+  Object.keys(data || {}).forEach(key => {
+    search_parts += `&${key}=${data[key]}`
+  })
+  if (url.indexOf('?') > 0) {
+    url += search_parts
+  } else {
+    url += '?' + search_parts.substring(1)
+  }
+  return url
 }
 
 /**
@@ -20,7 +30,7 @@ function getFulllUrl(url) {
  */
 async function request(url, options = {}, otherOptions = {}) {
   const toastError = (otherOptions.toastError === undefined || otherOptions.toastError == null) ? true : options.toastError
-  const fullUrl = getFulllUrl(url)
+  const fullUrl = getFullUrl(url)
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
@@ -116,7 +126,7 @@ export const api = {
     saveToml: (data) => post('/configs/save_toml', {toml: data}),
     get: () => get('/configs/get'),
     getToml: () => get('/configs/get_toml'),
-    getDownloadUrl: () => getFulllUrl('/configs/download')
+    getDownloadUrl: () => getFullUrl('/configs/download')
   },
   peers: {
     checkPeers: () => get('/peers/check_peers'),
@@ -130,8 +140,12 @@ export const api = {
   
   // 窗口相关
   windows: {
-    getDownloadEasyTierLiteUrl: () => getFulllUrl('/windows/download_easytier_lite'),
-    getDownloadMgrProUrl: () => getFulllUrl('/windows/download_mgr_pro')
+    getDownloadMgrProUrl: () => getFullUrl('/windows/download_mgr_pro')
+  },
+
+  // easytier-lite 相关
+  etLite: {
+    getDownloadEasyTierLiteUrl: (data) => getFullUrl('/et_lite/download_easytier_lite', data)
   },
   // ET 核心相关
   etCore: {

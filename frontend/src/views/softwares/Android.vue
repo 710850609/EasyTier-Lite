@@ -1,6 +1,6 @@
 <template>
   <div class="platform-page">
-    <var-paper class="download-card" :elevation="2">
+    <var-paper class="download-card" :elevation="1">
       <div class="platform-header">
         <div class="platform-info">
           <h2>EasyTier 安卓版本</h2>
@@ -29,7 +29,7 @@
       </div>
       <var-divider />
       <div class="download-grid">
-        <var-paper class="download-item" :elevation="1">
+        <var-paper class="download-item" :elevation="3">
           <div class="item-header">
             <var-icon name="package" size="24" />
             <span class="item-title">通用安装包</span>

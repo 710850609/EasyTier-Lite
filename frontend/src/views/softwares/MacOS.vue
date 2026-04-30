@@ -1,6 +1,43 @@
 <template>
   <div class="platform-page">
-    <var-paper class="download-card" :elevation="2">
+    <var-paper class="download-card" :elevation="1">
+      <div class="platform-header">
+        <div class="platform-info">
+          <h2>
+            易组网
+            <var-badge type="info">
+               <template #value>预览</template>
+            </var-badge>
+          </h2>
+        </div>
+      </div>
+      <div class="version-info">
+        <var-cell>当前使用界面的MacOS版本</var-cell>
+        <var-cell>集成当前EasyTier内核、配置，解压启动后启动服务即可组网</var-cell>
+        <var-cell>
+          <var-link type="primary" underline="none" href="https://github.com/710850609/EasyTier-Lite/releases" target="_blank"><img src="https://img.shields.io/github/v/release/710850609/EasyTier-Lite?color=blue&logo=github" /></var-link>
+        </var-cell>
+      </div>
+      <div>
+        <var-divider />
+        <var-space :size="[20, 20]" justify="center">
+          <var-button type="primary" size="normal" block @click="downloadEasyTierLite('macos', 'aarch64')" auto-loading>
+            <template #default>
+              <var-icon name="download"/>
+              Apple芯片版
+            </template>
+          </var-button>
+          <var-button type="primary" size="normal" block @click="downloadEasyTierLite('macos', 'x86_64')" auto-loading>
+            <template #default>
+              <var-icon name="download"/>
+              Intel芯片版
+            </template>
+          </var-button>
+        </var-space>
+      </div>
+    </var-paper>
+
+    <var-paper class="download-card" :elevation="1">
       <div class="platform-header">
         <div class="platform-info">
           <h2>EasyTier MacOS GUI 版本</h2>
@@ -29,7 +66,7 @@
       </div>
       <var-divider />
       <div class="download-grid">
-        <var-paper class="download-item" :elevation="1">
+        <var-paper class="download-item" :elevation="3">
           <div class="item-header">
             <var-icon name="package" size="24" />
             <span class="item-title">Apple芯片</span>
@@ -45,7 +82,7 @@
             </var-button>
           </div>
         </var-paper>
-        <var-paper class="download-item" :elevation="1">
+        <var-paper class="download-item" :elevation="3">
           <div class="item-header">
             <var-icon name="package" size="24" />
             <span class="item-title">Intel芯片</span>
@@ -67,10 +104,20 @@
 </template>
 
 <script setup>
+import { api } from '../../utils/api.js'
 import { downloadEasyTierGUI } from '../../utils/github.js'
 
 const download = (arch, prerelease) => {
   return downloadEasyTierGUI(arch, prerelease)
+}
+
+const downloadEasyTierLite = (platform, arch) => {
+  return new Promise((resolve, reject) => {
+    let url = api.etLite.getDownloadEasyTierLiteUrl({platform: platform, 'arch': arch})
+    console.log(url)
+    window.open(url, '_blank')
+    resolve()
+  })
 }
 </script>
 

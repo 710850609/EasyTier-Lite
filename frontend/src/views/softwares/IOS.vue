@@ -1,6 +1,6 @@
 <template>
   <div class="platform-page">
-    <var-paper class="download-card" :elevation="2">
+    <var-paper class="download-card" :elevation="1">
       <div class="platform-header">
         <div class="platform-info">
           <h2>EasyTier IOS版本</h2>

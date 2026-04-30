@@ -53,7 +53,7 @@ class HttpRequest:
                 fun_params.update(query_params)
         return fun_params
 
-class HttpResponse:
+class HttpResponse(Exception):
     def __init__(self, code=0, data=None, file: str=None, mime_type=None, download_name:str=None, status_code=200, headers=None):
         if data and file:
             raise AssertionError(f"不能同时存在data和file")
