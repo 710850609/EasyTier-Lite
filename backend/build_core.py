@@ -116,12 +116,16 @@ def build_executable(build_ver:str = None):
 
     if build_ver:
         print(f"  写入构建版本号: {build_ver}")
-        save_file = os.path.join(os.path.dirname(os.path(__file__)), 'utils', 'run_configs.py')
+        save_file = os.path.join(os.path.dirname(__file__), 'utils', 'run_configs.py')
         with open(save_file, "r", encoding="utf-8") as f:
-            data = f.read()
-        data.replace('BUILD_VERSION = "unknown"', f'BUILD_VERSION = "{build_ver}"')
+            lines = f.readlines()
+
+        # 替换以 BUILD_VERSION = " 开头的行
         with open(save_file, "w", encoding="utf-8") as f:
-            f.write(data)
+            for line in lines:
+                if line.startswith('BUILD_VERSION = "'):
+                    line = f'BUILD_VERSION = "{build_ver}"\n'
+                f.write(line)
 
     output_name = f"EasyTier-Lite"
 

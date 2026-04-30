@@ -89,12 +89,12 @@ ensure_build_info() {
 build_backend() {
     # 写入构建版本号
     target_file='backend/utils/run_configs.py'
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      # macOS 的 sed -i 必须提供一个备份后缀，空字符串 表示备份
-      sed -i '' "s/BUILD_VERSION = \"unknown\"/BUILD_VERSION = \"${BUILD_VER}\"/g" "${target_file}"
-    else
-      sed -i "s/BUILD_VERSION = \"unknown\"/BUILD_VERSION = \"${BUILD_VER}\"/g" "${target_file}"
-    fi
+    echo "  写入构建版本号: ${BUILD_VER}"
+    awk -v ver="$BUILD_VER" '
+      /^BUILD_VERSION = "/ { print "BUILD_VERSION = \"" ver "\""; next }
+      { print }
+    ' "$target_file" > "${target_file}.tmp" && mv "${target_file}.tmp" "$target_file"
+
     echo "下载py依赖"
     rm -rf EasyTier-Lite/app/backend 
     mkdir -p EasyTier-Lite/app/backend/wheels

@@ -18,7 +18,7 @@ CORE_DIR = os.getenv('CORE_DIR', f"{TRIM_APPDEST}/bin")
 DATA_DIR = os.getenv('DATA_DIR', f"{TRIM_PKGVAR}")
 LOG_DIR = os.getenv('LOG_DIR', f"{TRIM_PKGVAR}/logs")
 
-BUILD_VERSION = "0.5.020500-20260430111653"
+BUILD_VERSION = "unknown"
 
 class EtRunConfig:
     def __init__(self, data: dict):
