@@ -87,6 +87,14 @@ ensure_build_info() {
 }
 
 build_backend() {
+    # 写入构建版本号
+    target_file='backend/utils/run_configs.py'
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      # macOS 的 sed -i 必须提供一个备份后缀，空字符串 表示备份
+      sed -i '' "s/BUILD_VERSION = \"unknown\"/BUILD_VERSION = \"${BUILD_VER}\"/g" "${target_file}"
+    else
+      sed -i "s/BUILD_VERSION = \"unknown\"/BUILD_VERSION = \"${BUILD_VER}\"/g" "${target_file}"
+    fi
     echo "下载py依赖"
     rm -rf EasyTier-Lite/app/backend 
     mkdir -p EasyTier-Lite/app/backend/wheels
@@ -106,11 +114,18 @@ build_backend() {
     --exclude='dist' \
     --exclude='assets' \
     --exclude='build.py' \
+    --exclude='build_core.py' \
     --exclude='http_server.py'  \
     --exclude='stray.py'  \
     --exclude='requirements-gui.txt'  \
     --exclude='*.spec' \
     --exclude='*.md' \
+    --exclude='*.go' \
+    --exclude='*.mod' \
+    --exclude='*.sum' \
+    --exclude='*.syso' \
+    --exclude='*.bat' \
+    --exclude='winres' \
     backend/ "${app_script_path}/"
 }
 

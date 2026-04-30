@@ -140,6 +140,7 @@ export const api = {
   },
   // 设置相关
   settings: {
+    getBuildVersion: () => get('/settings/build_version'),
     getGithubMirrors: () => get('/settings/github_mirrors'),
     saveGithubMirror: (data) => post('/settings/save_github_mirror', data),
   }

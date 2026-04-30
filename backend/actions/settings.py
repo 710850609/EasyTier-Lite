@@ -8,6 +8,9 @@ from http_dispatcher.dispatcher import HttpException
 from utils import run_configs
 
 
+def build_version(*kwargs):
+    return run_configs.build_version()
+
 def save_github_mirror(data, *kwargs):
     url = data['url'] or ''
     try:

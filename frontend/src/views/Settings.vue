@@ -127,8 +127,11 @@
       </div>      
       <var-divider />
       <var-cell>
-        <template #description>
+        <template #icon>
           <strong>易组网</strong>
+        </template>
+        <template #description>
+            <var-chip type="primary" size="mini">{{ buildVersion }}</var-chip>
         </template>
         <template #extra>
           <!-- <img src="https://img.shields.io/github/v/release/710850609/fpk-easytier-lite?color=blue&logo=github" /> -->
@@ -157,11 +160,12 @@ const vConsoleEnabled = ref(false)
 const vConsoleInstance = ref(null)
 const isFetchingEtCoreVersion = ref(true)
 const isFetchingVersionList = ref(false)
+const isFetchingGithubMirrors = ref(true)
 const etVersion = ref({ version: '', raw_version: '', latest_version: '', selected_version: '' })
 const etVersionList = ref([])
 const githubMirror = ref('')
 const githubMirrors = ref([])
-const isFetchingGithubMirrors = ref(true)
+const buildVersion = ref('')
 
 const hasNewVersion = computed(() => etVersion.value.version && etVersion.value.latest_version && etVersion.value.version !== etVersion.value.latest_version)
 // 计算当前主题模式（从 theme.js 获取）
@@ -276,6 +280,17 @@ const getGithubMirrors = async () => {
   }
 }
 
+const getBuildVersion = async () => {
+  try {
+    buildVersion.value = '获取版本号中...'
+    const { data } = await api.settings.getBuildVersion()
+    buildVersion.value = data
+  } catch (e) {
+    console.error('获取构建版本号失败:', e)
+    buildVersion.value = '获取构建版本号失败'
+  }
+}
+
 onMounted(() => {
   // 从 localStorage 加载 VConsole 开关状态
   const enabled = localStorage.getItem(VCONSOLE_ENABLED_KEY) === 'true'
@@ -287,6 +302,7 @@ onMounted(() => {
   getEtVersion()
   getEtVersionList()
   getGithubMirrors()
+  getBuildVersion()
 })
 </script>
 

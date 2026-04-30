@@ -18,6 +18,7 @@ CORE_DIR = os.getenv('CORE_DIR', f"{TRIM_APPDEST}/bin")
 DATA_DIR = os.getenv('DATA_DIR', f"{TRIM_PKGVAR}")
 LOG_DIR = os.getenv('LOG_DIR', f"{TRIM_PKGVAR}/logs")
 
+BUILD_VERSION = "0.5.020500-20260430111653"
 
 class EtRunConfig:
     def __init__(self, data: dict):
@@ -26,6 +27,9 @@ class EtRunConfig:
             self.rpc['rpc'] = data['rpc']
         if data.get('log'):
             self.rpc['log'] = data['log']
+
+def build_version():
+    return BUILD_VERSION
 
 def config_dir():
     return CONFIG_DIR
@@ -64,7 +68,7 @@ def et_pid_file(profile: Optional[str]):
 #     return os.path.join(data_dir(), '.init')
 
 def et_peer_meta_file():
-    return os.path.join(data_dir(), 'peer-meta.json')
+    return os.path.join(data_dir(), 'peer-txt-meta.json')
 
 def github_proxy_file():
     return os.path.join(data_dir(), 'github_proxy_url.txt')

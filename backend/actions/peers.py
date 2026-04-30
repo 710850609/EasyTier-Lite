@@ -36,13 +36,12 @@ def check_peers(*kwargs):
 def public_peers(data, *kwargs):
     refresh = data and 'refresh' in data and data['refresh'] or False
     profile = None if data is None else data.get('profile')
-    public_peer_list = []
+    peer_meta = {}
     try:
-        public_peer_list = __get_public_peers(refresh)
+        peer_meta = __get_public_peers(refresh)
     except Exception as e:
         logging.exception('获取公共节点失败')
         raise HttpException(f"获取公共节点失败，请尝试在设置修改Github加速地址后重试")
-    peer_meta = public_peer_list
     peer_uris = []
     config_file = run_configs.et_config_file(profile)
     if Path(config_file).exists():
@@ -57,7 +56,7 @@ def public_peers(data, *kwargs):
             pass
     config_peers_set = set(peer_uris)
 
-    for key, item in peer_meta.get("peers", []).items():
+    for key, item in peer_meta.get("peers", {}).items():
         peer = f"{key}"
         # 过滤未启用：空uri
         if peer not in config_peers_set and len(item.get('uri').strip()) > 0:

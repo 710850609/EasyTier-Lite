@@ -110,9 +110,18 @@ def get_platform_name():
     #     return "macos-x64"
     # return f"{system}-{machine}"
 
-def build_executable():
+def build_executable(build_ver:str = None):
     """构建可执行文件"""
     print("[3/5] 开始打包...")
+
+    if build_ver:
+        print(f"  写入构建版本号: {build_ver}")
+        save_file = os.path.join(os.path.dirname(os.path(__file__)), 'utils', 'run_configs.py')
+        with open(save_file, "r", encoding="utf-8") as f:
+            data = f.read()
+        data.replace('BUILD_VERSION = "unknown"', f'BUILD_VERSION = "{build_ver}"')
+        with open(save_file, "w", encoding="utf-8") as f:
+            f.write(data)
 
     output_name = f"EasyTier-Lite"
 
@@ -378,7 +387,7 @@ def main(et_ver:str=None, github_proxy_url:str=None, build_ver:str=""):
         print("[错误] 依赖安装失败")
         sys.exit(1)
 
-    result, output_name = build_executable()
+    result, output_name = build_executable(build_ver)
     if not result:
         print("[错误] 打包失败")
         sys.exit(1)
