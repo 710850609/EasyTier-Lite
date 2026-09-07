@@ -2353,6 +2353,10 @@ html.dark .sk-breathe {
   max-width: 300px;
 }
 
+.config-switcher :deep(.var-select__menu) {
+  background: var(--color-surface-container) !important;
+}
+
 .config-option {
   display: flex;
   align-items: center;

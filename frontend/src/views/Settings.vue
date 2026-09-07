@@ -1194,12 +1194,11 @@ onMounted(() => {
   min-width: 160px;
 }
 
-.setting-value {
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  flex-shrink: 0;
+.setting-select :deep(.var-select__select) .var-chip {
+  background: var(--color-primary-container) !important;
+  color: var(--color-on-primary-container) !important;
 }
+
 
 .setting-actions {
   display: flex;
