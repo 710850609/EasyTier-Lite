@@ -197,11 +197,17 @@ def copy(profile:str):
     share_doc = document()
     # share_doc.add(comment(get_message('config.share_comment', datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))))
     # 仅拷贝必要的配置项
-    share_doc["ipv4"] = ""
     share_doc["dhcp"] = True
     share_doc["network_identity"] = doc.get("network_identity") or {}
     share_doc["peer"] = doc.get("peer") or []
-
+    # 保存一直加密配置
+    doc_flags = doc.get("flags") or {}
+    if doc_flags.get("enable_encryption"):
+        share_doc["flags"] = {}
+        share_flags = share_doc["flags"]
+        share_flags["enable_encryption"] = doc_flags.get("enable_encryption")
+        if doc_flags.get("encryption_algorithm"):
+            share_flags["encryption_algorithm"] = doc_flags.get("encryption_algorithm")
 
     with open(tmp_file, "w", encoding="utf-8") as f:
         f.write(tomlkit.dumps(share_doc))
