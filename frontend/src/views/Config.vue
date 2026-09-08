@@ -907,7 +907,9 @@
 
     <!-- 创建新配置弹窗 -->
     <var-dialog v-model:show="showCreateDialog" @before-close="beforeCloseCreateDilog"
-      @closed="onCreateDialogClosed">
+      @closed="onCreateDialogClosed"
+      :cancel-button-text="$t('common.cancel')"
+      :confirm-button-text="$t('common.confirm')">
       <template #title>
         <span>{{ $t('config.newConfigTitle') }}</span>
       </template>
@@ -918,12 +920,6 @@
         v-model="newConfigName"
         :rules="[v => !!v || $t('config.nameRequired')]"
       />
-      <template #actions="{ slotClass, cancel, confirm }">
-        <div :class="slotClass" style="gap: 8px;">
-          <var-button size="small" text @click="onCreateCancel(cancel)">{{ $t('common.cancel') }}</var-button>
-          <var-button size="small" text type="primary" @click="onCreateConfirm">{{ $t('common.confirm') }}</var-button>
-        </div>
-      </template>
     </var-dialog>
 
     <!-- 分享配置弹窗 -->
@@ -974,11 +970,15 @@
 
   <!-- 全屏扫码遮罩 -->
   <div v-if="showQrScanner" class="qr-overlay">
-    <video id="qr-reader" class="qr-scan-video"></video>
+    <video id="qr-reader" class="qr-scan-video" :class="{ 'qr-camera-ready': cameraReady }"></video>
+    <div v-if="!cameraReady" class="qr-loading">
+      <var-loading type="circle" color="#4fc08d" size="large" />
+      <p class="qr-loading-text">{{ $t('config.cameraLoading') }}</p>
+    </div>
     <div class="qr-mask-cutout"></div>
-    <div class="qr-scan-line"></div>
+    <div v-if="cameraReady" class="qr-scan-line"></div>
     <div class="qr-overlay-header">
-      <var-button text round class="qr-back-btn" @click="stopQrScanner">
+      <var-button text round class="qr-back-btn" @click="exitAddMode()">
         <var-icon name="chevron-left" />
         {{ $t('common.cancel') }}
       </var-button>
@@ -1066,6 +1066,7 @@ const showCreateDialog = ref(false)
 const showRenameDialog = ref(false)
 const showQrScanner = ref(false)
 const isScanning = ref(false)
+const cameraReady = ref(false)
 const qrScanner = ref(null)
 const newConfigName = ref('')
 const editNameValue = ref('')
@@ -1678,19 +1679,6 @@ const beforeCloseCreateDilog = async (action, done) => {
   }
 }
 
-const onCreateCancel = async (cancel) => {
-  stopQrScanner()
-  await exitAddMode()
-  cancel()
-}
-
-const onCreateConfirm = () => {
-  stopQrScanner()
-  if (confirmCreateConfig()) {
-    showCreateDialog.value = false
-  }
-}
-
 const onCreateDialogClosed = () => {
   stopQrScanner()
 }
@@ -1747,10 +1735,12 @@ const onStartScan = async () => {
     )
     qrScanner.value = scanner
     await scanner.start()
+    cameraReady.value = true
   } catch (err) {
     console.error('QR scan error:', err)
     isScanning.value = false
     showQrScanner.value = false
+    cameraReady.value = false
     if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
       toast.error(t('config.cameraPermissionDenied'))
     } else if (err?.name === 'NotFoundError') {
@@ -1785,6 +1775,7 @@ const processTomlConfig = async (tomlText) => {
     }
   } catch (err) {
     toast.error(t('config.parseTomlFailed') + ': ' + (err.message || ''))
+    await exitAddMode()
   }
 }
 
@@ -1798,6 +1789,7 @@ const onClipboardAdd = async () => {
     const text = await readFromClipboard()
     if (!text || !text.trim()) {
       toast.warning(t('config.clipboardEmpty'))
+      await exitAddMode()
       return
     }
     await processTomlConfig(text.trim())
@@ -1811,6 +1803,7 @@ const onClipboardAdd = async () => {
 }
 
 const stopQrScanner = () => {
+  cameraReady.value = false
   if (qrScanner.value) {
     const scanner = qrScanner.value
     qrScanner.value = null
@@ -1950,10 +1943,11 @@ const exitAddMode = async (showProfile) => {
   showMode.value = 0
   showCreateDialog.value = false
   newConfigName.value = ''
-  await loadConfigs()
-  selectedConfig.value = showProfile || selectedConfig.value
-  // selectedConfig.value = showProfile || configList.value?.[0]?.profile || ''
-  await loadConfig(selectedConfig.value)
+  if (showProfile) {
+    await loadConfigs()
+    selectedConfig.value = showProfile || selectedConfig.value
+    await loadConfig(selectedConfig.value)
+  }
 }
 
 const getLanIps = () => {
@@ -3294,6 +3288,30 @@ html.dark .port-forward-row {
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.qr-scan-video.qr-camera-ready {
+  opacity: 1;
+}
+
+/* 摄像头加载中 */
+.qr-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.qr-loading-text {
+  margin-top: 16px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* 半透明遮罩 + 透明扫描窗口 */
@@ -3306,10 +3324,9 @@ html.dark .port-forward-row {
   transform: translate(-50%, -50%);
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  border-radius: 12px;
   z-index: 1;
   pointer-events: none;
-  border-radius: 12px;
 }
 
 /* 扫描线动画 */
@@ -3337,7 +3354,7 @@ html.dark .port-forward-row {
   left: 0;
   right: 0;
   z-index: 3;
-  padding: 12px 16px;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
   display: flex;
   align-items: center;
 }
@@ -3348,7 +3365,7 @@ html.dark .port-forward-row {
 
 .qr-scan-hint {
   position: absolute;
-  bottom: 80px;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
   z-index: 3;

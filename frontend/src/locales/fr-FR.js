@@ -400,6 +400,7 @@ export default {
     scanFailed: 'Échec du scan QR',
     parseTomlFailed: 'Échec de l\'analyse TOML',
     cameraPermissionDenied: 'Permission caméra refusée',
+    cameraLoading: 'Chargement caméra...',
     scanning: 'Scan en cours...',
     scanSuccess: 'Config ajoutée',
     selectShareType: 'Type de partage',

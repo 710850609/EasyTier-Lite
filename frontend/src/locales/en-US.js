@@ -493,6 +493,7 @@ export default {
     parseTomlFailed: 'TOML config parse failed',
     cameraPermissionDenied: 'Camera permission denied',
     cameraNotSupported: 'Camera not supported in current environment',
+    cameraLoading: 'Camera loading...',
     scanning: 'Scanning...',
     scanSuccess: 'Config added',
     selectShareType: 'Select Share Type',

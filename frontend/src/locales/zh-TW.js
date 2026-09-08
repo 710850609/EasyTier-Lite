@@ -494,6 +494,7 @@ export default {
     scanFailed: 'QR碼掃描失敗',
     parseTomlFailed: 'TOML設定解析失敗',
     cameraPermissionDenied: '攝影機權限被拒絕',
+    cameraLoading: '攝影機載入中...',
     scanning: '掃描中...',
     scanSuccess: '新增配置成功',
     selectShareType: '選擇分享類型',

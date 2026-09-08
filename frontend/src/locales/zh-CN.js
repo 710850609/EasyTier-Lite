@@ -495,6 +495,8 @@ export default {
     parseTomlFailed: 'TOML配置解析失败',
     cameraPermissionDenied: '摄像头权限被拒绝',
     cameraNotSupported: '当前环境不支持摄像头',
+    cameraLoading: '摄像头加载中...',
+
     scanning: '扫描中...',
     scanSuccess: '新增配置成功',
     selectShareType: '选择分享类型',
