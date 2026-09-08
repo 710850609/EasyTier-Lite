@@ -2353,9 +2353,9 @@ html.dark .sk-breathe {
   max-width: 300px;
 }
 
-.config-switcher :deep(.var-select__menu) {
-  background: var(--color-surface-container) !important;
-}
+/*.config-switcher :deep(.var-select__menu) {*/
+/*  background: var(--color-surface-container) !important;*/
+/*}*/
 
 .config-option {
   display: flex;
@@ -3001,9 +3001,9 @@ html.dark .sk-breathe {
   color: var(--color-text);
 }
 
-:deep(.var-select__menu) {
-  background-color: var(--color-surface-container-low) !important;
-}
+/*:deep(.var-select__menu) {*/
+/*  background-color: var(--color-surface-container-low) !important;*/
+/*}*/
 
 .code-editor-content::-webkit-scrollbar {
   width: 10px;

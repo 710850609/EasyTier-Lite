@@ -88,13 +88,13 @@
         <!-- 骨架屏 - PC 表格骨架 -->
         <div v-if="loadingSkeleton && !useMobileList" class="skeleton-container skeleton-pc">
           <div class="sk-pc-header">
-            <div class="sk-pill sk-pill-hdr" v-for="n in visibleColumns.length" :key="'h'+n">
+            <div class="sk-pill sk-pill-hdr" v-for="n in Math.min(visibleColumns.length, 6)" :key="'h'+n">
               <div class="sk-breathe"></div>
             </div>
           </div>
           <div class="sk-pc-body">
             <div v-for="row in 6" :key="row" class="sk-pc-row" :style="{ animationDelay: `${row * 0.05}s` }">
-              <div class="sk-pc-cell" v-for="n in visibleColumns.length" :key="n">
+              <div class="sk-pc-cell" v-for="n in Math.min(visibleColumns.length, 6)" :key="n">
                 <div class="sk-pill" :style="{ width: skeletonWidths[(n - 1) % skeletonWidths.length] }">
                   <div class="sk-breathe"></div>
                 </div>

@@ -86,7 +86,7 @@ body {
 
 /* var-select 下拉框样式适配 */
 .var-select__control {
-  background: var(--color-surface-container) !important;
+  /*background: var(--color-surface-container) !important;*/
   color: var(--color-on-surface) !important;
 }
 
@@ -99,7 +99,8 @@ body {
 }
 
 .var-select__menu {
-  background: var(--color-surface-container) !important;
+  /*background: var(--color-surface-container) !important;*/
+  background: transparent !important;
   /* 覆盖 Varlet option 的文字颜色变量 */
   --option-text-color: var(--color-on-surface);
   --option-selected-background: var(--color-primary-container);
