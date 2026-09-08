@@ -220,7 +220,12 @@ def parse_toml(data, *args, **kwargs):
         raise HttpException(get_message('config.toml_empty'))
     try:
         doc = tomlkit.parse(raw_toml)
+        network_identity = doc.get('network_identity') or {}
+        if not network_identity.get('network_name'):
+            raise HttpException(get_message('config.network_name_required'))
         return doc
+    except HttpException as e:
+        raise e
     except Exception as e:
         logger.error(f"解析TOML字符串失败: {e}")
         raise HttpException(get_message('config.toml_parse_error', error=str(e)))

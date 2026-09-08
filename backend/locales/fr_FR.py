@@ -132,6 +132,7 @@ MESSAGES = {
         "profile_required_for_save": "Le profil est requis pour enregistrer le TOML",
         "toml_empty": "Les données TOML ne peuvent pas être vides",
         "toml_parse_error": "Erreur d'analyse TOML: {error}",
+        "network_name_required": "Nom de réseau requis dans la configuration",
     },
     "log": {
         "fetch_failed": "Échec de la récupération des journaux: {error}",

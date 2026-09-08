@@ -23,7 +23,7 @@
     "@varlet/touch-emulator": "^3.14.0",
     "@varlet/ui": "^3.3.2",
     "codemirror": "^6.0.2",
-    "html5-qrcode": "^2.3.8",
+    "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.4",
     "markdown-it": "^14.2.0",
     "vconsole": "^3.15.1",

@@ -59,11 +59,21 @@
       <var-icon name="file-document-outline" size="56" color="var(--color-text-disabled)" />
       <p class="empty-title">{{ $t('config.noConfig') }}</p>
       <p class="empty-hint">{{ $t('config.noConfigHint') }}</p>
-      <var-button type="primary" size="large" @click="setupShowMode(1);" auto-loading>
-        <var-icon name="plus" size="18" />
+      <var-button type="primary" size="large" block @click="setupShowMode(1);" auto-loading class="empty-quick-add">
+        <svg-icon type="mdi" :path="mdiShapeSquareRoundedPlus" size="18"></svg-icon>
         {{ $t('config.quickAdd') }}
       </var-button>
-      <var-button type="primary" size="large" @click="setupShowMode(2);" auto-loading>
+      <div class="empty-row">
+        <var-button type="primary" size="large" @click="onMenuScanAdd" auto-loading class="empty-row-btn">
+          <svg-icon type="mdi" :path="mdiLineScan" size="18"></svg-icon>
+          {{ $t('config.scanAddBtn') }}
+        </var-button>
+        <var-button type="primary" size="large" @click="onMenuClipboardAdd" auto-loading class="empty-row-btn">
+          <svg-icon type="mdi" :path="mdiClipboardTextMultipleOutline" size="18"></svg-icon>
+          {{ $t('config.clipboardAddBtn') }}
+        </var-button>
+      </div>
+      <var-button type="default" size="large" @click="setupShowMode(2);" auto-loading class="empty-custom-add">
         <var-icon name="plus" size="18" />
         {{ $t('config.normalAdd') }}
       </var-button>
@@ -112,9 +122,17 @@
               </var-button>
               <template #menu>
                 <div class="more-menu">
+                  <var-button text block class="menu-item-btn" @click="onMenuScanAdd">
+                    <svg-icon type="mdi" :path="mdiPlus" class="menu-icon"></svg-icon>
+                    <span>{{ $t('config.scanAdd') }}</span>
+                  </var-button>
+                  <var-button text block class="menu-item-btn" @click="onMenuClipboardAdd">
+                    <svg-icon type="mdi" :path="mdiPlus" class="menu-icon"></svg-icon>
+                    <span>{{ $t('config.clipboardAdd') }}</span>
+                  </var-button>
                   <var-button text block class="menu-item-btn" @click="showCreateDialog = true; showMode = 1; showMoreMenu = false">
                     <svg-icon type="mdi" :path="mdiPlus" class="menu-icon"></svg-icon>
-                    <span>{{ $t('config.add') }}</span>
+                    <span>{{ $t('config.editAdd') }}</span>
                   </var-button>
                   <var-button text block class="menu-item-btn" @click="startEditName(); showMoreMenu = false" :loading="isRenaming">
                     <svg-icon type="mdi" :path="mdiSquareEditOutline" class="menu-icon"></svg-icon>
@@ -889,7 +907,7 @@
 
     <!-- 创建新配置弹窗 -->
     <var-dialog v-model:show="showCreateDialog" @before-close="beforeCloseCreateDilog"
-      @closed="onCreateDialogClosed" width="340px">
+      @closed="onCreateDialogClosed">
       <template #title>
         <span>{{ $t('config.newConfigTitle') }}</span>
       </template>
@@ -900,16 +918,10 @@
         v-model="newConfigName"
         :rules="[v => !!v || $t('config.nameRequired')]"
       />
-      <div v-if="showQrScanner" class="qr-scanner-area">
-        <div id="qr-reader" class="qr-reader-box"></div>
-        <p class="qr-scan-hint">{{ $t('config.scanHint') }}</p>
-      </div>
       <template #actions="{ slotClass, cancel, confirm }">
         <div :class="slotClass" style="gap: 8px;">
           <var-button size="small" text @click="onCreateCancel(cancel)">{{ $t('common.cancel') }}</var-button>
-          <var-button size="small" text type="primary" @click="onClipboardAdd">{{ $t('config.clipboardAdd') }}</var-button>
-          <var-button size="small" text type="primary" @click="onStartScan" :loading="isScanning">{{ $t('config.scanAdd') }}</var-button>
-          <var-button size="small" text type="primary" @click="onCreateConfirm">{{ $t('config.editAdd') }}</var-button>
+          <var-button size="small" text type="primary" @click="onCreateConfirm">{{ $t('common.confirm') }}</var-button>
         </div>
       </template>
     </var-dialog>
@@ -959,6 +971,20 @@
       </div>
   </var-popup>
   </div>
+
+  <!-- 全屏扫码遮罩 -->
+  <div v-if="showQrScanner" class="qr-overlay">
+    <video id="qr-reader" class="qr-scan-video"></video>
+    <div class="qr-mask-cutout"></div>
+    <div class="qr-scan-line"></div>
+    <div class="qr-overlay-header">
+      <var-button text round class="qr-back-btn" @click="stopQrScanner">
+        <var-icon name="chevron-left" />
+        {{ $t('common.cancel') }}
+      </var-button>
+    </div>
+    <p class="qr-scan-hint">{{ $t('config.scanHint') }}</p>
+  </div>
 </template>
 
 <script setup>
@@ -971,13 +997,13 @@ import toast from '../components/toast.js'
 import { api } from '../utils/api.js'
 import CodeEditor from '../components/CodeEditor.vue'
 import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiEye, mdiEyeOff, mdiHomeEdit, mdiRouterNetwork, mdiMonitor, mdiLanConnect, mdiTuneVariant, mdiPlus, mdiDrawPen, mdiShareOutline, mdiSquareEditOutline, mdiTrashCanOutline, mdiDraw  } from '@mdi/js'
+import { mdiEye, mdiEyeOff, mdiHomeEdit, mdiRouterNetwork, mdiMonitor, mdiLanConnect, mdiTuneVariant, mdiPlus, mdiDrawPen, mdiShareOutline, mdiSquareEditOutline, mdiTrashCanOutline, mdiDraw, mdiShapeSquareRoundedPlus, mdiClipboardTextMultipleOutline, mdiLineScan } from '@mdi/js'
 import { mdilAccount, mdilLock } from '@mdi/light-js'
-import { Html5Qrcode } from 'html5-qrcode'
+import QrScanner from 'qr-scanner'
 import QRCode from 'qrcode'
 
 
-// 显示模式： 0 修改 1 快速新增 2 普通新增
+// 显示模式： 0 修改 1 快速新增 2 自定义新增 3 扫码新增 4 读剪切板新增
 const { t } = useI18n()
 const showMode = ref(0)
 const fastSettingMode = inject('fastSettingMode', ref(false))
@@ -1040,7 +1066,7 @@ const showCreateDialog = ref(false)
 const showRenameDialog = ref(false)
 const showQrScanner = ref(false)
 const isScanning = ref(false)
-const html5QrCode = ref(null)
+const qrScanner = ref(null)
 const newConfigName = ref('')
 const editNameValue = ref('')
 const customExitNode = ref('')
@@ -1669,43 +1695,58 @@ const onCreateDialogClosed = () => {
   stopQrScanner()
 }
 
+const onMenuScanAdd = () => {
+  showMoreMenu.value = false
+  showMode.value = 3
+  onStartScan()
+}
+
+const onMenuClipboardAdd = () => {
+  showMoreMenu.value = false
+  showMode.value = 4
+  onClipboardAdd()
+}
+
 const onStartScan = async () => {
   if (isScanning.value) {
     stopQrScanner()
     return
   }
   try {
-    const devices = await Html5Qrcode.getCameras()
-    if (!devices || devices.length === 0) {
+    const hasCamera = await QrScanner.hasCamera()
+    if (!hasCamera) {
       toast.error(t('config.cameraNotSupported'))
       return
     }
     showQrScanner.value = true
     isScanning.value = true
     await nextTick()
-    const qrCodeScanner = new Html5Qrcode('qr-reader')
-    html5QrCode.value = qrCodeScanner
-    let cameraId = ''
-    if (devices.length >= 2) {
-      cameraId = devices[1].id
-    } else {
-      cameraId = devices[0].id
+    const videoEl = document.getElementById('qr-reader')
+    if (!videoEl) {
+      stopQrScanner()
+      return
     }
-    await qrCodeScanner.start(
-      cameraId ? { deviceId: { exact: cameraId } } : { facingMode: 'environment' },
+    const scanner = new QrScanner(
+      videoEl,
+      (result) => {
+        onQrScanSuccess(result.data)
+      },
       {
-        fps: 10,
-        qrbox: (viewfinderWidth, viewfinderHeight) => {
-          const minEdge = Math.min(viewfinderWidth, viewfinderHeight)
-          const size = Math.floor(minEdge * 0.85)
-          return { width: size, height: size }
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+        maxScansPerSecond: 5,
+        preferredCamera: 'environment',
+        calculateScanRegion: (video) => {
+          const minEdge = Math.min(video.videoWidth, video.videoHeight)
+          const size = Math.floor(minEdge * 0.65)
+          const x = Math.floor((video.videoWidth - size) / 2)
+          const y = Math.floor((video.videoHeight - size) / 2)
+          return { x, y, width: size, height: size, downScaledWidth: 360, downScaledHeight: 360 }
         },
-      },
-      (decodedText) => {
-        onQrScanSuccess(decodedText)
-      },
-      () => {}
+      }
     )
+    qrScanner.value = scanner
+    await scanner.start()
   } catch (err) {
     console.error('QR scan error:', err)
     isScanning.value = false
@@ -1730,7 +1771,7 @@ const processTomlConfig = async (tomlText) => {
         if (networkName) {
           newConfigName.value = networkName
         } else {
-          newConfigName.value = t('config.scanConfig')
+          newConfigName.value = t('config.tomlParseSuccess')
         }
       }
       if (confirmCreateConfig()) {
@@ -1770,12 +1811,13 @@ const onClipboardAdd = async () => {
 }
 
 const stopQrScanner = () => {
-  if (html5QrCode.value) {
-    const scanner = html5QrCode.value
-    html5QrCode.value = null
+  if (qrScanner.value) {
+    const scanner = qrScanner.value
+    qrScanner.value = null
     isScanning.value = false
     showQrScanner.value = false
-    scanner.stop().then(() => scanner.clear()).catch(() => {})
+    scanner.stop()
+    scanner.destroy()
   } else {
     isScanning.value = false
     showQrScanner.value = false
@@ -2296,6 +2338,27 @@ html.dark .sk-breathe {
   font-size: 14px;
   color: var(--color-text-disabled);
   margin: 0 0 8px;
+}
+
+.empty-quick-add {
+  width: 330px;
+}
+
+.empty-row {
+  display: flex;
+  gap: 12px;
+}
+
+.empty-row-btn {
+  flex: 1;
+  min-width: 0;
+  width: 160px;
+  white-space: nowrap;
+}
+
+.empty-custom-add {
+  margin-top: 8px;
+  /*background-color: var(--color-surface-container);*/
 }
 
 .toolbar {
@@ -3216,30 +3279,81 @@ html.dark .port-forward-row {
   }
 }
 
-/* QR 扫描区域 */
-.qr-scanner-area {
-  margin-top: 16px;
+/* QR 全屏扫码遮罩 - 微信/支付宝风格 */
+.qr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+}
+
+.qr-scan-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 半透明遮罩 + 透明扫描窗口 */
+.qr-mask-cutout {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+/* 扫描线动画 */
+.qr-scan-line {
+  position: absolute;
+  left: 50%;
+  width: 240px;
+  height: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(79, 192, 141, 0.9), transparent);
+  z-index: 2;
+  pointer-events: none;
+  animation: qr-scan-line 2.5s ease-in-out infinite;
+}
+
+@keyframes qr-scan-line {
+  0%   { top: calc(50% - 130px); }
+  50%  { top: calc(50% + 130px); }
+  100% { top: calc(50% - 130px); }
+}
+
+.qr-overlay-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  padding: 12px 16px;
   display: flex;
-  flex-direction: column;
   align-items: center;
 }
 
-.qr-reader-box {
-  width: 300px;
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.qr-reader-box video {
-  width: 100% !important;
-  height: auto !important;
+.qr-back-btn {
+  color: #fff !important;
 }
 
 .qr-scan-hint {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--color-text-secondary);
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
   text-align: center;
 }
 

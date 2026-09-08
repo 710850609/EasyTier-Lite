@@ -132,6 +132,7 @@ MESSAGES = {
         "profile_required_for_save": "Profil ist zum Speichern von TOML erforderlich",
         "toml_empty": "TOML-Daten dürfen nicht leer sein",
         "toml_parse_error": "TOML-Parsefehler: {error}",
+        "network_name_required": "Netzwerkname in Konfiguration erforderlich",
     },
     "log": {
         "fetch_failed": "Protokolle konnten nicht abgerufen werden: {error}",

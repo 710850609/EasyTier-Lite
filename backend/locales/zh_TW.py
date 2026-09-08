@@ -132,6 +132,7 @@ MESSAGES = {
         "profile_required_for_save": "儲存TOML時profile不能為空",
         "toml_empty": "TOML資料不能為空",
         "toml_parse_error": "TOML解析失敗: {error}",
+        "network_name_required": "設定缺少網路名稱",
     },
     "log": {
         "fetch_failed": "獲取日誌失敗: {error}",

@@ -134,6 +134,7 @@ MESSAGES = {
         "profile_required_for_save": "Profile is required for saving TOML",
         "toml_empty": "TOML data cannot be empty",
         "toml_parse_error": "TOML parse error: {error}",
+        "network_name_required": "Network name is required in config",
     },
     "log": {
         "fetch_failed": "Failed to fetch logs: {error}",
