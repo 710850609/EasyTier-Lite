@@ -399,6 +399,7 @@ export default {
     advancedSettings: '高级设置',
     hostInfo: '本机信息',
     connectionMethod: '连接方式',
+    connectionProxy: '连接代理',
     performanceSecurity: '性能安全',
     featureToggles: '功能开关',
     hostname: '主机名',
@@ -576,6 +577,7 @@ export default {
       no_tun: { label: '无 TUN 模式', tooltip: '不使用 TUN 设备。适用于无 Root 权限运行' },
       accept_dns: { label: '启用魔法 DNS', tooltip: '启用魔法DNS，可使用域名访问其他节点，例如：<主机名>.et.net。魔法 DNS 目前仅支持在 Windows 和 MacOS 上自动配置系统 DNS，Linux 上需要手动配置 DNS 服务器为 100.100.100.101 才可正常使用' },
       bind_device: { label: '仅使用物理网卡', tooltip: '将连接器的套接字绑定到物理设备以避免路由问题' },
+      enable_udp_broadcast_relay: { label: 'UDP广播中继', tooltip: '仅Windows：捕获物理网卡上的本机UDP广播包并转发给EasyTier对等节点，帮助局域网发现节点。需要管理员权限。' },
     },
   },
   validate: {

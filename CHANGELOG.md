@@ -2,9 +2,10 @@
 - 优化：【配置】页面统一下拉输入框显示背景
 - 修复：尝试修复docker版本自更新需要更新2次才成功
 ----
+- 新增：【配置】页面新增配置项：UDP广播中继，并调整聚合新子模块：连接代理
 - 优化：【配置】页面首次新增支持：扫码、读剪切板、快速、自定义多种新增模式。优化新增配置流程，减少不必要的点击操作
+- 优化：【配置】页面扫码组件替换为qr-scanner，提高二维码识别成功率
 - 修复：【配置】页面-分享配置，在开启加密时，分享的配置无法加入虚拟网络
-- 
 
 <br>
 
@@ -12,6 +13,11 @@
 
 - Optimized: [Config] page unified dropdown input box background display
 - Fixed: Docker version self-update required two update attempts to succeed
+---- 
+- New: [Config] page added configuration item: UDP Broadcast Relay, and consolidated new sub-module: Connection Proxy
+- Improved: [Config] page first-time add now supports multiple modes: QR scan, clipboard, quick, and custom. Optimized new config flow to reduce unnecessary clicks
+- Improved: [Config] page replaced QR scan component with qr-scanner, improving QR code recognition success rate
+- Fixed: [Config] page - shared config with encryption enabled could not join the virtual network
 
 ##  2.4
 - 新增：【节点】页面支持查看中继路径（默认开启）

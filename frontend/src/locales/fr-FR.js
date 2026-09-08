@@ -305,6 +305,7 @@ export default {
     advancedSettings: 'Paramètres avancés',
     hostInfo: 'Infos hôte',
     connectionMethod: 'Connexion',
+    connectionProxy: 'Proxy de connexion',
     performanceSecurity: 'Performance & Sécurité',
     featureToggles: 'Options',
     hostname: 'Nom d\'hôte',
@@ -479,7 +480,8 @@ export default {
       enable_ipv6: { label: 'IPv6', tooltip: 'Activer support IPv6' },
       no_tun: { label: 'Sans TUN', tooltip: 'Ne pas utiliser périphérique TUN' },
       accept_dns: { label: 'Magic DNS', tooltip: 'Magic DNS, <hostname>.et.net' },
-      bind_device: { label: 'Lier à NIC physique', tooltip: 'Lier sockets à l\'interface physique' }
+      bind_device: { label: 'Lier à NIC physique', tooltip: 'Lier sockets à l\'interface physique' },
+      enable_udp_broadcast_relay: { label: 'Relais de diffusion UDP', tooltip: 'Windows uniquement : Capturer les paquets de diffusion UDP locaux sur la carte réseau physique et les transférer aux pairs EasyTier, aidant à la découverte de périphériques LAN. Nécessite des privilèges administrateur.' }
     }
   },
   validate: {

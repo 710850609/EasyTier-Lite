@@ -399,6 +399,7 @@ export default {
     advancedSettings: 'Advanced Settings',
     hostInfo: 'Host Info',
     connectionMethod: 'Connection',
+    connectionProxy: 'Connection Proxy',
     performanceSecurity: 'Performance & Security',
     featureToggles: 'Feature Toggles',
     hostname: 'Hostname',
@@ -573,6 +574,7 @@ export default {
       no_tun: { label: 'No TUN Mode', tooltip: 'Do not use TUN device. Suitable for running without root privileges' },
       accept_dns: { label: 'Enable Magic DNS', tooltip: 'Enable Magic DNS to access other nodes via domain names, e.g. <hostname>.et.net. Magic DNS currently only supports automatic system DNS configuration on Windows and MacOS. On Linux, you need to manually configure DNS server to 100.100.100.101' },
       bind_device: { label: 'Bind to Physical NIC Only', tooltip: 'Bind connector sockets to physical devices to avoid routing issues' },
+      enable_udp_broadcast_relay: { label: 'UDP Broadcast Relay', tooltip: 'Windows only: Capture local UDP broadcast packets on physical NIC and forward them to EasyTier peers, helping LAN device discovery. Requires administrator privileges.' },
     },
   },
   validate: {

@@ -440,6 +440,30 @@
                   </div>
                   <var-divider />
 
+                  <div class="feature-section">
+                    <div class="section-subtitle">{{ $t('config.connectionProxy') }}</div>
+                    <div class="feature-grid">
+                      <div
+                        v-for="feature in connectionProxySwitches"
+                        :key="feature.key"
+                        class="feature-item"
+                      >
+                        <var-checkbox v-model="config.flags[feature.key]">
+                          {{ $t(feature.label) }}
+                        </var-checkbox>
+                        <var-tooltip v-if="feature.tooltip" teleport="body">
+                          <var-icon name="help-circle-outline" size="16" class="help-icon" />
+                          <template #content>
+                            <div class="tooltip-multiline">
+                              {{ $t(feature.tooltip) }}
+                            </div>
+                          </template>
+                        </var-tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  <var-divider />
+
                   <div class="input-row">
                     <div class="input-section">
                       <div class="section-subtitle">{{ $t('config.defaultProtocol') }}</div>
@@ -1108,7 +1132,7 @@ const hostInfoSwitches = [
   { key: 'no_tun', label: 'config.flags.no_tun.label', tooltip: 'config.flags.no_tun.tooltip' },
   { key: 'bind_device', label: 'config.flags.bind_device.label', tooltip: 'config.flags.bind_device.tooltip' },
   { key: 'accept_dns', label: 'config.flags.accept_dns.label', tooltip: 'config.flags.accept_dns.tooltip' },
-  { key: 'use_smoltcp', label: 'config.flags.use_smoltcp.label', tooltip: 'config.flags.use_smoltcp.tooltip' },
+  { key: 'enable_udp_broadcast_relay', label: 'config.flags.enable_udp_broadcast_relay.label', tooltip: 'config.flags.enable_udp_broadcast_relay.tooltip' },
 ]
 
 const connectionSwitches = [
@@ -1120,10 +1144,14 @@ const connectionSwitches = [
   { key: 'disable_udp_hole_punching', label: 'config.flags.disable_udp_hole_punching.label', tooltip: 'config.flags.disable_udp_hole_punching.tooltip' },
   { key: 'disable_sym_hole_punching', label: 'config.flags.disable_sym_hole_punching.label', tooltip: 'config.flags.disable_sym_hole_punching.tooltip' },
   { key: 'disable_upnp', label: 'config.flags.disable_upnp.label', tooltip: 'config.flags.disable_upnp.tooltip' },
+]
+
+const connectionProxySwitches = [
   { key: 'enable_kcp_proxy', label: 'config.flags.enable_kcp_proxy.label', tooltip: 'config.flags.enable_kcp_proxy.tooltip' },
   { key: 'disable_kcp_input', label: 'config.flags.disable_kcp_input.label', tooltip: 'config.flags.disable_kcp_input.tooltip' },
   { key: 'enable_quic_proxy', label: 'config.flags.enable_quic_proxy.label', tooltip: 'config.flags.enable_quic_proxy.tooltip' },
   { key: 'disable_quic_input', label: 'config.flags.disable_quic_input.label', tooltip: 'config.flags.disable_quic_input.tooltip' },
+  { key: 'use_smoltcp', label: 'config.flags.use_smoltcp.label', tooltip: 'config.flags.use_smoltcp.tooltip' },
 ]
 
 const performanceSwitches = [
@@ -1720,17 +1748,10 @@ const onStartScan = async () => {
         onQrScanSuccess(result.data)
       },
       {
-        highlightScanRegion: true,
-        highlightCodeOutline: true,
+        // highlightScanRegion: true,
+        // highlightCodeOutline: true,
         maxScansPerSecond: 5,
         preferredCamera: 'environment',
-        calculateScanRegion: (video) => {
-          const minEdge = Math.min(video.videoWidth, video.videoHeight)
-          const size = Math.floor(minEdge * 0.65)
-          const x = Math.floor((video.videoWidth - size) / 2)
-          const y = Math.floor((video.videoHeight - size) / 2)
-          return { x, y, width: size, height: size, downScaledWidth: 360, downScaledHeight: 360 }
-        },
       }
     )
     qrScanner.value = scanner
@@ -1741,6 +1762,7 @@ const onStartScan = async () => {
     isScanning.value = false
     showQrScanner.value = false
     cameraReady.value = false
+    await exitAddMode()
     if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
       toast.error(t('config.cameraPermissionDenied'))
     } else if (err?.name === 'NotFoundError') {
@@ -3336,7 +3358,7 @@ html.dark .port-forward-row {
   width: 240px;
   height: 2px;
   transform: translateX(-50%);
-  background: linear-gradient(90deg, transparent, rgba(79, 192, 141, 0.9), transparent);
+  background: linear-gradient(90deg, transparent, rgba(64, 158, 255, 0.9), transparent);
   z-index: 2;
   pointer-events: none;
   animation: qr-scan-line 2.5s ease-in-out infinite;

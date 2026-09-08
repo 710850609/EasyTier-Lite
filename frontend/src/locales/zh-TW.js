@@ -399,6 +399,7 @@ export default {
     advancedSettings: '進階設定',
     hostInfo: '本機資訊',
     connectionMethod: '連線方式',
+    connectionProxy: '連線代理',
     performanceSecurity: '效能安全',
     featureToggles: '功能開關',
     hostname: '主機名稱',
@@ -574,6 +575,7 @@ export default {
       no_tun: { label: '無 TUN 模式', tooltip: '不使用 TUN 裝置。適用於無 Root 權限執行' },
       accept_dns: { label: '啟用魔法 DNS', tooltip: '啟用魔法DNS，可使用網域名稱存取其他節點，例如：<主機名稱>.et.net。魔法 DNS 目前僅支援在 Windows 和 MacOS 上自動設定系統 DNS，Linux 上需要手動設定 DNS 伺服器為 100.100.100.101 才可正常使用' },
       bind_device: { label: '僅使用實體網路卡', tooltip: '將聯結器的通訊端繫結到實體裝置以避免路由問題' },
+      enable_udp_broadcast_relay: { label: 'UDP廣播中繼', tooltip: '僅Windows：擷取實體網卡上的本機UDP廣播封包並轉發給EasyTier對等節點，幫助區域網路發現節點。需要管理員權限。' },
     },
   },
   validate: {
